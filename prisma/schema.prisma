@@ -1,0 +1,511 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("DATABASE_URL")
+  shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  STAFF
+  CHEF
+  CUSTOMER
+}
+
+enum Language {
+  VI
+  EN
+}
+
+enum LeaveRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MenuItemStatus {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+}
+
+enum ReservationStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY_FOR_PICKUP
+  SERVED
+  PAID
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CASH
+  CARD
+  BANK_TRANSFER
+  VOUCHER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum CustomerTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum VoucherType {
+  FIXED_AMOUNT
+  PERCENTAGE
+}
+
+enum NotificationType {
+  PROMOTION
+  ORDER_STATUS
+  RESERVATION_CONFIRMATION
+  LEAVE_REQUEST_UPDATE
+}
+
+enum IngredientUnit {
+  KG // Kilogram
+  GRAM // Gram
+  LITER // Liter
+  ML // Milliliter
+  CUP // Cup
+  PIECE // Piece
+}
+
+model User {
+  id                String           @id
+  name              String
+  email             String
+  emailVerified     Boolean
+  image             String?
+  role              UserRole         @default(CUSTOMER)
+  createdAt         DateTime
+  updatedAt         DateTime
+  employeeProfile   EmployeeProfile?
+  customerProfile   CustomerProfile?
+  sessions          Session[]
+  accounts          Account[]
+  orders            Order[]
+  reservations      Reservation[]
+  reviews           Review[]
+  notifications     Notification[]   @relation("UserNotifications")
+  leaveRequests     LeaveRequest[]   @relation("ApprovedLeaveRequests")
+  sentNotifications Notification[]   @relation("SentNotifications")
+  address           Address          @relation(fields: [addressId], references: [id], onDelete: Cascade)
+  addressId         String
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@map("account")
+}
+
+model Verification {
+  id         String    @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime?
+  updatedAt  DateTime?
+
+  @@map("verification")
+}
+
+model EmployeeProfile {
+  id            String         @id @default(cuid())
+  userId        String         @unique
+  user          User           @relation(fields: [userId], references: [id])
+  employeeId    String         @unique // Mã nhân viên
+  position      String? // Vị trí công việc
+  startDate     DateTime // Ngày vào làm
+  phoneNumber   String?
+  shifts        Timekeeping[]
+  leaveRequests LeaveRequest[]
+  payrolls      Payroll[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  @@map("employee_profiles")
+}
+
+model Shift {
+  id           String        @id @default(cuid())
+  name         String // VD: "Ca Sáng", "Ca Tối"
+  startTime    String // "HH:mm" format
+  endTime      String // "HH:mm" format
+  timekeepings Timekeeping[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+
+  @@map("shifts")
+}
+
+model Timekeeping {
+  id         String          @id @default(cuid())
+  employeeId String
+  employee   EmployeeProfile @relation(fields: [employeeId], references: [id])
+  shiftId    String
+  shift      Shift           @relation(fields: [shiftId], references: [id])
+  checkIn    DateTime
+  checkOut   DateTime?
+  workDate   DateTime        @db.Date
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  deletedAt  DateTime?
+
+  @@map("timekeepings")
+}
+
+model LeaveRequest {
+  id           String             @id @default(cuid())
+  employeeId   String
+  employee     EmployeeProfile    @relation(fields: [employeeId], references: [id])
+  startDate    DateTime
+  endDate      DateTime
+  reason       String
+  status       LeaveRequestStatus @default(PENDING)
+  approvedById String?
+  approvedBy   User?              @relation("ApprovedLeaveRequests", fields: [approvedById], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("leave_requests")
+}
+
+model Payroll {
+  id          String          @id @default(cuid())
+  employeeId  String
+  employee    EmployeeProfile @relation(fields: [employeeId], references: [id])
+  month       Int // 1-12
+  year        Int
+  baseSalary  Float
+  bonus       Float           @default(0)
+  deductions  Float           @default(0)
+  finalSalary Float
+  paidDate    DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  deletedAt   DateTime?
+
+  @@map("payrolls")
+}
+
+// --- Phân hệ Thực đơn & Kho ---
+
+model Ingredient {
+  id    String         @id @default(cuid())
+  name  String
+  unit  IngredientUnit
+  stock Float          @default(0) // Số lượng tồn kho
+
+  recipeItems RecipeIngredient[]
+
+  @@map("ingredients")
+}
+
+model RecipeIngredient {
+  recipeId     String
+  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  quantity     Float // Số lượng cần cho công thức
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  deletedAt    DateTime?
+
+  @@id([recipeId, ingredientId])
+  @@map("recipe_ingredients")
+}
+
+model Recipe {
+  id          String             @id @default(cuid())
+  name        String
+  description String?
+  menuItem    MenuItem?
+  ingredients RecipeIngredient[]
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @updatedAt
+  deletedAt   DateTime?
+
+  @@map("recipes")
+}
+
+model MenuCategory {
+  id        String     @id @default(cuid())
+  name      String
+  nameEn    String?
+  menuItems MenuItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+
+  @@map("menu_categories")
+}
+
+model MenuItem {
+  id            String         @id @default(cuid())
+  name          String
+  nameEn        String?
+  description   String?
+  descriptionEn String?
+  price         Float
+  imageUrl      String?
+  status        MenuItemStatus @default(AVAILABLE)
+  categoryId    String
+  category      MenuCategory   @relation(fields: [categoryId], references: [id])
+  recipeId      String?        @unique
+  recipe        Recipe?        @relation(fields: [recipeId], references: [id])
+  orderItems    OrderItem[]
+  reviews       Review[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  deletedAt     DateTime?
+
+  @@map("menu_items")
+}
+
+// --- Phân hệ Bán hàng & Phục vụ ---
+
+model RestaurantTable {
+  id           String        @id @default(cuid())
+  tableNumber  String        @unique
+  capacity     Int
+  status       TableStatus   @default(AVAILABLE)
+  qrCodeUrl    String?
+  orders       Order[]
+  reservations Reservation[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  deletedAt    DateTime?
+
+  @@map("restaurant_tables")
+}
+
+model Reservation {
+  id              String            @id @default(cuid())
+  customerId      String
+  customer        User              @relation(fields: [customerId], references: [id])
+  tableId         String
+  table           RestaurantTable   @relation(fields: [tableId], references: [id])
+  reservationTime DateTime
+  numberOfGuests  Int
+  notes           String?
+  status          ReservationStatus @default(PENDING)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+
+  @@map("reservations")
+}
+
+model Order {
+  id          String          @id @default(cuid())
+  tableId     String
+  table       RestaurantTable @relation(fields: [tableId], references: [id])
+  customerId  String?
+  customer    User?           @relation(fields: [customerId], references: [id])
+  status      OrderStatus     @default(PENDING)
+  totalAmount Float           @default(0)
+  finalAmount Float           @default(0) // Sau khi áp dụng giảm giá
+  notes       String?
+
+  // For splitting/merging orders
+  parentOrderId String?
+  parentOrder   Order?  @relation("SplitOrders", fields: [parentOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childOrders   Order[] @relation("SplitOrders")
+
+  items     OrderItem[]
+  payment   Payment?
+  vouchers  Voucher[]   @relation("OrderVouchers")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deletedAt DateTime?
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id         String    @id @default(cuid())
+  orderId    String
+  order      Order     @relation(fields: [orderId], references: [id])
+  menuItemId String
+  menuItem   MenuItem  @relation(fields: [menuItemId], references: [id])
+  quantity   Int
+  price      Float // Giá tại thời điểm đặt hàng
+  notes      String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@map("order_items")
+}
+
+// --- Phân hệ Thanh toán & Khuyến mãi ---
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String        @unique
+  order         Order         @relation(fields: [orderId], references: [id])
+  amount        Float
+  paymentMethod PaymentMethod
+  status        PaymentStatus @default(PENDING)
+  transactionId String? // Mã giao dịch từ bên thứ 3
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+
+  @@map("payments")
+}
+
+model Voucher {
+  id            String      @id @default(cuid())
+  code          String      @unique
+  type          VoucherType
+  value         Float // Giá trị (số tiền hoặc %)
+  description   String?
+  maxDiscount   Float? // Giảm giá tối đa (cho loại %)
+  minOrderValue Float? // Giá trị đơn hàng tối thiểu
+  startDate     DateTime
+  endDate       DateTime
+  usageLimit    Int?
+  usageCount    Int         @default(0)
+  isActive      Boolean     @default(true)
+  orders        Order[]     @relation("OrderVouchers")
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  @@map("vouchers")
+}
+
+// --- Phân hệ CRM ---
+
+model CustomerProfile {
+  id            String       @id @default(cuid())
+  userId        String       @unique
+  user          User         @relation(fields: [userId], references: [id])
+  loyaltyPoints Int          @default(0)
+  tier          CustomerTier @default(BRONZE)
+  phoneNumber   String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  deletedAt     DateTime?
+
+  @@map("customer_profiles")
+}
+
+model Review {
+  id         String    @id @default(cuid())
+  customerId String
+  customer   User      @relation(fields: [customerId], references: [id])
+  menuItemId String?
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id])
+  rating     Int // 1-5
+  comment    String?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@map("reviews")
+}
+
+// --- Phân hệ Thông báo ---
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation("UserNotifications", fields: [userId], references: [id])
+  senderId  String?
+  sender    User?            @relation("SentNotifications", fields: [senderId], references: [id])
+  type      NotificationType
+  title     String
+  message   String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  deletedAt DateTime?
+
+  @@map("notifications")
+}
+
+model Address {
+  id        String    @id @default(cuid())
+  street    String
+  ward      Json
+  district  Json
+  province  Json
+  User      User[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@map("addresses")
+}
