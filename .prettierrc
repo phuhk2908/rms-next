@@ -1,0 +1,11 @@
+{
+    "plugins": ["prettier-plugin-tailwindcss"],
+    "printWidth": 80,
+    "tabWidth": 3,
+    "trailingComma": "all",
+    "singleQuote": false,
+    "semi": true,
+    "importOrder": ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+    "importOrderSeparation": true,
+    "importOrderSortSpecifiers": true
+}

@@ -19,7 +19,6 @@ import {
   IconUsers,
 } from "@tabler/icons-react";
 
-import { NavDocuments } from "@/components/sidebar/nav-documents";
 import { NavMain } from "@/components/sidebar/nav-main";
 import { NavSecondary } from "@/components/sidebar/nav-secondary";
 import { NavUser } from "@/components/sidebar/nav-user";
@@ -32,6 +31,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { SquareTerminal, Bot, BookOpen, Settings2 } from "lucide-react";
 
 const data = {
   user: {
@@ -41,29 +41,20 @@ const data = {
   },
   navMain: [
     {
-      title: "Dashboard",
+      title: "Menu",
       url: "#",
-      icon: IconDashboard,
-    },
-    {
-      title: "Lifecycle",
-      url: "#",
-      icon: IconListDetails,
-    },
-    {
-      title: "Analytics",
-      url: "#",
-      icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "#",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "#",
-      icon: IconUsers,
+      icon: SquareTerminal,
+      isActive: true,
+      items: [
+        {
+          title: "Menu Item",
+          url: "/admin/menu/items",
+        },
+        {
+          title: "Menu Category",
+          url: "/admin/menu/categories",
+        },
+      ],
     },
   ],
   navClouds: [
@@ -131,23 +122,6 @@ const data = {
       icon: IconSearch,
     },
   ],
-  documents: [
-    {
-      name: "Data Library",
-      url: "#",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "#",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "#",
-      icon: IconFileWord,
-    },
-  ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -170,7 +144,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavDocuments items={data.documents} />
+
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
