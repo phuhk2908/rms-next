@@ -123,8 +123,6 @@ model User {
   notifications     Notification[]   @relation("UserNotifications")
   leaveRequests     LeaveRequest[]   @relation("ApprovedLeaveRequests")
   sentNotifications Notification[]   @relation("SentNotifications")
-  address           Address          @relation(fields: [addressId], references: [id], onDelete: Cascade)
-  addressId         String
 
   @@unique([email])
   @@map("user")
@@ -186,6 +184,8 @@ model EmployeeProfile {
   shifts        Timekeeping[]
   leaveRequests LeaveRequest[]
   payrolls      Payroll[]
+  address       Address?
+  addressId     String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
@@ -262,6 +262,7 @@ model Payroll {
 
 model Ingredient {
   id    String         @id @default(cuid())
+  slug  String         @unique
   name  String
   unit  IngredientUnit
   stock Float          @default(0) // Số lượng tồn kho
@@ -289,6 +290,7 @@ model Recipe {
   id          String             @id @default(cuid())
   name        String
   description String?
+  slug        String             @unique
   menuItem    MenuItem?
   ingredients RecipeIngredient[]
   createdAt   DateTime           @default(now())
@@ -302,6 +304,8 @@ model MenuCategory {
   id        String     @id @default(cuid())
   name      String
   nameEn    String?
+  slug      String     @unique
+  image     String?    @default("https://placehold.co/600x400/png?text=Category")
   menuItems MenuItem[]
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
@@ -314,6 +318,7 @@ model MenuItem {
   id            String         @id @default(cuid())
   name          String
   nameEn        String?
+  slug          String         @unique
   description   String?
   descriptionEn String?
   price         Float
@@ -455,6 +460,8 @@ model CustomerProfile {
   loyaltyPoints Int          @default(0)
   tier          CustomerTier @default(BRONZE)
   phoneNumber   String?
+  address       Address?
+  addressId     String
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
@@ -497,15 +504,18 @@ model Notification {
 }
 
 model Address {
-  id        String    @id @default(cuid())
-  street    String
-  ward      Json
-  district  Json
-  province  Json
-  User      User[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  id                String          @id @default(cuid())
+  street            String
+  ward              Json
+  district          Json
+  province          Json
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
+  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
+  employeeProfileId String          @unique
+  customerProfile   CustomerProfile @relation(fields: [customerProfileId], references: [id])
+  customerProfileId String          @unique
 
   @@map("addresses")
 }

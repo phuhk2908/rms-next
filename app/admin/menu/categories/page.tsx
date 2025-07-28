@@ -19,7 +19,7 @@ export default async function AdminMenuCategoriesPage() {
 
          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {data.map((item: any) => (
-               <p>{item.name}</p>
+               <p key={item.id}>{item.name}</p>
             ))}
          </div>
       </div>
