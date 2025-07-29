@@ -7,6 +7,7 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { baloo2 } from "@/public/fonts/baloo-2";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
    title: "Create Next App",
@@ -36,6 +37,7 @@ export default function RootLayout({
                disableTransitionOnChange
             >
                {children}
+               <Toaster position="top-right" />
             </ThemeProvider>
          </body>
       </html>

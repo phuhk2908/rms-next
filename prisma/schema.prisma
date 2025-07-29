@@ -95,6 +95,11 @@ enum NotificationType {
   LEAVE_REQUEST_UPDATE
 }
 
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
 enum IngredientUnit {
   KG // Kilogram
   GRAM // Gram
@@ -104,28 +109,34 @@ enum IngredientUnit {
   PIECE // Piece
 }
 
+enum IngredientTransactionType {
+  IMPORT // Nhập kho (mua hàng, nhận hàng)
+  EXPORT // Xuất kho (sử dụng, hư hỏng, hết hạn)
+}
+
 model User {
-  id                String           @id
-  name              String
-  email             String
-  emailVerified     Boolean
-  image             String?
-  role              UserRole         @default(CUSTOMER)
-  createdAt         DateTime
-  updatedAt         DateTime
-  employeeProfile   EmployeeProfile?
-  customerProfile   CustomerProfile?
-  sessions          Session[]
-  accounts          Account[]
-  orders            Order[]
-  reservations      Reservation[]
-  reviews           Review[]
-  notifications     Notification[]   @relation("UserNotifications")
-  leaveRequests     LeaveRequest[]   @relation("ApprovedLeaveRequests")
-  sentNotifications Notification[]   @relation("SentNotifications")
+  id                     String                  @id
+  name                   String
+  email                  String
+  emailVerified          Boolean
+  image                  String?
+  role                   UserRole                @default(CUSTOMER)
+  createdAt              DateTime
+  updatedAt              DateTime
+  employeeProfile        EmployeeProfile?
+  customerProfile        CustomerProfile?
+  sessions               Session[]
+  accounts               Account[]
+  orders                 Order[]
+  reservations           Reservation[]
+  reviews                Review[]
+  notifications          Notification[]          @relation("UserNotifications")
+  leaveRequests          LeaveRequest[]          @relation("ApprovedLeaveRequests")
+  sentNotifications      Notification[]          @relation("SentNotifications")
+  ingredientTransactions IngredientTransaction[]
 
   @@unique([email])
-  @@map("user")
+  @@map("users")
 }
 
 model Session {
@@ -184,8 +195,8 @@ model EmployeeProfile {
   shifts        Timekeeping[]
   leaveRequests LeaveRequest[]
   payrolls      Payroll[]
-  address       Address?
-  addressId     String
+  addressId     String?        @unique
+  address       Address?       @relation(fields: [addressId], references: [id])
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
@@ -261,15 +272,30 @@ model Payroll {
 // --- Phân hệ Thực đơn & Kho ---
 
 model Ingredient {
-  id    String         @id @default(cuid())
-  slug  String         @unique
-  name  String
-  unit  IngredientUnit
-  stock Float          @default(0) // Số lượng tồn kho
-
-  recipeItems RecipeIngredient[]
+  id           String                  @id @default(cuid())
+  slug         String                  @unique
+  name         String
+  code         String?
+  unit         IngredientUnit
+  recipeItems  RecipeIngredient[]
+  transactions IngredientTransaction[]
 
   @@map("ingredients")
+}
+
+model IngredientTransaction {
+  id           String                    @id @default(cuid())
+  ingredientId String
+  ingredient   Ingredient                @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  type         IngredientTransactionType
+  quantity     Float
+  price        Float
+  notes        String?
+  createdById  String?
+  createdBy    User?                     @relation(fields: [createdById], references: [id])
+  createdAt    DateTime                  @default(now())
+
+  @@map("ingredient_transactions")
 }
 
 model RecipeIngredient {
@@ -301,15 +327,18 @@ model Recipe {
 }
 
 model MenuCategory {
-  id        String     @id @default(cuid())
-  name      String
-  nameEn    String?
-  slug      String     @unique
-  image     String?    @default("https://placehold.co/600x400/png?text=Category")
-  menuItems MenuItem[]
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
+  id            String     @id @default(cuid())
+  name          String
+  nameEn        String?
+  slug          String     @unique
+  image         String?    @default("https://placehold.co/600x400/png?text=Category")
+  description   String?
+  descriptionEn String?
+  isActive      Boolean    @default(true)
+  menuItems     MenuItem[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  deletedAt     DateTime?
 
   @@map("menu_categories")
 }
@@ -324,6 +353,7 @@ model MenuItem {
   price         Float
   imageUrl      String?
   status        MenuItemStatus @default(AVAILABLE)
+  isActive      Boolean        @default(true)
   categoryId    String
   category      MenuCategory   @relation(fields: [categoryId], references: [id])
   recipeId      String?        @unique
@@ -345,12 +375,14 @@ model RestaurantTable {
   capacity     Int
   status       TableStatus   @default(AVAILABLE)
   qrCodeUrl    String?
+  isActive     Boolean       @default(true)
   orders       Order[]
   reservations Reservation[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
   deletedAt    DateTime?
 
+  @@index([status])
   @@map("restaurant_tables")
 }
 
@@ -368,6 +400,7 @@ model Reservation {
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?
 
+  @@index([status])
   @@map("reservations")
 }
 
@@ -394,6 +427,7 @@ model Order {
   updatedAt DateTime    @updatedAt
   deletedAt DateTime?
 
+  @@index([status])
   @@map("orders")
 }
 
@@ -460,8 +494,8 @@ model CustomerProfile {
   loyaltyPoints Int          @default(0)
   tier          CustomerTier @default(BRONZE)
   phoneNumber   String?
-  address       Address?
-  addressId     String
+  addressId     String?      @unique
+  address       Address?     @relation(fields: [addressId], references: [id])
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
@@ -504,18 +538,16 @@ model Notification {
 }
 
 model Address {
-  id                String          @id @default(cuid())
-  street            String
-  ward              Json
-  district          Json
-  province          Json
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  deletedAt         DateTime?
-  employeeProfile   EmployeeProfile @relation(fields: [employeeProfileId], references: [id])
-  employeeProfileId String          @unique
-  customerProfile   CustomerProfile @relation(fields: [customerProfileId], references: [id])
-  customerProfileId String          @unique
+  id              String            @id @default(cuid())
+  street          String
+  ward            Json
+  district        Json
+  province        Json
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  deletedAt       DateTime?
+  employeeProfile EmployeeProfile[]
+  customerProfile CustomerProfile[]
 
   @@map("addresses")
 }

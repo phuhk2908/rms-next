@@ -1,8 +1,19 @@
 import AddMenuCategoryForm from "./_components/add-menu-category-form";
 import { getAllMenuCategories } from "@/data/menu-category";
+import { MenuCategoryCard } from "./_components/menu-category-card";
 
 export default async function AdminMenuCategoriesPage() {
-   const data = await getAllMenuCategories();
+   const data = await getAllMenuCategories({
+      include: {
+         _count: {
+            select: {
+               menuItems: true,
+            },
+         },
+      },
+   });
+
+   console.log(data);
 
    return (
       <div className="p-4 lg:p-6">
@@ -14,12 +25,12 @@ export default async function AdminMenuCategoriesPage() {
                </p>
             </div>
 
-            <AddMenuCategoryForm />
+            <AddMenuCategoryForm mode="create" />
          </div>
 
-         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+         <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {data.map((item: any) => (
-               <p key={item.id}>{item.name}</p>
+               <MenuCategoryCard key={item.id} menuCategory={item} />
             ))}
          </div>
       </div>

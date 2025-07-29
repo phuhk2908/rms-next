@@ -3,17 +3,21 @@ import { prisma } from "@/lib/prisma";
 import { cache } from "react";
 
 export const getAllMenuCategories = cache(async (options?: QueryOptions) => {
-  const menuCategories = await queryData("menuCategory", options);
+   const menuCategories = await queryData("menuCategory", options);
 
-  return menuCategories;
+   return menuCategories;
 });
 
 export const getMenuCategoryById = async (menuCategoryId: string) => {
-  const menuCategory = await prisma.menuCategory.findUnique({
-    where: {
-      id: menuCategoryId,
-    },
-  });
+   const menuCategory = await prisma.menuCategory.findUnique({
+      where: {
+         id: menuCategoryId,
+      },
+   });
 
-  return menuCategory;
+   if (!menuCategory) {
+      return null;
+   }
+
+   return menuCategory;
 };
