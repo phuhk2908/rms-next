@@ -7,9 +7,7 @@ import {
    AlertDialogFooter,
    AlertDialogHeader,
    AlertDialogTitle,
-   AlertDialogTrigger,
-} from "./ui/alert-dialog";
-import { Button } from "./ui/button";
+} from "./alert-dialog";
 
 interface ConfirmDialogProps {
    open: boolean;

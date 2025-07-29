@@ -26,7 +26,7 @@ import Image from "next/image";
 import { toast } from "sonner";
 import AddMenuCategoryForm from "./add-menu-category-form";
 import { useState, useTransition } from "react";
-import { ConfirmDialog } from "@/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 export function MenuCategoryCard({ menuCategory }: { menuCategory: any }) {
    return (
@@ -36,7 +36,6 @@ export function MenuCategoryCard({ menuCategory }: { menuCategory: any }) {
                <Image
                   src={`${env.NEXT_PUBLIC_UPLOADTHING_PRE_URL}/${menuCategory.image}`}
                   alt={menuCategory.name}
-                  unoptimized
                   className="absolute inset-0 h-full w-full object-cover object-center"
                   fill
                   sizes="auto"

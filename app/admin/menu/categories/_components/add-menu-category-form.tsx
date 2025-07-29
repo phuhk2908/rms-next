@@ -21,7 +21,7 @@ import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { twMerge } from "tailwind-merge";
 import { cn } from "@/lib/utils";
-import { createMenuCategory } from "@/actions/menu";
+import { createMenuCategory, updateMenuCategory } from "@/actions/menu";
 import { deleteFiles } from "@/actions/uploadthing";
 import {
    Sheet,
@@ -35,6 +35,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { env } from "@/lib/env";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 interface MenuCategoryForm {
    mode: "create" | "edit";
@@ -49,6 +50,8 @@ export default function AddMenuCategoryForm({
    const [image, setImage] = useState<any | null>(null);
    const [isPending, startTransition] = useTransition();
    const [isDeletePending, startDeleteTransition] = useTransition();
+   const isEditMode = mode === "edit";
+
    const form = useForm<MenuItemFormValue>({
       resolver: zodResolver(menuCategorySchema),
       defaultValues: {
@@ -63,28 +66,47 @@ export default function AddMenuCategoryForm({
 
    const onSubmit = async (values: MenuItemFormValue) => {
       startTransition(async () => {
-         const { data: result, error } = await tryCatch(
-            createMenuCategory(values),
-         );
+         if (mode === "edit" && menuCategory) {
+            const { data: result, error } = await tryCatch(
+               updateMenuCategory(menuCategory.id, values),
+            );
 
-         if (error) {
-            toast.error(error.message);
-         }
+            if (error) {
+               toast.error(error.message);
+            }
 
-         if (result?.status === "success") {
-            toast.success(result.message);
-            form.reset();
-            setImage(null);
-            setIsOpen(false);
-         } else if (result?.status === "error") {
-            toast.error(result.message);
+            if (result?.status === "success") {
+               toast.success(result.message);
+               form.reset();
+               setImage(null);
+               setIsOpen(false);
+            } else if (result?.status === "error") {
+               toast.error(result.message);
+            }
+         } else {
+            const { data: result, error } = await tryCatch(
+               createMenuCategory(values),
+            );
+
+            if (error) {
+               toast.error(error.message);
+            }
+
+            if (result?.status === "success") {
+               toast.success(result.message);
+               form.reset();
+               setImage(null);
+               setIsOpen(false);
+            } else if (result?.status === "error") {
+               toast.error(result.message);
+            }
          }
       });
    };
 
    const handleDelete = () => {
       startDeleteTransition(async () => {
-         const result = await deleteFiles(image.key);
+         const result = await deleteFiles(image.key || menuCategory.image);
          if (result?.success === true) {
             setImage(null);
             form.setValue("image", "");
@@ -138,9 +160,13 @@ export default function AddMenuCategoryForm({
          </SheetTrigger>
          <SheetContent className="sm:max-w-xl">
             <SheetHeader>
-               <SheetTitle>Add new category</SheetTitle>
+               <SheetTitle>
+                  {mode === "create" ? "Create Category" : "Update Category"}
+               </SheetTitle>
                <SheetDescription>
-                  Enter a name and details to create a new menu category.
+                  {mode === "create"
+                     ? "Add a new menu category to your restaurant's menu."
+                     : "Update the details of an existing menu category."}
                </SheetDescription>
             </SheetHeader>
             <div className="px-4">
@@ -304,20 +330,14 @@ export default function AddMenuCategoryForm({
                         )}
                      />
 
-                     <Button
+                     <SubmitButton
                         className="w-full"
                         type="submit"
-                        disabled={isPending}
+                        isLoading={isPending}
+                        loadingText={isEditMode ? "Updating..." : "Creating..."}
                      >
-                        {isPending ? (
-                           <>
-                              <Loader2 className="size-4 animate-spin" />
-                              Creating...
-                           </>
-                        ) : (
-                           <>Create</>
-                        )}
-                     </Button>
+                        {isEditMode ? "Update" : "Create"}
+                     </SubmitButton>
                   </form>
                </Form>
             </div>

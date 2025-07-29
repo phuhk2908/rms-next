@@ -48,6 +48,45 @@ export const createMenuCategory = async (
    }
 };
 
+export const updateMenuCategory = async (
+   id: string,
+   values: MenuItemFormValue,
+) => {
+   try {
+      await requireAdmin();
+
+      const validation = menuCategorySchema.safeParse(values);
+
+      if (!validation.success) {
+         return {
+            status: "error",
+            message: "Invalid form data. Please correct the errors.",
+            errors: validation.error,
+         };
+      }
+
+      await prisma.menuCategory.update({
+         where: { id: id },
+         data: {
+            slug: toSlug(validation.data.name),
+            ...validation.data,
+         },
+      });
+
+      revalidatePath("/admin/menu/categories");
+
+      return {
+         status: "success",
+         message: "Menu category updated successfully.",
+      };
+   } catch {
+      return {
+         status: "error",
+         message: "An unexpected error occurred. Please try again later.",
+      };
+   }
+};
+
 export const updateMenuCategoryStatus = async (
    id: string,
    isActive: boolean,

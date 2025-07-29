@@ -3,20 +3,12 @@
 import * as React from "react";
 import {
    IconCamera,
-   IconChartBar,
-   IconDashboard,
-   IconDatabase,
    IconFileAi,
    IconFileDescription,
-   IconFileWord,
-   IconFolder,
    IconHelp,
    IconInnerShadowTop,
-   IconListDetails,
-   IconReport,
    IconSearch,
    IconSettings,
-   IconUsers,
 } from "@tabler/icons-react";
 
 import { NavMain } from "@/components/sidebar/nav-main";
@@ -31,7 +23,7 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { SquareTerminal, Bot, BookOpen, Settings2 } from "lucide-react";
+import { Users, UtensilsCrossed } from "lucide-react";
 
 const data = {
    user: {
@@ -41,18 +33,54 @@ const data = {
    },
    navMain: [
       {
-         title: "Menu",
+         title: "Food & Recipe",
          url: "#",
-         icon: SquareTerminal,
+         icon: UtensilsCrossed,
          isActive: true,
          items: [
             {
+               title: "Ingredients",
+               url: "/admin/ingredients/manage",
+            },
+            {
+               title: "Recipes",
+               url: "/admin/recipes/manage",
+            },
+            {
                title: "Menu Item",
-               url: "/admin/menu/items",
+               url: "/admin/menu/items/manage",
             },
             {
                title: "Menu Category",
-               url: "/admin/menu/categories",
+               url: "/admin/menu/categories/manage",
+            },
+         ],
+      },
+      {
+         title: "Staffs",
+         url: "#",
+         icon: Users,
+         isActive: false,
+         items: [
+            {
+               title: "Staff Management",
+               url: "/admin/staffs/manage",
+            },
+            {
+               title: "Attendance",
+               url: "/admin/staffs/attendance",
+            },
+            {
+               title: "Payrolls",
+               url: "/admin/staffs/shifts",
+            },
+            {
+               title: "Shifts",
+               url: "/admin/staffs/shifts",
+            },
+            {
+               title: "Leave Request",
+               url: "/admin/staffs/leave-request",
             },
          ],
       },
