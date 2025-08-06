@@ -26,6 +26,24 @@ export const auth = betterAuth({
             });
          },
       }),
-      admin(),
+      admin({
+         defaultRole: "CUSTOMER",
+         adminRoles: ["ADMIN"],
+      }),
    ],
+   user: {
+      additionalFields: {
+         role: {
+            type: ["CUSTOMER", "ADMIN", "STAFF", "CHEF", "MANAGER"],
+            input: false,
+         },
+      },
+   },
+   advanced: {
+      database: {
+         generateId: false,
+      },
+   },
 });
+
+export type ErrorCode = keyof typeof auth.$ERROR_CODES | "UNKNOWN";

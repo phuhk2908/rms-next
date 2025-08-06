@@ -11,6 +11,10 @@ const nextConfig: NextConfig = {
             hostname: "placehold.co",
             protocol: "https",
          },
+          {
+            hostname: "utfs.io",
+            protocol: "https",
+         },
       ],
    },
 };

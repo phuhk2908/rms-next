@@ -57,9 +57,11 @@ enum OrderStatus {
   CONFIRMED
   PREPARING
   READY_FOR_PICKUP
+  READY_FOR_SERVICE
   SERVED
   PAID
   CANCELLED
+  REFUNDED
 }
 
 enum PaymentMethod {
@@ -98,6 +100,7 @@ enum NotificationType {
 enum Status {
   ACTIVE
   INACTIVE
+  DELETED
 }
 
 enum IngredientUnit {
@@ -115,12 +118,12 @@ enum IngredientTransactionType {
 }
 
 model User {
-  id                     String                  @id
+  id                     String                  @id @default(cuid())
   name                   String
   email                  String
   emailVerified          Boolean
   image                  String?
-  role                   String?
+  role                   UserRole?               @default(CUSTOMER)
   createdAt              DateTime
   updatedAt              DateTime
   employeeProfile        EmployeeProfile?
@@ -161,7 +164,7 @@ model Session {
 }
 
 model Account {
-  id                    String    @id
+  id                    String    @id @default(cuid())
   accountId             String
   providerId            String
   userId                String
@@ -180,7 +183,7 @@ model Account {
 }
 
 model Verification {
-  id         String    @id
+  id         String    @id @default(cuid())
   identifier String
   value      String
   expiresAt  DateTime
@@ -278,13 +281,16 @@ model Payroll {
 // --- Phân hệ Thực đơn & Kho ---
 
 model Ingredient {
-  id           String                  @id @default(cuid())
-  slug         String                  @unique
-  name         String
-  code         String?
-  unit         IngredientUnit
-  recipeItems  RecipeIngredient[]
-  transactions IngredientTransaction[]
+  id                String                  @id @default(cuid())
+  slug              String                  @unique
+  name              String
+  code              String?
+  lowStockThreshold Float?                  @default(10)
+  imageId           String
+  image             Image                   @relation(fields: [imageId], references: [id])
+  unit              IngredientUnit
+  recipeItems       RecipeIngredient[]
+  transactions      IngredientTransaction[]
 
   @@map("ingredients")
 }
@@ -301,6 +307,9 @@ model IngredientTransaction {
   createdBy    User?                     @relation(fields: [createdById], references: [id])
   createdAt    DateTime                  @default(now())
 
+  @@index([ingredientId])
+  @@index([createdAt])
+  @@index([type])
   @@map("ingredient_transactions")
 }
 
@@ -319,15 +328,19 @@ model RecipeIngredient {
 }
 
 model Recipe {
-  id          String             @id @default(cuid())
-  name        String
-  description String?
-  slug        String             @unique
-  menuItem    MenuItem?
-  ingredients RecipeIngredient[]
-  createdAt   DateTime           @default(now())
-  updatedAt   DateTime           @updatedAt
-  deletedAt   DateTime?
+  id              String             @id @default(cuid())
+  name            String
+  description     String?
+  slug            String             @unique
+  estimatedCost   Decimal?           @db.Decimal(10, 2)
+  preparationTime Int?
+  servingSize     Int?               @default(1)
+  menuItem        MenuItem?
+  ingredients     RecipeIngredient[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   @@map("recipes")
 }
@@ -359,6 +372,7 @@ model MenuItem {
   price         Float
   imageUrl      String?
   status        MenuItemStatus @default(AVAILABLE)
+  recordStatus  Status         @default(ACTIVE) // Thêm field này
   isActive      Boolean        @default(true)
   categoryId    String
   category      MenuCategory   @relation(fields: [categoryId], references: [id])
@@ -406,34 +420,37 @@ model Reservation {
   updatedAt       DateTime          @updatedAt
   deletedAt       DateTime?
 
-  @@index([status])
+  @@index([customerId])
+  @@index([tableId])
+  @@index([reservationTime])
   @@map("reservations")
 }
 
 model Order {
-  id          String          @id @default(cuid())
-  tableId     String
-  table       RestaurantTable @relation(fields: [tableId], references: [id])
-  customerId  String?
-  customer    User?           @relation(fields: [customerId], references: [id])
-  status      OrderStatus     @default(PENDING)
-  totalAmount Float           @default(0)
-  finalAmount Float           @default(0) // Sau khi áp dụng giảm giá
-  notes       String?
-
-  // For splitting/merging orders
+  id            String           @id @default(cuid())
+  tableId       String
+  table         RestaurantTable  @relation(fields: [tableId], references: [id])
+  customerId    String?
+  customer      CustomerProfile? @relation(fields: [customerId], references: [id])
+  status        OrderStatus      @default(PENDING)
+  totalAmount   Float            @default(0)
+  finalAmount   Float            @default(0)
+  notes         String?
   parentOrderId String?
-  parentOrder   Order?  @relation("SplitOrders", fields: [parentOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
-  childOrders   Order[] @relation("SplitOrders")
+  parentOrder   Order?           @relation("SplitOrders", fields: [parentOrderId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  childOrders   Order[]          @relation("SplitOrders")
+  items         OrderItem[]
+  payment       Payment?
+  vouchers      Voucher[]        @relation("OrderVouchers")
+  user          User[]
 
-  items     OrderItem[]
-  payment   Payment?
-  vouchers  Voucher[]   @relation("OrderVouchers")
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  @@index([status])
+  @@index([customerId])
+  @@index([createdAt])
+  @@index([status, createdAt])
   @@map("orders")
 }
 
@@ -450,6 +467,8 @@ model OrderItem {
   updatedAt  DateTime  @updatedAt
   deletedAt  DateTime?
 
+  @@index([orderId])
+  @@index([menuItemId])
   @@map("order_items")
 }
 
@@ -505,6 +524,7 @@ model CustomerProfile {
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
+  Order         Order[]
 
   @@map("customer_profiles")
 }
@@ -556,4 +576,13 @@ model Address {
   customerProfile CustomerProfile[]
 
   @@map("addresses")
+}
+
+model Image {
+  id          String       @id @default(cuid())
+  key         String
+  ufsUrl      String
+  ingredients Ingredient[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 }

@@ -19,7 +19,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       redirect("/sign-in");
    }
 
-   if (session && session.user.role !== "admin") {
+   if (session && session.user.role !== "ADMIN") {
       redirect("/access-denied");
    }
 

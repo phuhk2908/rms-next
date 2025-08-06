@@ -40,19 +40,19 @@ const data = {
          items: [
             {
                title: "Ingredients",
-               url: "/admin/ingredients/manage",
+               url: "/admin/ingredients/",
             },
             {
                title: "Recipes",
-               url: "/admin/recipes/manage",
+               url: "/admin/recipes/",
             },
             {
                title: "Menu Item",
-               url: "/admin/menu/items/manage",
+               url: "/admin/menu/items",
             },
             {
                title: "Menu Category",
-               url: "/admin/menu/categories/manage",
+               url: "/admin/menu/categories",
             },
          ],
       },
@@ -72,7 +72,7 @@ const data = {
             },
             {
                title: "Payrolls",
-               url: "/admin/staffs/shifts",
+               url: "/admin/staffs/payrolls",
             },
             {
                title: "Shifts",

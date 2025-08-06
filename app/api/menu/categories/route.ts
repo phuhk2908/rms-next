@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { toSlug } from "@/lib/slugify";
 import { ApiResponse } from "@/lib/types";
 import { menuCategorySchema } from "@/schemas/menu";
 import { revalidatePath } from "next/cache";
@@ -21,6 +22,7 @@ export async function POST(req: NextRequest) {
       await prisma.menuCategory.create({
          data: {
             ...validation.data,
+            slug: toSlug(validation.data.name),
          },
       });
 

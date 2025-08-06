@@ -21,7 +21,7 @@ export const createMenuCategory = async (
          return {
             status: "error",
             message: "Invalid form data. Please correct the errors.",
-            errors: validation.error.flatten().fieldErrors,
+            errors: validation.error,
          };
       }
 
