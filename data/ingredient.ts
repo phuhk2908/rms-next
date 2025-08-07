@@ -12,10 +12,11 @@ export const getIngredientsWithStock = async (): Promise<
                quantity: true,
             },
          },
+         image: true,
       },
    });
 
-   const LOW_STOCK_DEFAULT_THRESHOLD = 10; // Ngưỡng mặc định
+   const LOW_STOCK_DEFAULT_THRESHOLD = 10;
 
    return ingredients.map((ingredient) => {
       const currentStock = ingredient.transactions.reduce(

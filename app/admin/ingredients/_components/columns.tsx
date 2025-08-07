@@ -8,11 +8,12 @@ import {
    DropdownMenuContent,
    DropdownMenuItem,
    DropdownMenuLabel,
+   DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IngredientWithStock } from "@/types/ingredient";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import { Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
 
 export const columns: ColumnDef<IngredientWithStock>[] = [
    {
@@ -40,10 +41,29 @@ export const columns: ColumnDef<IngredientWithStock>[] = [
       enableHiding: false,
    },
    {
+      accessorKey: "image",
+      header: "Image",
+      cell: ({ row }) => {
+         const ingredient = row.original;
+
+         return (
+            <img
+               className="size-10 rounded-md object-cover"
+               src={ingredient.image.ufsUrl}
+               alt={ingredient.name}
+            />
+         );
+      },
+   },
+   {
       accessorKey: "name",
       header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Email" />
+         <DataTableColumnHeader column={column} title="Name" />
       ),
+   },
+   {
+      accessorKey: "code",
+      header: "Code",
    },
    {
       accessorKey: "unit",
@@ -72,13 +92,22 @@ export const columns: ColumnDef<IngredientWithStock>[] = [
                   </Button>
                </DropdownMenuTrigger>
                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
                   <DropdownMenuItem
                      onClick={() =>
                         navigator.clipboard.writeText(ingredient.id)
                      }
                   >
-                     Copy payment ID
+                     <Copy className="size-4" />
+                     Copy ID
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                     <Edit className="size-4" />
+                     Edit
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem variant="destructive">
+                     <Trash2 className="size-4" />
+                     Delete
                   </DropdownMenuItem>
                </DropdownMenuContent>
             </DropdownMenu>

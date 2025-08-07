@@ -4,7 +4,6 @@ import { columns } from "./_components/columns";
 import { Metadata } from "next";
 
 import { IngredientForm } from "./_components/ingredient-form";
-import { DatePickerWithRange } from "@/components/calendar";
 
 export const metadata: Metadata = {
    title: "Admin | Ingredients",
@@ -12,7 +11,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
    const ingredients = await getIngredientsWithStock();
-
+   console.log(ingredients);
    return (
       <div className="p-4 lg:p-6">
          <IngredientForm />

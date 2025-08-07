@@ -13,7 +13,7 @@ export const requireAdmin = async () => {
       redirect("/");
    }
 
-   if (session && session.user.role !== "admin") {
+   if (session && session.user.role !== "ADMIN") {
       redirect("/access-denied");
    }
 

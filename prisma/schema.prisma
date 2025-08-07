@@ -113,8 +113,24 @@ enum IngredientUnit {
 }
 
 enum IngredientTransactionType {
-  IMPORT // Nhập kho (mua hàng, nhận hàng)
-  EXPORT // Xuất kho (sử dụng, hư hỏng, hết hạn)
+  IMPORT
+  EXPORT
+}
+
+enum SalaryType {
+  HOURLY
+  MONTHLY
+  MIXED
+}
+
+enum DayOfWeek {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
 }
 
 model User {
@@ -198,9 +214,12 @@ model EmployeeProfile {
   userId        String         @unique
   user          User           @relation(fields: [userId], references: [id])
   employeeId    String         @unique // Mã nhân viên
-  position      String? // Vị trí công việc
-  startDate     DateTime // Ngày vào làm
+  position      String?
+  startDate     DateTime
   phoneNumber   String?
+  salaryType    SalaryType     @default(MONTHLY)
+  baseSalary    Float?
+  hourlyRate    Float?
   shifts        Timekeeping[]
   leaveRequests LeaveRequest[]
   payrolls      Payroll[]
@@ -215,9 +234,9 @@ model EmployeeProfile {
 
 model Shift {
   id           String        @id @default(cuid())
-  name         String // VD: "Ca Sáng", "Ca Tối"
-  startTime    String // "HH:mm" format
-  endTime      String // "HH:mm" format
+  name         String
+  startTime    String
+  endTime      String
   timekeepings Timekeeping[]
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
@@ -227,17 +246,20 @@ model Shift {
 }
 
 model Timekeeping {
-  id         String          @id @default(cuid())
-  employeeId String
-  employee   EmployeeProfile @relation(fields: [employeeId], references: [id])
-  shiftId    String
-  shift      Shift           @relation(fields: [shiftId], references: [id])
-  checkIn    DateTime
-  checkOut   DateTime?
-  workDate   DateTime        @db.Date
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  deletedAt  DateTime?
+  id            String          @id @default(cuid())
+  employeeId    String
+  employee      EmployeeProfile @relation(fields: [employeeId], references: [id])
+  shiftId       String
+  shift         Shift           @relation(fields: [shiftId], references: [id])
+  checkIn       DateTime
+  checkOut      DateTime?
+  workDate      DateTime        @db.Date
+  regularHours  Float?
+  overtimeHours Float?
+  totalHours    Float?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  deletedAt     DateTime?
 
   @@map("timekeepings")
 }
@@ -261,24 +283,33 @@ model LeaveRequest {
 }
 
 model Payroll {
-  id          String          @id @default(cuid())
-  employeeId  String
-  employee    EmployeeProfile @relation(fields: [employeeId], references: [id])
-  month       Int // 1-12
-  year        Int
-  baseSalary  Float
-  bonus       Float           @default(0)
-  deductions  Float           @default(0)
-  finalSalary Float
-  paidDate    DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  deletedAt   DateTime?
+  id                String          @id @default(cuid())
+  employeeId        String
+  employee          EmployeeProfile @relation(fields: [employeeId], references: [id])
+  month             Int
+  year              Int
+  baseSalary        Float
+  regularHours      Float           @default(0)
+  regularHourRate   Float           @default(0)
+  regularHourSalary Float           @default(0)
+  overtimeHours     Float           @default(0)
+  overtimeRate      Float           @default(0)
+  overtimeSalary    Float           @default(0)
+  bonus             Float           @default(0)
+  allowances        Float           @default(0)
+  deductions        Float           @default(0)
+  grossSalary       Float
+  netSalary         Float
+  paidDate          DateTime?
+  paidAmount        Float?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  deletedAt         DateTime?
 
+  @@unique([employeeId, month, year])
   @@map("payrolls")
 }
-
-// --- Phân hệ Thực đơn & Kho ---
 
 model Ingredient {
   id                String                  @id @default(cuid())
@@ -387,8 +418,6 @@ model MenuItem {
   @@map("menu_items")
 }
 
-// --- Phân hệ Bán hàng & Phục vụ ---
-
 model RestaurantTable {
   id           String        @id @default(cuid())
   tableNumber  String        @unique
@@ -461,7 +490,7 @@ model OrderItem {
   menuItemId String
   menuItem   MenuItem  @relation(fields: [menuItemId], references: [id])
   quantity   Int
-  price      Float // Giá tại thời điểm đặt hàng
+  price      Float
   notes      String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -471,8 +500,6 @@ model OrderItem {
   @@index([menuItemId])
   @@map("order_items")
 }
-
-// --- Phân hệ Thanh toán & Khuyến mãi ---
 
 model Payment {
   id            String        @id @default(cuid())
@@ -493,10 +520,10 @@ model Voucher {
   id            String      @id @default(cuid())
   code          String      @unique
   type          VoucherType
-  value         Float // Giá trị (số tiền hoặc %)
+  value         Float
   description   String?
-  maxDiscount   Float? // Giảm giá tối đa (cho loại %)
-  minOrderValue Float? // Giá trị đơn hàng tối thiểu
+  maxDiscount   Float?
+  minOrderValue Float?
   startDate     DateTime
   endDate       DateTime
   usageLimit    Int?
@@ -509,8 +536,6 @@ model Voucher {
 
   @@map("vouchers")
 }
-
-// --- Phân hệ CRM ---
 
 model CustomerProfile {
   id            String       @id @default(cuid())
@@ -535,7 +560,7 @@ model Review {
   customer   User      @relation(fields: [customerId], references: [id])
   menuItemId String?
   menuItem   MenuItem? @relation(fields: [menuItemId], references: [id])
-  rating     Int // 1-5
+  rating     Int
   comment    String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
@@ -543,8 +568,6 @@ model Review {
 
   @@map("reviews")
 }
-
-// --- Phân hệ Thông báo ---
 
 model Notification {
   id        String           @id @default(cuid())
@@ -585,4 +608,45 @@ model Image {
   ingredients Ingredient[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+}
+
+model WorkingDayConfig {
+  id            String    @id @default(cuid())
+  dayOfWeek     DayOfWeek
+  isWorkingDay  Boolean   @default(true)
+  standardHours Float     @default(8)
+  startTime     String?
+  endTime       String?
+  overtimeRate  Float     @default(1.5)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([dayOfWeek])
+  @@map("working_day_configs")
+}
+
+model Holiday {
+  id         String   @id @default(cuid())
+  name       String
+  date       DateTime @db.Date
+  isAnnual   Boolean  @default(false)
+  multiplier Float    @default(3.0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("holidays")
+}
+
+model SalaryConfig {
+  id                       String   @id @default(cuid())
+  socialInsuranceRate      Float    @default(0.08) // Bảo hiểm xã hội 8%
+  healthInsuranceRate      Float    @default(0.015) // Bảo hiểm y tế 1.5%
+  unemploymentRate         Float    @default(0.01) // Bảo hiểm thất nghiệp 1%
+  minWagePerHour           Float? // Lương tối thiểu/giờ
+  maxOvertimeHoursPerDay   Float    @default(4) // Giờ overtime tối đa/ngày
+  maxOvertimeHoursPerMonth Float    @default(40) // Giờ overtime tối đa/tháng
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  @@map("salary_configs")
 }

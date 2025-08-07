@@ -1,136 +1,189 @@
 "use client";
 
-import { Ref, useState } from "react";
-import { Button } from "./ui/button";
-import { ImageIcon, Loader2, X } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { UploadDropzone } from "@/lib/uploadthing";
+import { useState, useCallback } from "react";
+import { useDropzone } from "react-dropzone";
 
-interface FileUploaderProps {
-   value?: string;
-   onChange?: (value: string) => void;
-   onRemove?: () => void;
-   disabled?: boolean;
-   endpoint: "menuCategory";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { X, Upload, Image as ImageIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import Image from "next/image";
+import { useUploadThing } from "@/lib/uploadthing";
+
+interface FileUploadProps {
+   onUploadComplete: (files: { key: string; url: string }[]) => void;
+   maxFiles?: number;
+   accept?: string[];
    className?: string;
-   accept?: {
-      "image/*": string[];
-   };
-   maxSize?: string;
-   placeholder?: {
-      title?: string;
-      description?: string;
-      button?: string;
-   };
-   ref?: Ref<HTMLInputElement>;
+}
+
+interface UploadedFile {
+   key: string;
+   url: string;
+   name: string;
+   size: number;
 }
 
 export function FileUploader({
-   value,
-   onChange,
-   onRemove,
-   disabled = false,
-   endpoint = "menuCategory",
+   onUploadComplete,
+   maxFiles = 5,
+   accept = ["image/*"],
    className,
-   placeholder = {},
-   ref,
-   ...props
-}: FileUploaderProps) {
+}: FileUploadProps) {
+   const [files, setFiles] = useState<UploadedFile[]>([]);
    const [isUploading, setIsUploading] = useState(false);
+   const [uploadProgress, setUploadProgress] = useState(0);
 
-   const {
-      title = "Choose image or drag and drop",
-      description = "PNG, JPG, JPEG up to 4MB",
-      button = "Choose Image",
-   } = placeholder;
+   const { startUpload } = useUploadThing("menuCategory", {
+      onClientUploadComplete: (res) => {
+         if (res) {
+            const uploadedFiles = res.map((file) => ({
+               key: file.key,
+               url: file.ufsUrl,
+               name: file.name,
+               size: file.size,
+            }));
+            setFiles((prev) => [...prev, ...uploadedFiles]);
+            onUploadComplete(uploadedFiles);
+            setIsUploading(false);
+            setUploadProgress(0);
+         }
+      },
+      onUploadError: (error) => {
+         console.error("Upload error:", error);
+         setIsUploading(false);
+         setUploadProgress(0);
+      },
+      onUploadProgress: (progress) => {
+         setUploadProgress(progress);
+      },
+   });
 
-   const handleRemove = () => {
-      if (onRemove) {
-         onRemove();
-      } else if (onChange) {
-         onChange("");
-      }
+   const onDrop = useCallback(
+      async (acceptedFiles: File[]) => {
+         if (files.length + acceptedFiles.length > maxFiles) {
+            alert(`Maximum ${maxFiles} files allowed`);
+            return;
+         }
+
+         setIsUploading(true);
+         await startUpload(acceptedFiles);
+      },
+      [files.length, maxFiles, startUpload],
+   );
+
+   const { getRootProps, getInputProps, isDragActive } = useDropzone({
+      onDrop,
+      accept: accept.reduce((acc, curr) => ({ ...acc, [curr]: [] }), {}),
+      maxFiles: maxFiles - files.length,
+      disabled: isUploading || files.length >= maxFiles,
+   });
+
+   const removeFile = (keyToRemove: string) => {
+      const updatedFiles = files.filter((file) => file.key !== keyToRemove);
+      setFiles(updatedFiles);
+      onUploadComplete(updatedFiles);
    };
 
-   if (value) {
-      return (
-         <div ref={ref} className={cn("group relative", className)}>
-            <div className="border-muted-foreground/25 bg-muted/50 relative h-48 w-full overflow-hidden rounded-lg border-2 border-dashed">
-               <img
-                  src={value}
-                  alt="Uploaded file"
-                  className="h-full w-full object-cover"
-               />
-               {!disabled && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
-                     <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        onClick={handleRemove}
-                        className="shadow-lg"
-                     >
-                        <X className="size-4" />
-                        Remove
-                     </Button>
+   const formatFileSize = (bytes: number) => {
+      if (bytes === 0) return "0 Bytes";
+      const k = 1024;
+      const sizes = ["Bytes", "KB", "MB", "GB"];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+   };
+
+   return (
+      <div className={cn("w-full space-y-4", className)}>
+         {/* Upload Area */}
+         <div
+            {...getRootProps()}
+            className={cn(
+               "cursor-pointer rounded-lg border-2 border-dashed p-6 text-center transition-colors",
+               isDragActive
+                  ? "border-primary bg-primary/5"
+                  : "border-muted-foreground/25 hover:border-primary/50",
+               isUploading || files.length >= maxFiles
+                  ? "cursor-not-allowed opacity-50"
+                  : "hover:bg-muted/25",
+            )}
+         >
+            <input {...getInputProps()} />
+            <div className="flex flex-col items-center gap-2">
+               <Upload className="text-muted-foreground h-8 w-8" />
+               {isDragActive ? (
+                  <p className="text-primary text-sm">Drop files here...</p>
+               ) : (
+                  <div className="space-y-1">
+                     <p className="text-sm font-medium">
+                        Drag & drop files here, or click to select
+                     </p>
+                     <p className="text-muted-foreground text-xs">
+                        {accept.join(", ")} up to {maxFiles} files
+                     </p>
                   </div>
                )}
             </div>
          </div>
-      );
-   }
 
-   return (
-      <div ref={ref} className={cn("w-full", className)}>
-         <UploadDropzone
-            endpoint={endpoint}
-            onClientUploadComplete={(res) => {
-               if (res && res[0] && onChange) {
-                  onChange(res[0].url);
-                  toast.success("File uploaded successfully!");
-               }
-               setIsUploading(false);
-            }}
-            onUploadError={(error: Error) => {
-               toast.error(`Upload failed: ${error.message}`);
-               setIsUploading(false);
-            }}
-            onUploadBegin={() => {
-               setIsUploading(true);
-            }}
-            disabled={disabled || isUploading}
-            appearance={{
-               container: cn(
-                  "border-2 border-dashed rounded-lg transition-colors duration-200 p-6",
-                  "hover:border-primary/50 hover:bg-primary/5",
-                  "focus-within:border-primary focus-within:bg-primary/5",
-                  disabled || isUploading
-                     ? "opacity-50 cursor-not-allowed border-muted-foreground/25"
-                     : "border-muted-foreground/25",
-               ),
-               uploadIcon: "text-muted-foreground mb-4",
-               label: "text-sm font-medium text-foreground mb-2",
-               allowedContent: "text-xs text-muted-foreground mb-4",
-               button: cn(
-                  "bg-primary text-primary-foreground hover:bg-primary/90",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  "disabled:pointer-events-none disabled:opacity-50",
-                  "px-4 py-2 rounded-md text-sm font-medium transition-colors",
-               ),
-            }}
-            content={{
-               uploadIcon: isUploading ? (
-                  <Loader2 className="size-10 animate-spin" />
-               ) : (
-                  <ImageIcon className="size-10" />
-               ),
-               label: isUploading ? "Uploading..." : title,
-               allowedContent: description,
-               button: isUploading ? "Uploading..." : button,
-            }}
-            {...props}
-         />
+         {/* Upload Progress */}
+         {isUploading && (
+            <div className="space-y-2">
+               <div className="flex justify-between text-sm">
+                  <span>Uploading...</span>
+                  <span>{uploadProgress}%</span>
+               </div>
+               <Progress value={uploadProgress} />
+            </div>
+         )}
+
+         {/* Uploaded Files */}
+         {files.length > 0 && (
+            <div className="space-y-2">
+               <h4 className="text-sm font-medium">
+                  Uploaded Files ({files.length})
+               </h4>
+               <div className="grid gap-2">
+                  {files.map((file) => (
+                     <div
+                        key={file.key}
+                        className="bg-muted/25 flex items-center gap-3 rounded-lg border p-3"
+                     >
+                        {file.url ? (
+                           <div className="relative h-10 w-10 overflow-hidden rounded">
+                              <Image
+                                 src={file.url}
+                                 alt={file.name}
+                                 fill
+                                 sizes="auto"
+                                 className="object-cover"
+                              />
+                           </div>
+                        ) : (
+                           <ImageIcon className="text-muted-foreground h-10 w-10" />
+                        )}
+                        <div className="min-w-0 flex-1">
+                           <p className="truncate text-sm font-medium">
+                              {file.name}
+                           </p>
+                           <p className="text-muted-foreground text-xs">
+                              {formatFileSize(file.size)}
+                           </p>
+                        </div>
+                        <Button
+                           type="button"
+                           variant="ghost"
+                           size="sm"
+                           onClick={() => removeFile(file.key)}
+                           className="hover:bg-destructive/10 h-8 w-8 p-0"
+                        >
+                           <X className="h-4 w-4" />
+                        </Button>
+                     </div>
+                  ))}
+               </div>
+            </div>
+         )}
       </div>
    );
 }

@@ -5,8 +5,8 @@ export const ingredientSchema = z.object({
    name: z.string().min(1, { message: "Name is required" }),
    code: z.string().min(1, { message: "Code is required" }),
    image: z.object({
-      key: z.string().min(1, "Image key is required"),
-      ufsUrl: z.string().min(1, "Image url is required"),
+      key: z.string(),
+      ufsUrl: z.string(),
    }),
    unit: z.enum(IngredientUnit),
 });

@@ -91,7 +91,6 @@ export function FileUploadWithUploadthing({
                if (onUploadComplete) {
                   onUploadComplete(uploadResult);
                } else {
-                  n;
                   toast.success("Files uploaded successfully");
                }
             } catch (error) {
@@ -227,38 +226,5 @@ export function FileUploadWithUploadthing({
             ))}
          </FileUploadList>
       </FileUpload>
-   );
-}
-
-/**
- * Example usage of the CustomFileUpload component
- */
-export function CustomFileUploadDemo() {
-   const handleUploadComplete = React.useCallback((files: any[]) => {
-      console.log("Upload completed:", files);
-   }, []);
-
-   const handleError = React.useCallback((error: Error) => {
-      console.error("Upload error:", error);
-      // Custom error handling logic here
-   }, []);
-
-   const handleFileReject = React.useCallback((file: File, reason: string) => {
-      console.warn("File rejected:", file.name, reason);
-      // Custom file rejection handling logic here
-   }, []);
-
-   return (
-      <div className="space-y-6">
-         <FileUploadWithUploadthing
-            maxFiles={3}
-            maxSize={2 * 1024 * 1024} // 2MB
-            accept="image/*"
-            onUploadComplete={handleUploadComplete}
-            onError={handleError}
-            onFileReject={handleFileReject}
-            className="w-full max-w-lg"
-         />
-      </div>
    );
 }

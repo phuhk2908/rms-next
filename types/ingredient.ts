@@ -1,4 +1,4 @@
-import { Prisma } from "@/lib/generated/prisma";
+import { Image, Prisma } from "@/lib/generated/prisma";
 
 export enum StockStatus {
    IN_STOCK = "In Stock",
@@ -9,6 +9,7 @@ export enum StockStatus {
 export type Ingredient = Prisma.IngredientGetPayload<{}>;
 
 export type IngredientWithStock = Ingredient & {
+   image: Image;
    currentStock: number;
    status: StockStatus;
 };
