@@ -28,6 +28,6 @@
       "**/*.tsx",
       ".next/types/**/*.ts",
       "components/sidebar"
-   ],
+, ".config/prisma.ts"   ],
    "exclude": ["node_modules"]
 }
