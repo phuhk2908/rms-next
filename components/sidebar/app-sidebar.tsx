@@ -23,7 +23,7 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Users, UtensilsCrossed } from "lucide-react";
+import { Table, Users, UtensilsCrossed } from "lucide-react";
 
 const data = {
    user: {
@@ -81,6 +81,18 @@ const data = {
             {
                title: "Leave Request",
                url: "/admin/staffs/leave-request",
+            },
+         ],
+      },
+      {
+         title: "Restaurant Table",
+         url: "#",
+         icon: Table,
+         isActive: false,
+         items: [
+            {
+               title: "Table Management",
+               url: "/admin/table/",
             },
          ],
       },
