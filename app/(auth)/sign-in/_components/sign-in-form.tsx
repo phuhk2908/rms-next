@@ -1,6 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { CalendarDayButton } from "@/components/ui/calendar";
 import {
    Card,
    CardHeader,
@@ -12,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Loader2, Github, Send } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition, useState } from "react";
 import { toast } from "sonner";
@@ -20,7 +22,11 @@ export function SignInForm() {
    const router = useRouter();
    const [githubPending, startGithubTransition] = useTransition();
    const [emailPending, startEmailTransition] = useTransition();
+   const [passwordPending, startPasswordTransition] = useTransition();
+
    const [email, setEmail] = useState("");
+   const [password, setPassword] = useState("");
+   const [signInType, setSignInType] = useState<"otp" | "password">("otp");
 
    function signInWithGithub() {
       startGithubTransition(async () => {
@@ -33,8 +39,8 @@ export function SignInForm() {
                      "Signed in with Github, you will be redirected...",
                   );
                },
-               onError: () => {
-                  toast.error("Internal Server Error");
+               onError: (ctx) => {
+                  toast.error(ctx.error.message);
                },
             },
          });
@@ -51,8 +57,29 @@ export function SignInForm() {
                   toast.success("Email sent");
                   router.push(`/verify?email=${email}`);
                },
-               onError: () => {
-                  toast.error("Failed to send email");
+               onError: (ctx) => {
+                  toast.error(ctx.error.message);
+               },
+            },
+         });
+      });
+   }
+
+   function signInWithPassword() {
+      startPasswordTransition(async () => {
+         await authClient.signIn.email({
+            email: email,
+            password: password,
+            fetchOptions: {
+               onSuccess: () => {
+                  toast.success("Signed in successfully");
+                  router.push("/");
+               },
+               onError: (ctx) => {
+                  if (ctx.error.status === 403) {
+                     toast.error("Please verify your email address");
+                  }
+                  toast.error(ctx.error.message);
                },
             },
          });
@@ -95,7 +122,28 @@ export function SignInForm() {
 
             <div className="grid gap-3">
                <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <div className="flex items-center justify-between">
+                     <Label htmlFor="email">Email</Label>
+                     {signInType === "otp" ? (
+                        <button
+                           type="button"
+                           onClick={() => setSignInType("password")}
+                           disabled={emailPending || passwordPending}
+                           className="text-sm font-medium underline-offset-4 hover:underline"
+                        >
+                           Login with password
+                        </button>
+                     ) : (
+                        <button
+                           type="button"
+                           onClick={() => setSignInType("otp")}
+                           disabled={emailPending || passwordPending}
+                           className="text-sm font-medium underline-offset-4 hover:underline"
+                        >
+                           Login with otp
+                        </button>
+                     )}
+                  </div>
                   <Input
                      required
                      value={email}
@@ -105,24 +153,70 @@ export function SignInForm() {
                   />
                </div>
 
-               <Button
-                  disabled={emailPending}
-                  type="button"
-                  onClick={signInWithEmail}
-                  className="cursor-pointer"
-               >
-                  {emailPending ? (
-                     <>
-                        <Loader2 className="size-4 animate-spin" />
-                        <span>Loading...</span>
-                     </>
-                  ) : (
-                     <>
-                        <Send className="size-4" />
-                        Continue with Email
-                     </>
-                  )}
-               </Button>
+               {signInType === "password" && (
+                  <div className="grid gap-2">
+                     <div className="flex items-center justify-between">
+                        <Label htmlFor="password">Password</Label>
+                     </div>
+                     <Input
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        type="password"
+                        placeholder=""
+                     />
+                  </div>
+               )}
+
+               {signInType === "otp" ? (
+                  <Button
+                     disabled={emailPending}
+                     type="button"
+                     onClick={signInWithEmail}
+                     className="cursor-pointer"
+                  >
+                     {emailPending ? (
+                        <>
+                           <Loader2 className="size-4 animate-spin" />
+                           <span>Loading...</span>
+                        </>
+                     ) : (
+                        <>
+                           <Send className="size-4" />
+                           Continue with Email
+                        </>
+                     )}
+                  </Button>
+               ) : (
+                  <Button
+                     disabled={passwordPending}
+                     type="button"
+                     onClick={signInWithPassword}
+                     className="cursor-pointer"
+                  >
+                     {passwordPending ? (
+                        <>
+                           <Loader2 className="size-4 animate-spin" />
+                           <span>Loading...</span>
+                        </>
+                     ) : (
+                        <>
+                           <Send className="size-4" />
+                           Sign In
+                        </>
+                     )}
+                  </Button>
+               )}
+
+               <p className="text-muted-foreground text-center text-sm">
+                  Don't have an account?{" "}
+                  <Link
+                     className="text-primary hover:underline"
+                     href="/sign-up"
+                  >
+                     Sign up
+                  </Link>
+               </p>
             </div>
          </CardContent>
       </Card>

@@ -25,6 +25,7 @@ import {
    useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 export function NavUser({
    user,
@@ -35,6 +36,7 @@ export function NavUser({
       avatar: string;
    };
 }) {
+   const router = useRouter();
    const { isMobile } = useSidebar();
    const { data: session } = authClient.useSession();
 
@@ -55,7 +57,8 @@ export function NavUser({
                      </Avatar>
                      <div className="grid flex-1 text-left text-sm leading-tight">
                         <span className="truncate font-medium">
-                           {user.name}
+                           {session?.user.name ||
+                              session?.user.email.split("@")[0]}
                         </span>
                         <span className="text-muted-foreground truncate text-xs">
                            {session?.user.email}
@@ -104,7 +107,17 @@ export function NavUser({
                      </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                     onClick={async () =>
+                        await authClient.signOut({
+                           fetchOptions: {
+                              onSuccess: () => {
+                                 router.push("/sign-in");
+                              },
+                           },
+                        })
+                     }
+                  >
                      <IconLogout />
                      Log out
                   </DropdownMenuItem>
