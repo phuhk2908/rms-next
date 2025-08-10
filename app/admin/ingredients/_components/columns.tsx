@@ -14,8 +14,9 @@ import {
 import { IngredientWithStock } from "@/types/ingredient";
 import { ColumnDef } from "@tanstack/react-table";
 import { Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
+import { Ingredient } from "../page";
 
-export const columns: ColumnDef<IngredientWithStock>[] = [
+export const columns: ColumnDef<Ingredient>[] = [
    {
       id: "select",
       header: ({ table }) => (

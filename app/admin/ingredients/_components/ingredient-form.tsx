@@ -3,7 +3,6 @@
 import { createIngredient } from "@/actions/ingredient";
 import { FileUploader } from "@/components/file-uploader";
 import { Button } from "@/components/ui/button";
-import { FileUploadWithUploadthing } from "@/components/ui/file-upload-with-uploadthing";
 import {
    Form,
    FormControl,
@@ -28,7 +27,6 @@ import {
    SheetHeader,
    SheetTrigger,
    SheetDescription,
-   SheetFooter,
 } from "@/components/ui/sheet";
 import { IngredientUnit } from "@/lib/generated/prisma";
 import { IngredientFormValue, ingredientSchema } from "@/schemas/ingredient";

@@ -12,6 +12,7 @@ export const metadata: Metadata = {
 export default async function Page() {
    const ingredients = await getIngredientsWithStock();
    console.log(ingredients);
+
    return (
       <div className="p-4 lg:p-6">
          <IngredientForm />
