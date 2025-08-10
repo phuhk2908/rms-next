@@ -30,14 +30,21 @@ import {
 } from "@/components/ui/sheet";
 import { IngredientUnit } from "@/lib/generated/prisma";
 import { IngredientFormValue, ingredientSchema } from "@/schemas/ingredient";
+import { IngredientWithStock } from "@/types/ingredient";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
-export function IngredientForm() {
+interface IngredientFormProps {
+   mode: "create" | "edit";
+   data?: IngredientWithStock;
+}
+
+export function IngredientForm({ mode, data }: IngredientFormProps) {
    const [isOpen, setIsOpen] = useState(false);
+   const isEditMode = mode === "ed"
    const form = useForm<IngredientFormValue>({
       resolver: zodResolver(ingredientSchema),
       defaultValues: {

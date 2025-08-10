@@ -15,7 +15,7 @@ export default async function Page() {
 
    return (
       <div className="p-4 lg:p-6">
-         <IngredientForm />
+         <IngredientForm mode="create" />
          <DataTable columns={columns} data={ingredients} />
       </div>
    );

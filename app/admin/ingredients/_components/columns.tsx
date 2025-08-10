@@ -14,9 +14,9 @@ import {
 import { IngredientWithStock } from "@/types/ingredient";
 import { ColumnDef } from "@tanstack/react-table";
 import { Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
-import { Ingredient } from "../page";
+import { IngredientForm } from "./ingredient-form";
 
-export const columns: ColumnDef<Ingredient>[] = [
+export const columns: ColumnDef<IngredientWithStock>[] = [
    {
       id: "select",
       header: ({ table }) => (
@@ -102,8 +102,7 @@ export const columns: ColumnDef<Ingredient>[] = [
                      Copy ID
                   </DropdownMenuItem>
                   <DropdownMenuItem>
-                     <Edit className="size-4" />
-                     Edit
+                     <IngredientForm mode="edit" data={ingredient} />
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem variant="destructive">
