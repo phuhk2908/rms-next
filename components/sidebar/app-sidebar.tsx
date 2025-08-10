@@ -23,7 +23,7 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Users, UtensilsCrossed } from "lucide-react";
+import { Table, Users, UtensilsCrossed } from "lucide-react";
 
 const data = {
    user: {
@@ -83,6 +83,12 @@ const data = {
                url: "/admin/staffs/leave-request",
             },
          ],
+      },
+      {
+         title: "Restaurant Table",
+         url: "/admin/table/",
+         icon: Table,
+         isActive: false,
       },
    ],
    navClouds: [
