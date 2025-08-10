@@ -57,3 +57,30 @@ export const createTable = async (
       };
    }
 };
+
+export const deleteTable = async (tableId: string) => {
+   try {
+      console.log(tableId);
+      await requireAdmin();
+      await prisma.restaurantTable.delete({
+         where: {
+            id: tableId,
+         },
+      });
+
+      revalidatePath("/admin/table");
+      return {
+         status: "success",
+         message: "Deleted successfully",
+      };
+   } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+         return { status: "error", message: error.message };
+      }
+
+      return {
+         status: "error",
+         message: "Deleted failed, please try again",
+      };
+   }
+};

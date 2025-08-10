@@ -40,9 +40,9 @@ enum MenuItemStatus {
 }
 
 enum TableStatus {
-  AVAILABLE
-  OCCUPIED
-  RESERVED
+  AVAILABLE @map("AVAILABLE")
+  OCCUPIED  @map("OCCUPIED")
+  RESERVED  @map("RESERVED")
 }
 
 enum ReservationStatus {

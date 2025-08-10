@@ -5,8 +5,8 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { tableSchema, TableStatus } from "@/schemas/table";
-import { createTable } from "@/actions/tables";
+import { tableSchema } from "@/schemas/table";
+import { createTable, deleteTable } from "@/actions/tables";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -32,7 +32,9 @@ import {
    SelectItem,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, X } from "lucide-react";
+import { PlusCircle, Trash2, X } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { TableStatus } from "@/lib/generated/prisma";
 
 const formSchema = z.object({
    tables: z.array(tableSchema),
@@ -47,16 +49,32 @@ interface TableFormProps {
 
 export default function TableForm({ data }: TableFormProps) {
    const [isSubmitting, setIsSubmitting] = useState(false);
-
+   const router = useRouter();
    const form = useForm({
       resolver: zodResolver(formSchema),
-      defaultValues: { tables: data ?? [] },
+      defaultValues: { tables: data },
    });
 
    const { fields, append, remove, replace } = useFieldArray({
       control: form.control,
       name: "tables",
+      keyName: "uid",
    });
+
+   const handleDelete = async (index: any, tableId: string) => {
+      if (tableId) {
+         const result = await deleteTable(tableId);
+         console.log(result);
+         if (result.status === "success") {
+            toast.success("Deleted successfully");
+            remove(index);
+            router.refresh();
+         } else {
+            toast.success("Deleted2 successfully");
+            remove(index);
+         }
+      }
+   };
 
    useEffect(() => {
       if (data?.length) {
@@ -92,128 +110,135 @@ export default function TableForm({ data }: TableFormProps) {
                      </TableRow>
                   </TableHeader>
                   <TableBody>
-                     {fields.map((field, index) => (
-                        <TableRow key={field.id}>
-                           <TableCell>
-                              <FormField
-                                 control={form.control}
-                                 name={`tables.${index}.tableNumber`}
-                                 render={({ field }) => (
-                                    <FormItem>
-                                       <FormControl>
-                                          <Input
-                                             {...field}
-                                             placeholder="A1, B2..."
-                                          />
-                                       </FormControl>
-                                       <FormMessage />
-                                    </FormItem>
-                                 )}
-                              />
-                           </TableCell>
-                           <TableCell>
-                              <FormField
-                                 control={form.control}
-                                 name={`tables.${index}.capacity`}
-                                 render={({ field }) => (
-                                    <FormItem>
-                                       <FormControl>
-                                          <Input
-                                             type="number"
-                                             placeholder="Số người"
-                                             value={
-                                                field.value
-                                                   ? String(field.value)
-                                                   : ""
-                                             }
-                                             onChange={(e) =>
-                                                field.onChange(e.target.value)
-                                             }
-                                          />
-                                       </FormControl>
-                                       <FormMessage />
-                                    </FormItem>
-                                 )}
-                              />
-                           </TableCell>
-                           <TableCell>
-                              <FormField
-                                 control={form.control}
-                                 name={`tables.${index}.status`}
-                                 render={({ field }) => (
-                                    <FormItem>
-                                       <Select
-                                          value={field.value}
-                                          onValueChange={field.onChange}
-                                       >
+                     {fields.map((field, index) => {
+                        return (
+                           <TableRow key={field.id}>
+                              <TableCell>
+                                 <FormField
+                                    control={form.control}
+                                    name={`tables.${index}.tableNumber`}
+                                    render={({ field }) => (
+                                       <FormItem>
                                           <FormControl>
-                                             <SelectTrigger>
-                                                <SelectValue placeholder="Chọn trạng thái" />
-                                             </SelectTrigger>
+                                             <Input
+                                                {...field}
+                                                placeholder="A1, B2..."
+                                             />
                                           </FormControl>
-                                          <SelectContent>
-                                             {Object.keys(TableStatus).map(
-                                                (status) => (
-                                                   <SelectItem
-                                                      key={status}
-                                                      value={status}
-                                                   >
-                                                      {status}
-                                                   </SelectItem>
-                                                ),
-                                             )}
-                                          </SelectContent>
-                                       </Select>
-                                       <FormMessage />
-                                    </FormItem>
-                                 )}
-                              />
-                           </TableCell>
-                           <TableCell>
-                              <FormField
-                                 control={form.control}
-                                 name={`tables.${index}.isActive`}
-                                 render={({ field }) => (
-                                    <FormItem>
-                                       <FormControl>
-                                          <Switch
-                                             checked={field.value}
-                                             onCheckedChange={field.onChange}
-                                          />
-                                       </FormControl>
-                                    </FormItem>
-                                 )}
-                              />
-                           </TableCell>
-                           <TableCell>
-                              <FormField
-                                 control={form.control}
-                                 name={`tables.${index}.qrCodeUrl`}
-                                 render={({ field }) => (
-                                    <FormItem>
-                                       <FormControl>
-                                          <Input
-                                             {...field}
-                                             placeholder="QR Code URL"
-                                          />
-                                       </FormControl>
-                                       <FormMessage />
-                                    </FormItem>
-                                 )}
-                              />
-                           </TableCell>
-                           <TableCell>
-                              <Button
-                                 type="button"
-                                 variant="destructive"
-                                 size="sm"
-                                 onClick={() => remove(index)}
-                              >
-                                 <X className="h-4 w-4" />
-                              </Button>
-                           </TableCell>
-                        </TableRow>
-                     ))}
+                                          <FormMessage />
+                                       </FormItem>
+                                    )}
+                                 />
+                              </TableCell>
+                              <TableCell>
+                                 <FormField
+                                    control={form.control}
+                                    name={`tables.${index}.capacity`}
+                                    render={({ field }) => (
+                                       <FormItem>
+                                          <FormControl>
+                                             <Input
+                                                type="number"
+                                                placeholder="Số người"
+                                                value={
+                                                   field.value
+                                                      ? String(field.value)
+                                                      : ""
+                                                }
+                                                onChange={(e) =>
+                                                   field.onChange(
+                                                      e.target.value,
+                                                   )
+                                                }
+                                             />
+                                          </FormControl>
+                                          <FormMessage />
+                                       </FormItem>
+                                    )}
+                                 />
+                              </TableCell>
+                              <TableCell>
+                                 <FormField
+                                    control={form.control}
+                                    name={`tables.${index}.status`}
+                                    render={({ field }) => (
+                                       <FormItem>
+                                          <Select
+                                             value={field.value}
+                                             onValueChange={field.onChange}
+                                          >
+                                             <FormControl>
+                                                <SelectTrigger>
+                                                   <SelectValue placeholder="Chọn trạng thái" />
+                                                </SelectTrigger>
+                                             </FormControl>
+                                             <SelectContent>
+                                                {Object.keys(TableStatus).map(
+                                                   (status) => (
+                                                      <SelectItem
+                                                         key={status}
+                                                         value={status}
+                                                      >
+                                                         {status}
+                                                      </SelectItem>
+                                                   ),
+                                                )}
+                                             </SelectContent>
+                                          </Select>
+                                          <FormMessage />
+                                       </FormItem>
+                                    )}
+                                 />
+                              </TableCell>
+                              <TableCell>
+                                 <FormField
+                                    control={form.control}
+                                    name={`tables.${index}.isActive`}
+                                    render={({ field }) => (
+                                       <FormItem>
+                                          <FormControl>
+                                             <Switch
+                                                checked={field.value}
+                                                onCheckedChange={field.onChange}
+                                             />
+                                          </FormControl>
+                                       </FormItem>
+                                    )}
+                                 />
+                              </TableCell>
+                              <TableCell>
+                                 <FormField
+                                    control={form.control}
+                                    name={`tables.${index}.qrCodeUrl`}
+                                    render={({ field }) => (
+                                       <FormItem>
+                                          <FormControl>
+                                             <Input
+                                                {...field}
+                                                placeholder="QR Code URL"
+                                                value={field.value || ""}
+                                             />
+                                          </FormControl>
+                                          <FormMessage />
+                                       </FormItem>
+                                    )}
+                                 />
+                              </TableCell>
+                              <TableCell>
+                                 <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="sm"
+                                    onClick={() =>
+                                       handleDelete(index, field.id as string)
+                                    }
+                                 >
+                                    <Trash2 className="h-4 w-4" />
+                                 </Button>
+                              </TableCell>
+                           </TableRow>
+                        );
+                     })}
                   </TableBody>
                </Table>
                <div className="mt-4 flex gap-2">

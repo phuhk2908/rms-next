@@ -1,10 +1,5 @@
+import { TableStatus } from "@/lib/generated/prisma";
 import z4 from "zod/v4";
-
-export enum TableStatus {
-   AVAILABLE = "AVAILABLE",
-   OCCUPIED = "OCCUPIED",
-   RESERVED = "RESERVED",
-}
 
 export const tableSchema = z4.object({
    id: z4.string().optional(),
@@ -15,7 +10,7 @@ export const tableSchema = z4.object({
       .min(1, { message: "Sức chứa ít nhất là 1" }),
 
    status: z4.enum(TableStatus),
-   qrCodeUrl: z4.string().url().optional(),
+   qrCodeUrl: z4.url().nullable().optional(),
    isActive: z4.boolean().default(true).optional(),
 });
 
