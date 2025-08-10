@@ -86,15 +86,9 @@ const data = {
       },
       {
          title: "Restaurant Table",
-         url: "#",
+         url: "/admin/table/",
          icon: Table,
          isActive: false,
-         items: [
-            {
-               title: "Table Management",
-               url: "/admin/table/",
-            },
-         ],
       },
    ],
    navClouds: [
