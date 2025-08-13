@@ -5,9 +5,12 @@ import { requireAdmin } from "@/data/require-admin";
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/slugify";
 import { ApiResponse } from "@/lib/types";
-import { menuCategorySchema, MenuItemFormValue } from "@/schemas/menu";
+import {
+   menuCategorySchema,
+   MenuItemFormValue,
+} from "@/schemas/menu/menu-category";
 import { revalidatePath } from "next/cache";
-import { deleteFiles } from "./uploadthing";
+import { deleteFiles } from "../uploadthing";
 
 export const createMenuCategory = async (
    values: MenuItemFormValue,

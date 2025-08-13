@@ -401,7 +401,7 @@ model MenuItem {
   description   String?
   descriptionEn String?
   price         Float
-  imageUrl      String?
+  images        Image[]
   status        MenuItemStatus @default(AVAILABLE)
   recordStatus  Status         @default(ACTIVE) // Thêm field này
   isActive      Boolean        @default(true)
@@ -608,6 +608,8 @@ model Image {
   ingredients Ingredient[]
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  MenuItem    MenuItem?    @relation(fields: [menuItemId], references: [id])
+  menuItemId  String?
 }
 
 model WorkingDayConfig {

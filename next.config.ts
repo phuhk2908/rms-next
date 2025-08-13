@@ -11,8 +11,12 @@ const nextConfig: NextConfig = {
             hostname: "placehold.co",
             protocol: "https",
          },
-          {
+         {
             hostname: "utfs.io",
+            protocol: "https",
+         },
+         {
+            hostname: "images.unsplash.com",
             protocol: "https",
          },
       ],

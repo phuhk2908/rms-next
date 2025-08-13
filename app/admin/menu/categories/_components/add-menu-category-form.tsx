@@ -9,7 +9,10 @@ import {
    FormLabel,
    FormMessage,
 } from "@/components/ui/form";
-import { menuCategorySchema, MenuItemFormValue } from "@/schemas/menu";
+import {
+   menuCategorySchema,
+   MenuItemFormValue,
+} from "@/schemas/menu/menu-category";
 import { Edit, Loader2, Plus, X } from "lucide-react";
 import React, { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -21,7 +24,10 @@ import Image from "next/image";
 import { UploadDropzone } from "@/lib/uploadthing";
 import { twMerge } from "tailwind-merge";
 import { cn } from "@/lib/utils";
-import { createMenuCategory, updateMenuCategory } from "@/actions/menu";
+import {
+   createMenuCategory,
+   updateMenuCategory,
+} from "@/actions/menu/menu-categories";
 import { deleteFiles } from "@/actions/uploadthing";
 import {
    Sheet,
