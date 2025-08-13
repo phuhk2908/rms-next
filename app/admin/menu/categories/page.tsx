@@ -3,15 +3,7 @@ import { getAllMenuCategories } from "@/data/menu-category";
 import { MenuCategoryCard } from "./_components/menu-category-card";
 
 export default async function AdminMenuCategoriesPage() {
-   const data = await getAllMenuCategories({
-      include: {
-         _count: {
-            select: {
-               menuItems: true,
-            },
-         },
-      },
-   });
+   const data = await getAllMenuCategories();
 
    return (
       <div className="p-4 lg:p-6">
@@ -19,7 +11,7 @@ export default async function AdminMenuCategoriesPage() {
             <div className="space-y-1">
                <h2>Menu Categories</h2>
                <p className="text-muted-foreground text-lg">
-                  Organize and manage your restaurant's menu categories
+                  Organize and manage your restaurant&apos;s menu categories
                </p>
             </div>
 
@@ -27,7 +19,7 @@ export default async function AdminMenuCategoriesPage() {
          </div>
 
          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {data.map((item: any) => (
+            {data.map((item) => (
                <MenuCategoryCard key={item.id} menuCategory={item} />
             ))}
          </div>

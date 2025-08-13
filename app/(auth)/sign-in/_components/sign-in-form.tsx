@@ -1,7 +1,6 @@
 "use client";
 
-import { Button, buttonVariants } from "@/components/ui/button";
-import { CalendarDayButton } from "@/components/ui/calendar";
+import { Button} from "@/components/ui/button";
 import {
    Card,
    CardHeader,
@@ -209,7 +208,7 @@ export function SignInForm() {
                )}
 
                <p className="text-muted-foreground text-center text-sm">
-                  Don't have an account?{" "}
+                  Don&apos;t have an account?{" "}
                   <Link
                      className="text-primary hover:underline"
                      href="/sign-up"

@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { tableSchema } from "@/schemas/table";
-import { createTable, deleteTable } from "@/actions/tables";
+import { createTable, deleteTable } from "@/actions/table";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -32,7 +32,7 @@ import {
    SelectItem,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { PlusCircle, Trash2, X } from "lucide-react";
+import { PlusCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { TableStatus } from "@/lib/generated/prisma";
 
@@ -61,7 +61,7 @@ export default function TableForm({ data }: TableFormProps) {
       keyName: "uid",
    });
 
-   const handleDelete = async (index: any, tableId: string) => {
+   const handleDelete = async (index: number, tableId: string) => {
       if (tableId) {
          const result = await deleteTable(tableId);
          console.log(result);
@@ -88,7 +88,10 @@ export default function TableForm({ data }: TableFormProps) {
          await Promise.all(values.tables.map((table) => createTable(table)));
          toast.success("All tables saved successfully");
       } catch (error) {
-         toast.error("Error submitting form");
+         if (error instanceof Error) {
+            console.log(error);
+            toast.error("Error submitting form");
+         }
       } finally {
          setIsSubmitting(false);
       }

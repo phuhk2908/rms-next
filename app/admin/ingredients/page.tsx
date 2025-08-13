@@ -3,7 +3,7 @@ import { getIngredientsWithStock } from "@/data/ingredient";
 import { columns } from "./_components/columns";
 import { Metadata } from "next";
 
-import { IngredientForm } from "./_components/ingredient-form";
+import { AddIngredientForm } from "./_components/add-ingredient-form";
 
 export const metadata: Metadata = {
    title: "Admin | Ingredients",
@@ -15,7 +15,7 @@ export default async function Page() {
 
    return (
       <div className="p-4 lg:p-6">
-         <IngredientForm mode="create" />
+         <AddIngredientForm />
          <DataTable columns={columns} data={ingredients} />
       </div>
    );

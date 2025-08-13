@@ -1,5 +1,7 @@
+import { ZodError } from "zod";
+
 export type ApiResponse = {
    status: "success" | "error";
    message: string;
-   errors?: any;
+   errors?: ZodError | any;
 };

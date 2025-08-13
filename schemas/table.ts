@@ -1,17 +1,17 @@
 import { TableStatus } from "@/lib/generated/prisma";
-import z4 from "zod/v4";
+import { z } from "zod";
 
-export const tableSchema = z4.object({
-   id: z4.string().optional(),
-   tableNumber: z4.string().min(1, { message: "Table number is required." }),
-   capacity: z4.coerce
+export const tableSchema = z.object({
+   id: z.string().optional(),
+   tableNumber: z.string().min(1, { message: "Table number is required." }),
+   capacity: z.coerce
       .number()
       .int()
       .min(1, { message: "Capacity is at least 1" }),
 
-   status: z4.enum(TableStatus),
-   qrCodeUrl: z4.url().nullable().optional(),
-   isActive: z4.boolean().default(true),
+   status: z.enum(TableStatus),
+   qrCodeUrl: z.url().nullable().optional(),
+   isActive: z.boolean().default(true),
 });
 
-export type TableFormValues = z4.infer<typeof tableSchema>;
+export type TableFormValues = z.infer<typeof tableSchema>;

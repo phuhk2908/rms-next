@@ -11,10 +11,8 @@ import {
    DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { env } from "@/lib/env";
 import { cn } from "@/lib/utils";
 import {
-   Edit,
    Eye,
    MoreVertical,
    Trash2,
@@ -27,19 +25,40 @@ import { toast } from "sonner";
 import AddMenuCategoryForm from "./add-menu-category-form";
 import { useState, useTransition } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { Prisma } from "@/lib/generated/prisma";
 
-export function MenuCategoryCard({ menuCategory }: { menuCategory: any }) {
+type MenuCategoryWithCount = Prisma.MenuCategoryGetPayload<{
+   omit: {
+      imageId: true;
+   };
+   include: {
+      image: true;
+      _count: {
+         select: {
+            menuItems: true;
+         };
+      };
+   };
+}>;
+
+interface MenuCategoryCardProps {
+   menuCategory: MenuCategoryWithCount;
+}
+
+export function MenuCategoryCard({ menuCategory }: MenuCategoryCardProps) {
    return (
       <Card className="group transform gap-0 overflow-hidden border-0 py-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
          <div className="relative">
             <div className={cn("relative h-48 overflow-hidden")}>
-               <Image
-                  src={`${env.NEXT_PUBLIC_UPLOADTHING_PRE_URL}/${menuCategory.image}`}
-                  alt={menuCategory.name}
-                  className="absolute inset-0 h-full w-full object-cover object-center"
-                  fill
-                  sizes="auto"
-               />
+               {menuCategory.image?.ufsUrl && (
+                  <Image
+                     src={menuCategory.image.ufsUrl}
+                     alt={menuCategory.name}
+                     className="absolute inset-0 h-full w-full object-cover object-center"
+                     fill
+                     sizes="auto"
+                  />
+               )}
                <div className="absolute inset-0 bg-black/20" />
             </div>
             <div className="absolute top-2 right-2">
@@ -79,7 +98,11 @@ export function MenuCategoryCard({ menuCategory }: { menuCategory: any }) {
    );
 }
 
-function MenuCategoryCardControl({ menuCategory }: { menuCategory: any }) {
+function MenuCategoryCardControl({
+   menuCategory,
+}: {
+   menuCategory: MenuCategoryWithCount;
+}) {
    const [isAlertOpen, setIsAlertOpen] = useState(false);
    const [isUpdateStatusPending, startUpdateStatusTransition] = useTransition();
    const [isDeletePending, startDeleteTransition] = useTransition();
@@ -91,9 +114,15 @@ function MenuCategoryCardControl({ menuCategory }: { menuCategory: any }) {
                menuCategory.id,
                !menuCategory.isActive,
             );
-            toast.success(result.message);
-         } catch (error: any) {
-            toast.error(error.message);
+            if (result.status === "success") {
+               toast.success(result.message);
+            } else {
+               toast.error(result.message);
+            }
+         } catch (error) {
+            if (error instanceof Error) {
+               toast.error(error.message);
+            }
          }
       });
    };
@@ -102,9 +131,15 @@ function MenuCategoryCardControl({ menuCategory }: { menuCategory: any }) {
       startDeleteTransition(async () => {
          try {
             const result = await deleteMenuCategory(menuCategory.id);
-            toast.success(result.message);
-         } catch (error: any) {
-            toast.error(error.message);
+            if (result.status === "success") {
+               toast.success(result.message);
+            } else {
+               toast.error(result.message);
+            }
+         } catch (error) {
+            if (error instanceof Error) {
+               toast.error(error.message);
+            }
          }
       });
    };
