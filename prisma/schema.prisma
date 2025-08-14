@@ -608,9 +608,10 @@ model Image {
   ufsUrl         String
   ingredients    Ingredient[]
   menuCategories MenuCategory[]
-  menuItem       MenuItem[]
+  menuItem       MenuItem?      @relation(fields: [menuItemId], references: [id])
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  menuItemId     String?
 }
 
 model WorkingDayConfig {

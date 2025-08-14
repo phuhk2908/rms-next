@@ -5,47 +5,51 @@ const prisma = new PrismaClient();
 async function main() {
    // Xóa dữ liệu cũ
    await prisma.menuItem.deleteMany();
-   await prisma.menuCategory.deleteMany();
+   // Don't delete categories if you need to reference them
+   // await prisma.menuCategory.deleteMany();
 
-   // Tạo category
-   const categories = await prisma.menuCategory.createMany({
-      data: [
-         {
-            name: "Món Việt",
-            nameEn: "Vietnamese Cuisine",
-            slug: "vietnamese-cuisine",
-            image: "https://images.unsplash.com/photo-1604909052743-1f2a097acaa1",
-            description: "Các món ăn truyền thống Việt Nam",
-            descriptionEn: "Traditional Vietnamese dishes",
-         },
-         {
-            name: "Đồ uống",
-            nameEn: "Beverages",
-            slug: "beverages",
-            image: "https://images.unsplash.com/photo-1600891964599-f61ba0e24092",
-            description: "Các loại đồ uống giải khát",
-            descriptionEn: "Refreshing beverages",
-         },
-         {
-            name: "Món tráng miệng",
-            nameEn: "Desserts",
-            slug: "desserts",
-            image: "https://images.unsplash.com/photo-1589302168068-964664d93dc0",
-            description: "Món ngọt ngon miệng",
-            descriptionEn: "Sweet and tasty desserts",
-         },
-      ],
-   });
+   // Create categories first if they don't exist
+   const categories = [
+      {
+         name: "Món Việt Nam",
+         nameEn: "Vietnamese Cuisine",
+         slug: "vietnamese-cuisine",
+         description: "Các món ăn truyền thống Việt Nam",
+         descriptionEn: "Traditional Vietnamese dishes",
+      },
+      {
+         name: "Đồ uống",
+         nameEn: "Beverages",
+         slug: "beverages",
+         description: "Các loại đồ uống giải khát",
+         descriptionEn: "Various refreshing drinks",
+      },
+      {
+         name: "Tráng miệng",
+         nameEn: "Desserts",
+         slug: "desserts",
+         description: "Các món tráng miệng ngọt ngào",
+         descriptionEn: "Sweet desserts",
+      },
+   ];
 
-   // Lấy lại id của categories
-   const vietnameseCategory = await prisma.menuCategory.findUnique({
+   // Create or find categories
+   const vietnameseCategory = await prisma.menuCategory.upsert({
       where: { slug: "vietnamese-cuisine" },
+      update: {},
+      create: categories[0],
    });
-   const beverageCategory = await prisma.menuCategory.findUnique({
+
+   const beverageCategory = await prisma.menuCategory.upsert({
       where: { slug: "beverages" },
+      update: {},
+      create: categories[1],
    });
-   const dessertCategory = await prisma.menuCategory.findUnique({
+
+   const dessertCategory = await prisma.menuCategory.upsert({
       where: { slug: "desserts" },
+      update: {},
+      create: categories[2],
    });
 
    // Seed Menu Items
@@ -64,7 +68,7 @@ async function main() {
             status: MenuItemStatus.AVAILABLE,
             recordStatus: Status.ACTIVE,
             isActive: true,
-            categoryId: vietnameseCategory!.id,
+            categoryId: vietnameseCategory.id,
          },
          {
             name: "Bánh Mì Thịt",
@@ -77,7 +81,7 @@ async function main() {
             status: MenuItemStatus.AVAILABLE,
             recordStatus: Status.ACTIVE,
             isActive: true,
-            categoryId: vietnameseCategory!.id,
+            categoryId: vietnameseCategory.id,
          },
          // Drinks
          {
@@ -90,7 +94,7 @@ async function main() {
             status: MenuItemStatus.AVAILABLE,
             recordStatus: Status.ACTIVE,
             isActive: true,
-            categoryId: beverageCategory!.id,
+            categoryId: beverageCategory.id,
          },
          {
             name: "Trà Chanh",
@@ -102,7 +106,7 @@ async function main() {
             status: MenuItemStatus.AVAILABLE,
             recordStatus: Status.ACTIVE,
             isActive: true,
-            categoryId: beverageCategory!.id,
+            categoryId: beverageCategory.id,
          },
          // Desserts
          {
@@ -115,7 +119,7 @@ async function main() {
             status: MenuItemStatus.AVAILABLE,
             recordStatus: Status.ACTIVE,
             isActive: true,
-            categoryId: dessertCategory!.id,
+            categoryId: dessertCategory.id,
          },
          {
             name: "Bánh Flan",
@@ -127,7 +131,7 @@ async function main() {
             status: MenuItemStatus.AVAILABLE,
             recordStatus: Status.ACTIVE,
             isActive: true,
-            categoryId: dessertCategory!.id,
+            categoryId: dessertCategory.id,
          },
       ],
    });
