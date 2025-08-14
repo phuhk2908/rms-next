@@ -5,6 +5,8 @@ import AddMenuItemForm from "./_components/add-menu-item-form";
 
 export default async function AdminMenuItemsPage() {
    const menuItems = await getAllMenuItems(true);
+   console.log(menuItems);
+   
    const categories = await getMenuCategoriesForSelect();
 
    return (

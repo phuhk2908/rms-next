@@ -14,14 +14,7 @@ import {
    TableHeader,
    TableRow,
 } from "@/components/ui/table";
-import {
-   Form,
-   FormControl,
-   FormField,
-   FormItem,
-   FormLabel,
-   FormMessage,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { DayOfWeek, WorkingDayConfig } from "@/lib/generated/prisma";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -162,10 +155,12 @@ export function WorkingDaySetting({ data }: WorkingDayConfigProps) {
 
          toast.success("Settings saved successfully!");
 
-         // Reset form state after successful save to prevent randomization
          form.reset(values);
       } catch (error) {
-         toast.error("Failed to save settings");
+         if (error instanceof Error) {
+            console.log(error);
+            toast.error("Failed to save settings");
+         }
       }
    };
 

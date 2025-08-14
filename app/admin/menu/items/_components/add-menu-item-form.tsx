@@ -48,6 +48,7 @@ import { MenuItem } from "@/types/menu";
 import { CreateMenuItemInput } from "@/actions/menu/menu-items";
 import { getMenuCategoriesForSelect } from "@/data/menu-item";
 import { MenuItemStatus as PrismaMenuItemStatus } from "@/lib/generated/prisma";
+import { FileUploader } from "@/components/file-uploader";
 
 interface MenuItemForm {
    mode: "create" | "edit";
@@ -128,7 +129,7 @@ export default function AddMenuItemForm({
    const handleDeleteImage = (imageKey: string) => {
       startDeleteTransition(async () => {
          const result = await deleteFiles(imageKey);
-         if (result?.success === true) {
+         if (result && "success" in result && result.success === true) {
             setImages((prev) => prev.filter((img) => img.key !== imageKey));
             const currentImages = form.getValues("images");
             form.setValue(
@@ -137,7 +138,10 @@ export default function AddMenuItemForm({
             );
             toast.success(result.message);
          } else {
-            toast.error(result?.message || "Failed to delete image");
+            toast.error(
+               (result && "message" in result && result.message) ||
+                  "Failed to delete image",
+            );
          }
       });
    };
@@ -224,7 +228,7 @@ export default function AddMenuItemForm({
                         control={form.control}
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>Images (Max 8)</FormLabel>
+                              <FormLabel>Hình ảnh (tối đa: 8)</FormLabel>
                               <FormControl>
                                  <div className="space-y-4">
                                     {images.length > 0 && (
@@ -267,50 +271,46 @@ export default function AddMenuItemForm({
                                     )}
 
                                     {images.length < 8 && (
-                                       <UploadDropzone
-                                          endpoint="menuItem"
-                                          onClientUploadComplete={(res) => {
-                                             if (res) {
-                                                const newImages = res.map(
-                                                   (file) => ({
-                                                      key: file.key,
-                                                      ufsUrl: file.url,
-                                                   }),
-                                                );
-                                                const combinedImages = [
-                                                   ...images,
+                                       <FileUploader
+                                          onUploadComplete={(uploadedFiles) => {
+                                             if (
+                                                uploadedFiles &&
+                                                uploadedFiles.length > 0
+                                             ) {
+                                                const newImages =
+                                                   uploadedFiles.map(
+                                                      (file) => ({
+                                                         key: file.key,
+                                                         ufsUrl: file.url,
+                                                      }),
+                                                   );
+                                                const currentImages =
+                                                   form.getValues("images");
+                                                const updatedImages = [
+                                                   ...currentImages,
                                                    ...newImages,
                                                 ];
-                                                if (combinedImages.length > 8) {
+
+                                                // Check max limit
+                                                if (updatedImages.length > 8) {
                                                    toast.error(
                                                       "Maximum 8 images allowed",
                                                    );
                                                    return;
                                                 }
-                                                setImages(combinedImages);
-                                                const currentImages =
-                                                   form.getValues("images");
-                                                field.onChange([
-                                                   ...currentImages,
+
+                                                setImages((prev) => [
+                                                   ...prev,
                                                    ...newImages,
                                                 ]);
+                                                field.onChange(updatedImages);
+                                                toast.success(
+                                                   "Image uploaded successfully",
+                                                );
                                              }
-                                             toast.success("Upload Completed");
                                           }}
-                                          onUploadError={(error: Error) => {
-                                             toast.error(
-                                                `ERROR! ${error.message}`,
-                                             );
-                                          }}
-                                          config={{ cn: twMerge }}
-                                          className={cn(
-                                             "ut-button:bg-primary ut-button:ut-readying:bg-primary/25 ut-button:text-black",
-                                             "ut-button:ut-uploading:bg-primary/50 ut-button:ut-uploading:after:bg-primary",
-                                             "ut-label:text-primary ut-allowed-content:text-muted-foreground",
-                                             "ut-upload-icon:text-muted-foreground border-muted-foreground/25 border-dashed",
-                                             "hover:border-muted-foreground/50 rounded-lg p-8 transition-colors",
-                                             "bg-background hover:bg-muted/25",
-                                          )}
+                                          maxFiles={8 - images.length}
+                                          accept={["image/*"]}
                                        />
                                     )}
                                  </div>

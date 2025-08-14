@@ -2,6 +2,7 @@
 
 import { getMenuCategoryById } from "@/data/menu-category";
 import { requireAdmin } from "@/data/require-admin";
+import { tryCatch } from "@/helpers/try-catch";
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/slugify";
 import { ApiResponse } from "@/lib/types";
@@ -12,10 +13,8 @@ import {
 import { revalidatePath } from "next/cache";
 import { deleteFiles } from "../uploadthing";
 
-export const createMenuCategory = async (
-   values: MenuItemFormValue,
-): Promise<ApiResponse> => {
-   try {
+export const createMenuCategory = async (values: MenuItemFormValue) => {
+   return await tryCatch(async () => {
       await requireAdmin();
 
       const validation = menuCategorySchema.safeParse(values);
@@ -28,10 +27,20 @@ export const createMenuCategory = async (
          };
       }
 
+      const { image, ...rest } = validation.data;
+
       await prisma.menuCategory.create({
          data: {
+            ...rest,
+            ...(image && {
+               image: {
+                  create: {
+                     key: image.key,
+                     ufsUrl: image.ufsUrl,
+                  },
+               },
+            }),
             slug: toSlug(validation.data.name),
-            ...validation.data,
          },
       });
 
@@ -41,21 +50,14 @@ export const createMenuCategory = async (
          status: "success",
          message: "Menu category created successfully.",
       };
-   } catch (error) {
-      console.error("CREATE_MENU_CATEGORY_ERROR:", error);
-
-      return {
-         status: "error",
-         message: "An unexpected error occurred. Please try again later.",
-      };
-   }
+   });
 };
 
 export const updateMenuCategory = async (
    id: string,
    values: MenuItemFormValue,
 ) => {
-   try {
+   return await tryCatch(async () => {
       await requireAdmin();
 
       const validation = menuCategorySchema.safeParse(values);
@@ -68,11 +70,35 @@ export const updateMenuCategory = async (
          };
       }
 
+      const existingCategory = await getMenuCategoryById(id);
+      if (
+         existingCategory?.image?.key &&
+         values.image?.key !== existingCategory.image.key
+      ) {
+         await deleteFiles(existingCategory.image.key);
+      }
+
+      const { image, ...rest } = validation.data;
+
       await prisma.menuCategory.update({
          where: { id: id },
          data: {
+            ...rest,
+            ...(image && {
+               image: {
+                  upsert: {
+                     create: {
+                        key: image.key,
+                        ufsUrl: image.ufsUrl,
+                     },
+                     update: {
+                        key: image.key,
+                        ufsUrl: image.ufsUrl,
+                     },
+                  },
+               },
+            }),
             slug: toSlug(validation.data.name),
-            ...validation.data,
          },
       });
 
@@ -82,19 +108,14 @@ export const updateMenuCategory = async (
          status: "success",
          message: "Menu category updated successfully.",
       };
-   } catch {
-      return {
-         status: "error",
-         message: "An unexpected error occurred. Please try again later.",
-      };
-   }
+   });
 };
 
 export const updateMenuCategoryStatus = async (
    id: string,
    isActive: boolean,
-): Promise<ApiResponse> => {
-   try {
+) => {
+   return await tryCatch(async () => {
       await requireAdmin();
 
       await prisma.menuCategory.update({
@@ -108,16 +129,11 @@ export const updateMenuCategoryStatus = async (
          status: "success",
          message: "Menu category status updated successfully.",
       };
-   } catch {
-      return {
-         status: "error",
-         message: "An unexpected error occurred. Please try again later.",
-      };
-   }
+   });
 };
 
 export const deleteMenuCategory = async (id: string) => {
-   try {
+   return await tryCatch(async () => {
       await requireAdmin();
 
       const menuCategory = await getMenuCategoryById(id);
@@ -129,7 +145,9 @@ export const deleteMenuCategory = async (id: string) => {
          };
       }
 
-      await deleteFiles(menuCategory.image as string);
+      if (menuCategory.image?.key) {
+         await deleteFiles(menuCategory.image.key);
+      }
 
       await prisma.menuCategory.delete({
          where: { id },
@@ -141,10 +159,5 @@ export const deleteMenuCategory = async (id: string) => {
          status: "success",
          message: "Menu category deleted successfully.",
       };
-   } catch {
-      return {
-         status: "error",
-         message: "An unexpected error occurred. Please try again later.",
-      };
-   }
+   });
 };

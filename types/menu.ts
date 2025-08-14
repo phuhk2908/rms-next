@@ -5,7 +5,14 @@ export enum MenuItemStatus {
    UNAVAILABLE = "UNAVAILABLE",
 }
 
-export type MenuCategory = Prisma.MenuCategoryGetPayload<{}>;
+export type MenuCategory = Prisma.MenuCategoryGetPayload<{
+   omit: {
+      imageId: true;
+   };
+   include: {
+      image: true;
+   };
+}>;
 
 export type MenuItem = Prisma.MenuItemGetPayload<{
    include: {
@@ -19,5 +26,11 @@ export type MenuItem = Prisma.MenuItemGetPayload<{
 
 export type AddMenuItemInput = Omit<
    MenuItem,
-   "id" | "createdAt" | "updatedAt" | "category" | "recipe" | "recipeId" | "slug"
+   | "id"
+   | "createdAt"
+   | "updatedAt"
+   | "category"
+   | "recipe"
+   | "recipeId"
+   | "slug"
 >;

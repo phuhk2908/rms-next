@@ -7,7 +7,12 @@ export const menuCategorySchema = z.object({
    descriptionEn: z
       .string()
       .min(1, { message: "English description is required" }),
-   image: z.string().min(1, { message: "Image url is required" }),
+   image: z
+      .object({
+         key: z.string(),
+         ufsUrl: z.string(),
+      })
+      .optional(),
    isActive: z.boolean(),
 });
 

@@ -7,14 +7,55 @@ import {
    DropdownMenu,
    DropdownMenuContent,
    DropdownMenuItem,
-   DropdownMenuLabel,
    DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { IngredientWithStock } from "@/types/ingredient";
-import { ColumnDef } from "@tanstack/react-table";
-import { Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
-import { IngredientForm } from "./ingredient-form";
+import { ColumnDef, Row } from "@tanstack/react-table";
+import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { EditIngredientForm } from "./edit-ingredient-form";
+import Image from "next/image";
+
+const ActionsCell = ({ row }: { row: Row<IngredientWithStock> }) => {
+   const ingredient = row.original;
+   const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
+
+   return (
+      <>
+         <EditIngredientForm
+            ingredient={ingredient}
+            isOpen={isEditSheetOpen}
+            onOpenChange={setIsEditSheetOpen}
+         />
+         <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+               <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Open menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+               </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+               <DropdownMenuItem
+                  onClick={() => navigator.clipboard.writeText(ingredient.id)}
+               >
+                  <Copy className="mr-2 size-4" />
+                  Copy ID
+               </DropdownMenuItem>
+               <DropdownMenuItem onSelect={() => setIsEditSheetOpen(true)}>
+                  <Pencil className="mr-2 size-4" />
+                  Edit
+               </DropdownMenuItem>
+               <DropdownMenuSeparator />
+               <DropdownMenuItem variant="destructive">
+                  <Trash2 className="mr-2 size-4" />
+                  Delete
+               </DropdownMenuItem>
+            </DropdownMenuContent>
+         </DropdownMenu>
+      </>
+   );
+};
 
 export const columns: ColumnDef<IngredientWithStock>[] = [
    {
@@ -48,10 +89,12 @@ export const columns: ColumnDef<IngredientWithStock>[] = [
          const ingredient = row.original;
 
          return (
-            <img
+            <Image
                className="size-10 rounded-md object-cover"
                src={ingredient.image.ufsUrl}
                alt={ingredient.name}
+               width={40}
+               height={40}
             />
          );
       },
@@ -81,37 +124,6 @@ export const columns: ColumnDef<IngredientWithStock>[] = [
    {
       id: "actions",
       header: "Actions",
-      cell: ({ row }) => {
-         const ingredient = row.original;
-
-         return (
-            <DropdownMenu>
-               <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0">
-                     <span className="sr-only">Open menu</span>
-                     <MoreHorizontal className="h-4 w-4" />
-                  </Button>
-               </DropdownMenuTrigger>
-               <DropdownMenuContent align="end">
-                  <DropdownMenuItem
-                     onClick={() =>
-                        navigator.clipboard.writeText(ingredient.id)
-                     }
-                  >
-                     <Copy className="size-4" />
-                     Copy ID
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                     <IngredientForm mode="edit" data={ingredient} />
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem variant="destructive">
-                     <Trash2 className="size-4" />
-                     Delete
-                  </DropdownMenuItem>
-               </DropdownMenuContent>
-            </DropdownMenu>
-         );
-      },
+      cell: ActionsCell,
    },
 ];

@@ -3,7 +3,7 @@ import { WorkingDaySetting } from "./_components/working-day-setting";
 import { getWorkingDayConfigs } from "@/data/configs";
 import { Metadata } from "next";
 
-export const metadate: Metadata = {
+export const metadata: Metadata = {
    title: "Admin | Settings",
 };
 
