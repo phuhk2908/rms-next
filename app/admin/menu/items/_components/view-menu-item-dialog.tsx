@@ -15,6 +15,7 @@ import { Eye } from "lucide-react";
 import { type MenuItem, MenuItemStatus } from "@/types/menu";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
+import { formatPrice } from "@/lib/utils";
 
 interface ViewMenuItemDialogProps {
    item: MenuItem;
@@ -33,13 +34,6 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
       return (
          <Badge className={variants[status]}>{status.replace("_", " ")}</Badge>
       );
-   };
-
-   const formatPrice = (price: number) => {
-      return new Intl.NumberFormat("vi-VN", {
-         style: "currency",
-         currency: "VND",
-      }).format(price);
    };
 
    return (
@@ -73,18 +67,19 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                      <h3 className="text-sm font-medium text-gray-700">
                         Images
                      </h3>
-                     <div className="grid grid-cols-2 gap-4">
+
+                     <div className="flex gap-4 overflow-x-auto pb-2">
                         {item.images.map((image, index) => (
                            <div
-                              key={image.id}
-                              className="relative h-32 w-full overflow-hidden rounded-lg border"
+                              key={image.key}
+                              className="group relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg border shadow-sm"
                            >
                               <Image
-                                 src={image.ufsUrl || "/placeholder.svg"}
-                                 alt={`${item.name} ${index + 1}`}
+                                 src={image.ufsUrl}
+                                 alt={`Preview ${index + 1}`}
                                  fill
                                  sizes="auto"
-                                 className="object-cover"
+                                 className="object-cover transition-transform duration-300 group-hover:scale-105"
                               />
                            </div>
                         ))}

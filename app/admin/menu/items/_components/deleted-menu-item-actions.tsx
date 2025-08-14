@@ -64,7 +64,7 @@ export function DeletedMenuItemActions({
    const isPending = isRestorePending || isHardDeletePending;
 
    return (
-      <div className="flex items-center gap-2">
+      <div className="flex justify-between items-center gap-2">
          <Badge variant="secondary" className="bg-red-100 text-red-800">
             Deleted
          </Badge>

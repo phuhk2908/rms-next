@@ -10,7 +10,7 @@ import { menuItemSchema } from "@/schemas/menu/menu-item";
 import { deleteFiles } from "@/actions/uploadthing";
 
 const updateMenuItemSchema = menuItemSchema.partial().extend({
-   id: z.string().min(1, "ID là bắt buộc"),
+   id: z.string().min(1, "ID is required"),
 });
 
 export type CreateMenuItemInput = z.infer<typeof menuItemSchema>;
@@ -41,7 +41,7 @@ export const createMenuItem = async (data: CreateMenuItemInput) => {
       });
 
       if (existingItem) {
-         throw new Error("Món ăn với tên này đã tồn tại");
+         throw new Error("A menu item with this name already exists");
       }
 
       const menuItem = await prisma.menuItem.create({
@@ -80,7 +80,7 @@ export const createMenuItem = async (data: CreateMenuItemInput) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi tạo món ăn",
+               : "An error occurred while creating the menu item",
       };
    }
 };
@@ -90,14 +90,15 @@ export const updateMenuItem = async (data: UpdateMenuItemInput) => {
       await requireAdmin();
 
       const validatedData = updateMenuItemSchema.parse(data);
-      const { id, ...updateData } = validatedData;
+      const { id, images, ...updateData } = validatedData;
 
       const existingItem = await prisma.menuItem.findUnique({
          where: { id },
+         include: { images: true },
       });
 
       if (!existingItem) {
-         throw new Error("Không tìm thấy món ăn");
+         throw new Error("Menu item not found");
       }
 
       let slug = existingItem.slug;
@@ -112,7 +113,26 @@ export const updateMenuItem = async (data: UpdateMenuItemInput) => {
          });
 
          if (slugExists) {
-            throw new Error("Món ăn với tên này đã tồn tại");
+            throw new Error("A menu item with this name already exists");
+         }
+      }
+
+      // Handle image updates separately
+      if (images && Array.isArray(images)) {
+         // Delete existing images first
+         await prisma.image.deleteMany({
+            where: { menuItemId: id },
+         });
+
+         // Create new images
+         if (images.length > 0) {
+            await prisma.image.createMany({
+               data: images.map((file) => ({
+                  key: file.key,
+                  ufsUrl: file.ufsUrl,
+                  menuItemId: id,
+               })),
+            });
          }
       }
 
@@ -121,9 +141,11 @@ export const updateMenuItem = async (data: UpdateMenuItemInput) => {
          ...restUpdateData,
          slug,
       };
+
       if (typeof categoryId !== "undefined") {
          updatePayload.categoryId = categoryId;
       }
+
       const updatedItem = await prisma.menuItem.update({
          where: { id },
          data: updatePayload,
@@ -142,18 +164,18 @@ export const updateMenuItem = async (data: UpdateMenuItemInput) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi cập nhật món ăn",
+               : "An error occurred while updating the menu item",
       };
    }
 };
 
-// Xóa món ăn (soft delete)
+// Soft delete menu item
 export const deleteMenuItem = async (id: string) => {
    try {
       await requireAdmin();
 
       if (!id) {
-         throw new Error("ID món ăn là bắt buộc");
+         throw new Error("Menu item ID is required");
       }
 
       const existingItem = await prisma.menuItem.findUnique({
@@ -161,7 +183,7 @@ export const deleteMenuItem = async (id: string) => {
       });
 
       if (!existingItem) {
-         throw new Error("Không tìm thấy món ăn");
+         throw new Error("Menu item not found");
       }
 
       await prisma.menuItem.update({
@@ -173,7 +195,7 @@ export const deleteMenuItem = async (id: string) => {
       });
 
       revalidatePath("/admin/menu/items");
-      return { success: true, message: "Đã xóa món ăn thành công" };
+      return { success: true, message: "Menu item deleted successfully" };
    } catch (error) {
       console.error("Error deleting menu item:", error);
       return {
@@ -181,18 +203,18 @@ export const deleteMenuItem = async (id: string) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi xóa món ăn",
+               : "An error occurred while deleting the menu item",
       };
    }
 };
 
-// Xóa món ăn vĩnh viễn (hard delete)
+// Hard delete menu item
 export const hardDeleteMenuItem = async (id: string) => {
    try {
       await requireAdmin();
 
       if (!id) {
-         throw new Error("ID món ăn là bắt buộc");
+         throw new Error("Menu item ID is required");
       }
 
       const existingItem = await prisma.menuItem.findUnique({
@@ -203,10 +225,10 @@ export const hardDeleteMenuItem = async (id: string) => {
       });
 
       if (!existingItem) {
-         throw new Error("Không tìm thấy món ăn");
+         throw new Error("Menu item not found");
       }
 
-      // Xóa các file ảnh từ UploadThing
+      // Delete image files from UploadThing
       if (existingItem.images && existingItem.images.length > 0) {
          const imageKeys = existingItem.images.map((img) => img.key);
          try {
@@ -221,7 +243,7 @@ export const hardDeleteMenuItem = async (id: string) => {
       });
 
       revalidatePath("/admin/menu/items");
-      return { success: true, message: "Đã xóa vĩnh viễn món ăn thành công" };
+      return { success: true, message: "Menu item permanently deleted" };
    } catch (error) {
       console.error("Error hard deleting menu item:", error);
       return {
@@ -229,18 +251,18 @@ export const hardDeleteMenuItem = async (id: string) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi xóa vĩnh viễn món ăn",
+               : "An error occurred while permanently deleting the menu item",
       };
    }
 };
 
-// Khôi phục món ăn
+// Restore menu item
 export const restoreMenuItem = async (id: string) => {
    try {
       await requireAdmin();
 
       if (!id) {
-         throw new Error("ID món ăn là bắt buộc");
+         throw new Error("Menu item ID is required");
       }
 
       const existingItem = await prisma.menuItem.findUnique({
@@ -248,7 +270,7 @@ export const restoreMenuItem = async (id: string) => {
       });
 
       if (!existingItem) {
-         throw new Error("Không tìm thấy món ăn");
+         throw new Error("Menu item not found");
       }
 
       await prisma.menuItem.update({
@@ -260,7 +282,7 @@ export const restoreMenuItem = async (id: string) => {
       });
 
       revalidatePath("/admin/menu/items");
-      return { success: true, message: "Đã khôi phục món ăn thành công" };
+      return { success: true, message: "Menu item restored successfully" };
    } catch (error) {
       console.error("Error restoring menu item:", error);
       return {
@@ -268,7 +290,7 @@ export const restoreMenuItem = async (id: string) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi khôi phục món ăn",
+               : "An error occurred while restoring the menu item",
       };
    }
 };
@@ -281,26 +303,26 @@ export const updateMenuItemStatus = async (
       await requireAdmin();
 
       if (!id) {
-         throw new Error("ID món ăn là bắt buộc");
+         throw new Error("Menu item ID is required");
       }
 
-      // Kiểm tra món ăn có tồn tại không
+      // Check if menu item exists
       const existingItem = await prisma.menuItem.findUnique({
          where: { id },
       });
 
       if (!existingItem) {
-         throw new Error("Không tìm thấy món ăn");
+         throw new Error("Menu item not found");
       }
 
-      // Cập nhật trạng thái
+      // Update status
       await prisma.menuItem.update({
          where: { id },
          data: { status },
       });
 
       revalidatePath("/admin/menu/items");
-      return { success: true, message: "Đã cập nhật trạng thái thành công" };
+      return { success: true, message: "Status updated successfully" };
    } catch (error) {
       console.error("Error updating menu item status:", error);
       return {
@@ -308,7 +330,7 @@ export const updateMenuItemStatus = async (
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi cập nhật trạng thái",
+               : "An error occurred while updating the status",
       };
    }
 };
@@ -319,16 +341,16 @@ export const toggleMenuItemActive = async (id: string) => {
       await requireAdmin();
 
       if (!id) {
-         throw new Error("ID món ăn là bắt buộc");
+         throw new Error("Menu item ID is required");
       }
 
-      // Kiểm tra món ăn có tồn tại không
+      // Check if menu item exists
       const existingItem = await prisma.menuItem.findUnique({
          where: { id },
       });
 
       if (!existingItem) {
-         throw new Error("Không tìm thấy món ăn");
+         throw new Error("Menu item not found");
       }
 
       // Toggle active status
@@ -340,7 +362,7 @@ export const toggleMenuItemActive = async (id: string) => {
       revalidatePath("/admin/menu/items");
       return {
          success: true,
-         message: "Đã cập nhật trạng thái hiển thị thành công",
+         message: "Display status updated successfully",
       };
    } catch (error) {
       console.error("Error toggling menu item active:", error);
@@ -349,12 +371,12 @@ export const toggleMenuItemActive = async (id: string) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi cập nhật trạng thái hiển thị",
+               : "An error occurred while updating the display status",
       };
    }
 };
 
-// Bulk operations
+// Bulk update
 export const bulkUpdateMenuItems = async (
    ids: string[],
    updates: Partial<CreateMenuItemInput>,
@@ -363,10 +385,10 @@ export const bulkUpdateMenuItems = async (
       await requireAdmin();
 
       if (!ids.length) {
-         throw new Error("Không có món ăn nào được chọn");
+         throw new Error("No menu items selected");
       }
 
-      // Cập nhật hàng loạt
+      // Bulk update
       await prisma.menuItem.updateMany({
          where: {
             id: { in: ids },
@@ -377,7 +399,7 @@ export const bulkUpdateMenuItems = async (
       revalidatePath("/admin/menu/items");
       return {
          success: true,
-         message: `Đã cập nhật ${ids.length} món ăn thành công`,
+         message: `Successfully updated ${ids.length} menu items`,
       };
    } catch (error) {
       console.error("Error bulk updating menu items:", error);
@@ -386,21 +408,21 @@ export const bulkUpdateMenuItems = async (
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi cập nhật hàng loạt",
+               : "An error occurred while bulk updating menu items",
       };
    }
 };
 
-// Bulk delete
+// Bulk delete (soft delete)
 export const bulkDeleteMenuItems = async (ids: string[]) => {
    try {
       await requireAdmin();
 
       if (!ids.length) {
-         throw new Error("Không có món ăn nào được chọn");
+         throw new Error("No menu items selected");
       }
 
-      // Soft delete hàng loạt
+      // Bulk soft delete
       await prisma.menuItem.updateMany({
          where: {
             id: { in: ids },
@@ -414,7 +436,7 @@ export const bulkDeleteMenuItems = async (ids: string[]) => {
       revalidatePath("/admin/menu/items");
       return {
          success: true,
-         message: `Đã xóa ${ids.length} món ăn thành công`,
+         message: `Successfully deleted ${ids.length} menu items`,
       };
    } catch (error) {
       console.error("Error bulk deleting menu items:", error);
@@ -423,7 +445,7 @@ export const bulkDeleteMenuItems = async (ids: string[]) => {
          error:
             error instanceof Error
                ? error.message
-               : "Có lỗi xảy ra khi xóa hàng loạt",
+               : "An error occurred while bulk deleting menu items",
       };
    }
 };

@@ -15,7 +15,7 @@ export default async function AdminMenuItemsPage() {
             <div className="space-y-1">
                <h2>Menu Items</h2>
                <p className="text-muted-foreground text-lg">
-                  Organize and manage your restaurant's menu items
+                  Organize and manage your restaurant&apos;s menu items
                </p>
             </div>
 

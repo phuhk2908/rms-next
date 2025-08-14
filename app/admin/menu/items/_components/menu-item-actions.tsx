@@ -67,8 +67,8 @@ export function MenuItemActions({
             } else {
                toast.error(result.error);
             }
-         } catch (error) {
-            toast.error("Có lỗi xảy ra khi xóa món ăn");
+         } catch {
+            toast.error("An error occurred while deleting the menu item");
          }
       });
    };
@@ -82,8 +82,8 @@ export function MenuItemActions({
             } else {
                toast.error(result.error);
             }
-         } catch (error) {
-            toast.error("Có lỗi xảy ra khi khôi phục món ăn");
+         } catch (error: any) {
+            toast.error(`${error.response?.data?.message || "An error occurred while restoring the menu item"}`);
          }
       });
    };
@@ -97,8 +97,8 @@ export function MenuItemActions({
             } else {
                toast.error(result.error);
             }
-         } catch (error) {
-            toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+         } catch (error: any) {
+            toast.error(`${error.response?.data?.message || "An error occurred while updating the status"}`);
          }
       });
    };
@@ -112,8 +112,8 @@ export function MenuItemActions({
             } else {
                toast.error(result.error);
             }
-         } catch (error) {
-            toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+         } catch (error: any) {
+            toast.error(`${error.response?.data?.message || "An error occurred while updating the status"}`);
          }
       });
    };
@@ -128,14 +128,14 @@ export function MenuItemActions({
                </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-               <DropdownMenuLabel>Hành động</DropdownMenuLabel>
+               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                <DropdownMenuSeparator />
 
                {!deletedAt && (
                   <>
                      <DropdownMenuItem onClick={onEdit} disabled={isPending}>
                         <Edit className="mr-2 h-4 w-4" />
-                        Chỉnh sửa
+                        Edit
                      </DropdownMenuItem>
 
                      <DropdownMenuItem
@@ -145,12 +145,12 @@ export function MenuItemActions({
                         {isActive ? (
                            <>
                               <EyeOff className="mr-2 h-4 w-4" />
-                              Ẩn món ăn
+                              Hide menu item
                            </>
                         ) : (
                            <>
                               <Eye className="mr-2 h-4 w-4" />
-                              Hiển thị món ăn
+                              Show menu item
                            </>
                         )}
                      </DropdownMenuItem>
@@ -168,8 +168,8 @@ export function MenuItemActions({
                         disabled={isPending}
                      >
                         {status === MenuItemStatus.AVAILABLE
-                           ? "Đánh dấu hết hàng"
-                           : "Đánh dấu có sẵn"}
+                           ? "Mark as out of stock"
+                           : "Mark as available"}
                      </DropdownMenuItem>
 
                      <DropdownMenuSeparator />
@@ -180,7 +180,7 @@ export function MenuItemActions({
                         disabled={isPending}
                      >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Xóa
+                        Delete
                      </DropdownMenuItem>
                   </>
                )}
@@ -191,7 +191,7 @@ export function MenuItemActions({
                      disabled={isPending}
                   >
                      <RotateCcw className="mr-2 h-4 w-4" />
-                     Khôi phục
+                     Restore
                   </DropdownMenuItem>
                )}
             </DropdownMenuContent>
@@ -203,22 +203,22 @@ export function MenuItemActions({
          >
             <AlertDialogContent>
                <AlertDialogHeader>
-                  <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
+                  <AlertDialogTitle>Confirm deletion</AlertDialogTitle>
                   <AlertDialogDescription>
-                     Bạn có chắc chắn muốn xóa món ăn "{name}" không? Hành động
-                     này có thể được hoàn tác.
+                     Are you sure you want to delete the menu item &quot;{name}
+                     &quot;? This action can be undone.
                   </AlertDialogDescription>
                </AlertDialogHeader>
                <AlertDialogFooter>
                   <AlertDialogCancel disabled={isPending}>
-                     Hủy
+                     Cancel
                   </AlertDialogCancel>
                   <AlertDialogAction
                      onClick={handleDelete}
                      disabled={isPending}
                      className="bg-red-600 hover:bg-red-700"
                   >
-                     {isPending ? "Đang xóa..." : "Xóa"}
+                     {isPending ? "Deleting..." : "Delete"}
                   </AlertDialogAction>
                </AlertDialogFooter>
             </AlertDialogContent>
@@ -251,8 +251,10 @@ export function MenuItemStatusToggle({
             } else {
                toast.error(result.error);
             }
-         } catch (error) {
-            toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+         } catch (error: any) {
+            toast.error(
+               `${error.response?.data?.message || "An error occurred"}`,
+            );
          }
       });
    };
@@ -267,8 +269,8 @@ export function MenuItemStatusToggle({
          {isPending
             ? "..."
             : status === MenuItemStatus.AVAILABLE
-              ? "Có sẵn"
-              : "Hết hàng"}
+              ? "Available"
+              : "Out of stock"}
       </Button>
    );
 }
@@ -292,8 +294,10 @@ export function MenuItemActiveToggle({
             } else {
                toast.error(result.error);
             }
-         } catch (error) {
-            toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+         } catch (error: any) {
+            toast.error(
+               `${error.ressponse?.data?.message || "An error occurred"}`,
+            );
          }
       });
    };
@@ -305,7 +309,7 @@ export function MenuItemActiveToggle({
          onClick={handleToggle}
          disabled={isPending}
       >
-         {isPending ? "..." : isActive ? "Hiện" : "Ẩn"}
+         {isPending ? "..." : isActive ? "Show" : "Hide"}
       </Button>
    );
 }

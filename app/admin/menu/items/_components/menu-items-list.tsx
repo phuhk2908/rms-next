@@ -1,15 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { MenuItemCard } from "./menu-item-card";
 import { DeletedMenuItemActions } from "./deleted-menu-item-actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Eye, Images } from "lucide-react";
-import { type MenuItem, MenuItemStatus } from "@/types/menu";
+import { Images } from "lucide-react";
+import { type MenuItem } from "@/types/menu";
 import Image from "next/image";
 
 interface MenuItemsListProps {
@@ -35,14 +33,12 @@ export function MenuItemsList({ menuItems, categories }: MenuItemsListProps) {
    return (
       <div className="space-y-6">
          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            {/* Statistics */}
             <div className="text-muted-foreground flex gap-4 text-sm">
                <span>Active: {activeItems.length}</span>
                <span>Deleted: {deletedItems.length}</span>
                <span>Total: {menuItems.length}</span>
             </div>
 
-            {/* Toggle switch for showing deleted items */}
             <div className="flex items-center space-x-2">
                <Switch
                   id="show-deleted"
@@ -61,30 +57,33 @@ export function MenuItemsList({ menuItems, categories }: MenuItemsListProps) {
                   return (
                      <Card
                         key={item.id}
-                        className="overflow-hidden border-red-200 opacity-75 transition-shadow hover:shadow-md"
+                        className="overflow-hidden border-red-200 opacity-75 transition-shadow hover:shadow-md pt-0"
                      >
-                        {item.images && item.images.length > 0 && (
-                           <div className="relative">
-                              <Image
-                                 src={
-                                    item.images[0].ufsUrl || "/placeholder.svg"
-                                 }
-                                 alt={item.images[0].id}
-                                 className="h-48 w-full object-cover grayscale"
-                                 width={400}
-                                 height={192}
-                              />
-                              {item.images.length > 1 && (
-                                 <div className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/70 px-2 py-1 text-xs text-white">
-                                    <Images className="h-3 w-3" />
-                                    {item.images.length}
-                                 </div>
-                              )}
-                              <div className="absolute inset-0 bg-red-900/20" />
-                           </div>
-                        )}
+                        <CardHeader className="p-0">
+                           {item.images && item.images.length > 0 && (
+                              <div className="relative">
+                                 <Image
+                                    src={
+                                       item.images[0].ufsUrl ||
+                                       "/placeholder.svg"
+                                    }
+                                    alt={item.images[0].id}
+                                    className="h-48 w-full object-cover grayscale"
+                                    width={400}
+                                    height={192}
+                                 />
+                                 {item.images.length > 1 && (
+                                    <div className="absolute top-2 right-2 flex items-center gap-1 rounded-md bg-black/70 px-2 py-1 text-xs text-white">
+                                       <Images className="h-3 w-3" />
+                                       {item.images.length}
+                                    </div>
+                                 )}
+                                 <div className="absolute inset-0 bg-red-900/20" />
+                              </div>
+                           )}
+                        </CardHeader>
 
-                        <CardHeader className="pb-3">
+                        <CardContent className="space-y-4">
                            <div className="flex items-start justify-between">
                               <div className="space-y-1">
                                  <CardTitle className="text-lg line-through">
@@ -97,9 +96,6 @@ export function MenuItemsList({ menuItems, categories }: MenuItemsListProps) {
                                  )}
                               </div>
                            </div>
-                        </CardHeader>
-
-                        <CardContent className="space-y-4">
                            <div>
                               <p className="line-clamp-2 text-sm text-gray-600">
                                  {item.description}

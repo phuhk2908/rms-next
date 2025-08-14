@@ -14,6 +14,7 @@ import AddMenuItemForm from "./add-menu-item-form";
 import { ViewMenuItemDialog } from "./view-menu-item-dialog";
 import { DeleteMenuItemDialog } from "./delete-menu-item-dialog";
 import { MenuItemStatusBadge } from "./menu-item-status-badge";
+import { formatPrice } from "@/lib/utils";
 
 interface MenuItemCardProps {
    item: MenuItem;
@@ -21,13 +22,6 @@ interface MenuItemCardProps {
 }
 
 export function MenuItemCard({ item, categories }: MenuItemCardProps) {
-   const formatPrice = (price: number) => {
-      return new Intl.NumberFormat("vi-VN", {
-         style: "currency",
-         currency: "VND",
-      }).format(price);
-   };
-
    return (
       <Card className="justify-between overflow-hidden pt-0 transition-shadow hover:shadow-md">
          <CardHeader className="p-0">

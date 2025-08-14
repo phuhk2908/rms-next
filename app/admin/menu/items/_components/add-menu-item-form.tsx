@@ -18,23 +18,18 @@ import { Input } from "@/components/ui/input";
 import { tryCatch } from "@/helpers/try-catch";
 import { toast } from "sonner";
 import Image from "next/image";
-import { UploadDropzone } from "@/lib/uploadthing";
-import { twMerge } from "tailwind-merge";
-import { cn } from "@/lib/utils";
 import { createMenuItem, updateMenuItem } from "@/actions/menu/menu-items";
 import { deleteFiles } from "@/actions/uploadthing";
 import {
    Sheet,
    SheetContent,
    SheetDescription,
-   SheetFooter,
    SheetHeader,
    SheetTitle,
    SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { env } from "@/lib/env";
 import { SubmitButton } from "@/components/ui/submit-button";
 import {
    Select,
@@ -46,8 +41,6 @@ import {
 import { MenuItemStatus } from "@/types/menu";
 import { MenuItem } from "@/types/menu";
 import { CreateMenuItemInput } from "@/actions/menu/menu-items";
-import { getMenuCategoriesForSelect } from "@/data/menu-item";
-import { MenuItemStatus as PrismaMenuItemStatus } from "@/lib/generated/prisma";
 import { FileUploader } from "@/components/file-uploader";
 
 interface MenuItemForm {
@@ -228,43 +221,47 @@ export default function AddMenuItemForm({
                         control={form.control}
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>Hình ảnh (tối đa: 8)</FormLabel>
+                              <FormLabel>Images (max: 8)</FormLabel>
                               <FormControl>
                                  <div className="space-y-4">
                                     {images.length > 0 && (
-                                       <div className="grid grid-cols-2 gap-4">
+                                       <div className="flex gap-4 overflow-x-auto pb-2">
                                           {images.map((image, index) => (
                                              <div
                                                 key={image.key}
-                                                className="relative h-32 w-full overflow-hidden rounded-lg border"
+                                                className="group relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-lg border shadow-sm"
                                              >
                                                 <Image
                                                    src={image.ufsUrl}
                                                    alt={`Preview ${index + 1}`}
                                                    fill
                                                    sizes="auto"
-                                                   className="object-cover"
+                                                   className="object-cover transition-transform duration-300 group-hover:scale-105"
                                                 />
-                                                <Button
-                                                   disabled={
-                                                      isDeletePending ||
-                                                      isPending
-                                                   }
-                                                   className="absolute top-2 right-2 h-6 w-6 bg-red-500 hover:bg-red-600"
-                                                   size="icon"
-                                                   type="button"
-                                                   onClick={() =>
-                                                      handleDeleteImage(
-                                                         image.key,
-                                                      )
-                                                   }
-                                                >
-                                                   {isDeletePending ? (
-                                                      <Loader2 className="h-3 w-3 animate-spin" />
-                                                   ) : (
-                                                      <X className="h-3 w-3 text-white" />
-                                                   )}
-                                                </Button>
+
+                                                {/* Overlay khi hover */}
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                                                   <Button
+                                                      disabled={
+                                                         isDeletePending ||
+                                                         isPending
+                                                      }
+                                                      size="icon"
+                                                      type="button"
+                                                      onClick={() =>
+                                                         handleDeleteImage(
+                                                            image.key,
+                                                         )
+                                                      }
+                                                      className="rounded-full bg-red-500 hover:bg-red-600"
+                                                   >
+                                                      {isDeletePending ? (
+                                                         <Loader2 className="h-4 w-4 animate-spin text-white" />
+                                                      ) : (
+                                                         <X className="h-4 w-4 text-white" />
+                                                      )}
+                                                   </Button>
+                                                </div>
                                              </div>
                                           ))}
                                        </div>
@@ -402,7 +399,7 @@ export default function AddMenuItemForm({
                            control={form.control}
                            render={({ field }) => (
                               <FormItem>
-                                 <FormLabel>Price (VND) *</FormLabel>
+                                 <FormLabel>Price*</FormLabel>
                                  <FormControl>
                                     <Input
                                        type="number"
