@@ -5,6 +5,9 @@ import { MenuCategoryCard } from "./_components/menu-category-card";
 export default async function AdminMenuCategoriesPage() {
    const data = await getAllMenuCategories();
 
+   console.log(data);
+   
+
    return (
       <div className="p-4 lg:p-6">
          <div className="flex flex-col space-y-4 md:flex-row md:items-center md:justify-between md:space-y-0">

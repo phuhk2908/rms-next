@@ -1,0 +1,191 @@
+"use client";
+
+import { useState } from "react";
+import {
+   Dialog,
+   DialogContent,
+   DialogDescription,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Eye } from "lucide-react";
+import { type MenuItem, MenuItemStatus } from "@/types/menu";
+import Image from "next/image";
+import { Separator } from "@/components/ui/separator";
+
+interface ViewMenuItemDialogProps {
+   item: MenuItem;
+   trigger?: React.ReactNode;
+}
+
+export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
+   const [isOpen, setIsOpen] = useState(false);
+
+   const getStatusBadge = (status: MenuItemStatus) => {
+      const variants = {
+         [MenuItemStatus.AVAILABLE]: "bg-green-100 text-green-800",
+         [MenuItemStatus.UNAVAILABLE]: "bg-yellow-100 text-yellow-800",
+      };
+
+      return (
+         <Badge className={variants[status]}>{status.replace("_", " ")}</Badge>
+      );
+   };
+
+   const formatPrice = (price: number) => {
+      return new Intl.NumberFormat("vi-VN", {
+         style: "currency",
+         currency: "VND",
+      }).format(price);
+   };
+
+   return (
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+         <DialogTrigger asChild>
+            {trigger || (
+               <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 gap-1 bg-transparent"
+               >
+                  <Eye className="h-3 w-3" />
+                  View
+               </Button>
+            )}
+         </DialogTrigger>
+         <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+            <DialogHeader>
+               <DialogTitle className="text-xl">{item.name}</DialogTitle>
+               {item.nameEn && (
+                  <DialogDescription className="text-base">
+                     {item.nameEn}
+                  </DialogDescription>
+               )}
+            </DialogHeader>
+
+            <div className="space-y-6">
+               {/* Images */}
+               {item.images && item.images.length > 0 && (
+                  <div className="space-y-2">
+                     <h3 className="text-sm font-medium text-gray-700">
+                        Images
+                     </h3>
+                     <div className="grid grid-cols-2 gap-4">
+                        {item.images.map((image, index) => (
+                           <div
+                              key={image.id}
+                              className="relative h-32 w-full overflow-hidden rounded-lg border"
+                           >
+                              <Image
+                                 src={image.ufsUrl || "/placeholder.svg"}
+                                 alt={`${item.name} ${index + 1}`}
+                                 fill
+                                 sizes="auto"
+                                 className="object-cover"
+                              />
+                           </div>
+                        ))}
+                     </div>
+                  </div>
+               )}
+
+               <Separator />
+
+               {/* Basic Info */}
+               <div className="grid grid-cols-2 gap-4">
+                  <div>
+                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                        Price
+                     </h3>
+                     <p className="text-lg font-semibold text-green-600">
+                        {formatPrice(item.price)}
+                     </p>
+                  </div>
+                  <div>
+                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                        Category
+                     </h3>
+                     <p className="text-sm">{item.category.name}</p>
+                     {item.category.nameEn && (
+                        <p className="text-xs text-gray-500">
+                           {item.category.nameEn}
+                        </p>
+                     )}
+                  </div>
+               </div>
+
+               <div className="grid grid-cols-2 gap-4">
+                  <div>
+                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                        Status
+                     </h3>
+                     {getStatusBadge(item.status as MenuItemStatus)}
+                  </div>
+                  <div>
+                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                        Active
+                     </h3>
+                     <Badge variant={item.isActive ? "default" : "secondary"}>
+                        {item.isActive ? "Active" : "Inactive"}
+                     </Badge>
+                  </div>
+               </div>
+
+               <Separator />
+
+               {/* Descriptions */}
+               {(item.description || item.descriptionEn) && (
+                  <div className="space-y-4">
+                     {item.description && (
+                        <div>
+                           <h3 className="mb-1 text-sm font-medium text-gray-700">
+                              Description
+                           </h3>
+                           <p className="text-sm leading-relaxed text-gray-600">
+                              {item.description}
+                           </p>
+                        </div>
+                     )}
+                     {item.descriptionEn && (
+                        <div>
+                           <h3 className="mb-1 text-sm font-medium text-gray-700">
+                              English Description
+                           </h3>
+                           <p className="text-sm leading-relaxed text-gray-600">
+                              {item.descriptionEn}
+                           </p>
+                        </div>
+                     )}
+                  </div>
+               )}
+
+               <Separator />
+
+               {/* Recipe Info */}
+               {item.recipe && (
+                  <div>
+                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                        Recipe
+                     </h3>
+                     <p className="text-sm">{item.recipe.name}</p>
+                     {item.recipe.description && (
+                        <p className="text-xs text-gray-500">
+                           {item.recipe.description}
+                        </p>
+                     )}
+                  </div>
+               )}
+
+               {/* Metadata */}
+               <div className="space-y-1 text-xs text-gray-500">
+                  <p>Created: {new Date(item.createdAt).toLocaleString()}</p>
+                  <p>Updated: {new Date(item.updatedAt).toLocaleString()}</p>
+               </div>
+            </div>
+         </DialogContent>
+      </Dialog>
+   );
+}

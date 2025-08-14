@@ -9,14 +9,12 @@ import {
    FormLabel,
    FormMessage,
 } from "@/components/ui/form";
-import { menuCategorySchema, MenuItemFormValue } from "@/schemas/menu";
 import { Edit, Plus } from "lucide-react";
 import React, { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { createMenuCategory, updateMenuCategory } from "@/actions/menu";
 import {
    Sheet,
    SheetContent,
@@ -31,6 +29,14 @@ import { SubmitButton } from "@/components/ui/submit-button";
 import { FileUploader } from "@/components/file-uploader";
 import Image from "next/image";
 import { MenuCategory } from "@/types/menu";
+import {
+   menuCategorySchema,
+   MenuItemFormValue,
+} from "@/schemas/menu/menu-category";
+import {
+   createMenuCategory,
+   updateMenuCategory,
+} from "@/actions/menu/menu-categories";
 
 interface MenuCategoryForm {
    mode: "create" | "edit";
@@ -98,7 +104,11 @@ export default function AddMenuCategoryForm({
                description: menuCategory.description || "",
                descriptionEn: menuCategory.descriptionEn || "",
                isActive: menuCategory.isActive,
-               image: menuCategory.image || { key: "", ufsUrl: "" },
+               image:
+                  typeof menuCategory.image === "object" &&
+                  menuCategory.image !== null
+                     ? menuCategory.image
+                     : { key: "", ufsUrl: "" },
             });
          }
       }

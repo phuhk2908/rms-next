@@ -402,7 +402,7 @@ model MenuItem {
   description   String?
   descriptionEn String?
   price         Float
-  imageUrl      String?
+  images        Image[]
   status        MenuItemStatus @default(AVAILABLE)
   recordStatus  Status         @default(ACTIVE) // Thêm field này
   isActive      Boolean        @default(true)
@@ -603,13 +603,15 @@ model Address {
 }
 
 model Image {
-  id           String         @id @default(cuid())
-  key          String
-  ufsUrl       String
-  ingredients  Ingredient[]
+  id             String         @id @default(cuid())
+  key            String
+  ufsUrl         String
+  ingredients    Ingredient[]
   menuCategories MenuCategory[]
-  createdAt    DateTime       @default(now())
-  updatedAt    DateTime       @updatedAt
+  menuItem       MenuItem?      @relation(fields: [menuItemId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  menuItemId     String?
 }
 
 model WorkingDayConfig {

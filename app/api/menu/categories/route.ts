@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/slugify";
-import { menuCategorySchema } from "@/schemas/menu";
+import { menuCategorySchema } from "@/schemas/menu/menu-category";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
