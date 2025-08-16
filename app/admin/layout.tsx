@@ -11,6 +11,8 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
+   const internalRoles = ["ADMIN","MANAGER","STAFF"]
+
    const session = await auth.api.getSession({
       headers: await headers(),
    });
@@ -19,7 +21,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       redirect("/sign-in");
    }
 
-   if (session && session.user.role !== "ADMIN") {
+   if (session && !internalRoles.includes(session?.user.role)) {
       redirect("/access-denied");
    }
 

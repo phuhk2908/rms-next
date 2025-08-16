@@ -1,15 +1,15 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { emailOTP, admin } from "better-auth/plugins";
+import { emailOTP, admin as adminPlugin } from "better-auth/plugins";
 import { resend } from "./resend";
 import { env } from "./env";
 import argon2 from "argon2";
 import { getVerificationEmailTemplate } from "./email-templates";
+import { ac, admin, chef, customer, manager, staff } from "./permission";
 
 const emailAndPasswordConfig: BetterAuthOptions["emailAndPassword"] = {
    enabled: true,
-   autoSignIn: true,
    password: {
       hash: (password) => argon2.hash(password),
       verify: (data) => argon2.verify(data.hash, data.password),
@@ -40,9 +40,15 @@ const plugins: BetterAuthOptions["plugins"] = [
          });
       },
    }),
-   admin({
-      defaultRole: "CUSTOMER",
-      adminRoles: ["ADMIN"],
+   adminPlugin({
+      ac,
+      roles: {
+         admin,
+         manager,
+         staff,
+         chef,
+         customer,
+      },
    }),
 ];
 
