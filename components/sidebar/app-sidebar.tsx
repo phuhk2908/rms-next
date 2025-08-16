@@ -90,6 +90,18 @@ const data = {
          icon: Table,
          isActive: false,
       },
+      {
+         title: "Employee Management",
+         url: "#",
+         icon: Users,
+         isActive: true,
+         items: [
+            {
+               title: "List",
+               url: "/admin/employees/",
+            },
+         ],
+      },
    ],
    navClouds: [
       {
