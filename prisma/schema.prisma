@@ -214,9 +214,9 @@ model EmployeeProfile {
   id            String         @id @default(cuid())
   userId        String         @unique
   user          User           @relation(fields: [userId], references: [id])
-  employeeId    String         @unique // Mã nhân viên
+  employeeCode    String         @unique
   position      String?
-  startDate     DateTime
+  dateOfBirth   DateTime?
   phoneNumber   String?
   salaryType    SalaryType     @default(MONTHLY)
   baseSalary    Float?

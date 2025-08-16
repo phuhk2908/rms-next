@@ -80,6 +80,10 @@ export const columns: ColumnDef<UserWithEmployeeProfile>[] = [
       enableHiding: false,
    },
    {
+      accessorKey: "name",
+      header: "Name",
+   },
+   {
       accessorKey: "email",
       header: "Email",
    },

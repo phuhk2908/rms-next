@@ -13,7 +13,7 @@ export const getAllEmployees = async () => {
                id: true,
                user: true,
                position: true,
-               startDate: true,
+               dateOfBirth: true,
                phoneNumber: true,
                salaryType: true,
                baseSalary: true,
@@ -34,4 +34,3 @@ export const getAllEmployees = async () => {
 
    return users;
 };
-

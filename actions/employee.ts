@@ -13,6 +13,7 @@ import { resend } from "@/lib/resend";
 import { env } from "@/lib/env";
 import EmailTemplate from "@/components/email";
 import { SalaryType } from "@/lib/generated/prisma";
+import { generateEmployeeCode } from "@/helpers/generate-employee-code";
 
 export const createEmployee = async (
    values: EmployeeFormValue,
@@ -30,7 +31,8 @@ export const createEmployee = async (
          };
       }
 
-      let password = generateSecurePassword();
+      const password = generateSecurePassword();
+      const employeeCode = generateEmployeeCode();
 
       const hashedPassword = (await argon2.hash(password)) as string;
 
@@ -44,9 +46,9 @@ export const createEmployee = async (
             role: validation.data.role,
             employeeProfile: {
                create: {
-                  employeeId: "ABC",
+                  employeeCode: employeeCode,
                   position: validation.data.employeeProfile.position,
-                  startDate: validation.data.employeeProfile.startDate,
+                  dateOfBirth: validation.data.employeeProfile.dateOfBirth,
                   phoneNumber: validation.data.employeeProfile.phoneNumber,
                   salaryType: validation.data.employeeProfile
                      .salaryType as SalaryType,
@@ -54,12 +56,17 @@ export const createEmployee = async (
                   hourlyRate: validation.data.employeeProfile.hourlyRate,
                   address: {
                      create: {
-                        street: validation.data.employeeProfile.address?.street,
-                        ward: validation.data.employeeProfile.address?.ward,
+                        street:
+                           validation.data.employeeProfile.address?.street ||
+                           "",
+                        ward:
+                           validation.data.employeeProfile.address?.ward || "",
                         district:
-                           validation.data.employeeProfile.address?.district,
+                           validation.data.employeeProfile.address?.district ||
+                           "",
                         province:
-                           validation.data.employeeProfile.address?.province,
+                           validation.data.employeeProfile.address?.province ||
+                           "",
                      },
                   },
                },
@@ -132,7 +139,7 @@ export const updateEmployee = async (
             employeeProfile: {
                update: {
                   position: validation.data.employeeProfile.position,
-                  startDate: validation.data.employeeProfile.startDate,
+                  dateOfBirth: validation.data.employeeProfile.dateOfBirth,
                   phoneNumber: validation.data.employeeProfile.phoneNumber,
                   salaryType: validation.data.employeeProfile
                      .salaryType as SalaryType,

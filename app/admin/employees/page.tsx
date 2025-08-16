@@ -10,7 +10,9 @@ export const metadata: Metadata = {
 
 export default async function Page() {
    const employees = await getAllEmployees();
+   
    console.log(employees);
+   
    return (
       <div className="p-4 lg:p-6">
          <div className="flex w-full items-center justify-end">

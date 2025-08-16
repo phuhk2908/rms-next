@@ -4,18 +4,18 @@ import React from "react";
 import {
    Sheet,
    SheetContent,
+   SheetDescription,
    SheetFooter,
    SheetHeader,
    SheetTitle,
    SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Eye, Pencil, Plus } from "lucide-react";
+import { CalendarIcon, Plus } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
    Form,
    FormControl,
-   FormDescription,
    FormField,
    FormItem,
    FormLabel,
@@ -44,6 +44,7 @@ import { formatDate } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { createEmployee } from "@/actions/employee";
 import { toast } from "sonner";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 const EmployeeForm = () => {
    const { data: session } = authClient.useSession();
@@ -56,11 +57,11 @@ const EmployeeForm = () => {
          role: UserRole.STAFF,
          employeeProfile: {
             position: "",
-            startDate: new Date(),
+            dateOfBirth: new Date(),
             phoneNumber: "",
             salaryType: SalaryType.HOURLY,
-            baseSalary: 0,
-            hourlyRate: 0,
+            baseSalary: undefined,
+            hourlyRate: undefined,
             address: {
                street: "",
                ward: "",
@@ -70,6 +71,8 @@ const EmployeeForm = () => {
          },
       },
    });
+
+   const salaryType = form.watch("employeeProfile.salaryType");
 
    const onSubmit = async (data: EmployeeFormValue) => {
       const res = await createEmployee(data);
@@ -92,6 +95,9 @@ const EmployeeForm = () => {
          <SheetContent className="sm:max-w-xl">
             <SheetHeader>
                <SheetTitle className="text-xl">Create New Employee</SheetTitle>
+               <SheetDescription>
+                  Please fill in the employee information below.
+               </SheetDescription>
             </SheetHeader>
             <Form {...form}>
                <form
@@ -174,10 +180,7 @@ const EmployeeForm = () => {
                         name="employeeProfile.position"
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>
-                                 Position
-                                 <span className="text-red-500">*</span>
-                              </FormLabel>
+                              <FormLabel>Position</FormLabel>
                               <FormControl>
                                  <Input
                                     placeholder="Staff, manager,..."
@@ -192,10 +195,10 @@ const EmployeeForm = () => {
                   <div className="grid grid-cols-2 gap-4">
                      <FormField
                         control={form.control}
-                        name="employeeProfile.startDate"
+                        name="employeeProfile.dateOfBirth"
                         render={({ field }) => (
                            <FormItem className="flex flex-col">
-                              <FormLabel>Start Date</FormLabel>
+                              <FormLabel>Date of Birth</FormLabel>
                               <Popover>
                                  <PopoverTrigger asChild>
                                     <FormControl>
@@ -269,103 +272,87 @@ const EmployeeForm = () => {
                                     value={field.value}
                                     className="mt-2 flex gap-8"
                                  >
-                                    <FormItem className="flex items-center space-x-2">
-                                       <FormControl>
-                                          <RadioGroupItem
-                                             value={SalaryType.MONTHLY}
-                                          />
-                                       </FormControl>
-                                       <FormLabel className="font-normal">
-                                          Monthly Salary
-                                       </FormLabel>
-                                    </FormItem>
-
-                                    <FormItem className="flex items-center space-x-2">
-                                       <FormControl>
-                                          <RadioGroupItem
-                                             value={SalaryType.HOURLY}
-                                          />
-                                       </FormControl>
-                                       <FormLabel className="font-normal">
-                                          Hourly Rate
-                                       </FormLabel>
-                                    </FormItem>
-
-                                    <FormItem className="flex items-center space-x-2">
-                                       <FormControl>
-                                          <RadioGroupItem
-                                             value={SalaryType.MIXED}
-                                          />
-                                       </FormControl>
-                                       <FormLabel className="font-normal">
-                                          Mixed
-                                       </FormLabel>
-                                    </FormItem>
+                                    {Object.values(SalaryType).map((type) => (
+                                       <FormItem
+                                          className="flex items-center space-x-2"
+                                          key={type}
+                                       >
+                                          <FormControl>
+                                             <RadioGroupItem value={type} />
+                                          </FormControl>
+                                          <FormLabel className="font-normal">
+                                             {type}
+                                          </FormLabel>
+                                       </FormItem>
+                                    ))}
                                  </RadioGroup>
                               </FormControl>
                               <FormMessage />
                            </FormItem>
                         )}
                      />
-
-                     {form.watch("employeeProfile.salaryType") !==
-                        SalaryType.HOURLY && (
-                        <FormField
-                           control={form.control}
-                           name="employeeProfile.baseSalary"
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>
-                                    Base Salary
-                                    <span className="text-red-500">*</span>
-                                 </FormLabel>
-                                 <FormControl>
-                                    <Input
-                                       type="number"
-                                       placeholder="1500"
-                                       {...field}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-                     )}
-
-                     {form.watch("employeeProfile.salaryType") !==
-                        SalaryType.MONTHLY && (
-                        <FormField
-                           control={form.control}
-                           name="employeeProfile.hourlyRate"
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>
-                                    Hourly Rate
-                                    <span className="text-red-500">*</span>
-                                 </FormLabel>
-                                 <FormControl>
-                                    <Input
-                                       type="number"
-                                       placeholder="25"
-                                       {...field}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-                     )}
                   </div>
+
+                  {(salaryType === SalaryType.MONTHLY ||
+                     salaryType === SalaryType.MIXED) && (
+                     <FormField
+                        control={form.control}
+                        name="employeeProfile.baseSalary"
+                        render={({ field }) => (
+                           <FormItem>
+                              <FormLabel>
+                                 Basic Salary (VND)
+                                 <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                 <Input
+                                    type="number"
+                                    placeholder="15000000"
+                                    {...field}
+                                    onChange={(e) =>
+                                       field.onChange(Number(e.target.value))
+                                    }
+                                 />
+                              </FormControl>
+                              <FormMessage />
+                           </FormItem>
+                        )}
+                     />
+                  )}
+
+                  {(salaryType === SalaryType.HOURLY ||
+                     salaryType === SalaryType.MIXED) && (
+                     <FormField
+                        control={form.control}
+                        name="employeeProfile.hourlyRate"
+                        render={({ field }) => (
+                           <FormItem>
+                              <FormLabel>
+                                 Hourly Rate (VND)
+                                 <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                 <Input
+                                    type="number"
+                                    placeholder="50000"
+                                    {...field}
+                                    onChange={(e) =>
+                                       field.onChange(Number(e.target.value))
+                                    }
+                                 />
+                              </FormControl>
+                              <FormMessage />
+                           </FormItem>
+                        )}
+                     />
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                      <FormField
                         control={form.control}
                         name="employeeProfile.address.street"
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>
-                                 Street
-                                 <span className="text-red-500">*</span>
-                              </FormLabel>
+                              <FormLabel>Street</FormLabel>
                               <FormControl>
                                  <Input placeholder="123 Avenue" {...field} />
                               </FormControl>
@@ -378,9 +365,7 @@ const EmployeeForm = () => {
                         name="employeeProfile.address.ward"
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>
-                                 Ward <span className="text-red-500">*</span>
-                              </FormLabel>
+                              <FormLabel></FormLabel>
                               <FormControl>
                                  <Input placeholder="Ward 1" {...field} />
                               </FormControl>
@@ -395,10 +380,7 @@ const EmployeeForm = () => {
                         name="employeeProfile.address.district"
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>
-                                 District
-                                 <span className="text-red-500">*</span>
-                              </FormLabel>
+                              <FormLabel>District</FormLabel>
                               <FormControl>
                                  <Input placeholder="District 1" {...field} />
                               </FormControl>
@@ -411,10 +393,7 @@ const EmployeeForm = () => {
                         name="employeeProfile.address.province"
                         render={({ field }) => (
                            <FormItem>
-                              <FormLabel>
-                                 Province{" "}
-                                 <span className="text-red-500">*</span>
-                              </FormLabel>
+                              <FormLabel>Province</FormLabel>
                               <FormControl>
                                  <Input
                                     placeholder="Ho Chi Minh City"
@@ -426,7 +405,14 @@ const EmployeeForm = () => {
                         )}
                      />
                   </div>
-                  <Button type="submit">Create</Button>
+                  <SubmitButton
+                     type="submit"
+                     loadingText="Loading..."
+                     isLoading={form.formState.isSubmitting}
+                     disabled={form.formState.isSubmitting}
+                  >
+                     Create
+                  </SubmitButton>
                </form>
             </Form>
          </SheetContent>
