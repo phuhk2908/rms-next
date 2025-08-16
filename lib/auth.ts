@@ -1,12 +1,19 @@
 import { betterAuth, type BetterAuthOptions } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
-import { emailOTP, admin as adminPlugin } from "better-auth/plugins";
+import { emailOTP, admin } from "better-auth/plugins";
 import { resend } from "./resend";
 import { env } from "./env";
 import argon2 from "argon2";
 import { getVerificationEmailTemplate } from "./email-templates";
-import { ac, admin, chef, customer, manager, staff } from "./permission";
+import {
+   ac,
+   admin as adminRole,
+   chef,
+   customer,
+   manager,
+   staff,
+} from "./permission";
 
 const emailAndPasswordConfig: BetterAuthOptions["emailAndPassword"] = {
    enabled: true,
@@ -40,10 +47,20 @@ const plugins: BetterAuthOptions["plugins"] = [
          });
       },
    }),
-   adminPlugin({
+   emailOTP({
+      async sendVerificationOTP({ email, otp }) {
+         await resend.emails.send({
+            from: env.RESEND_FROM_MAIL,
+            to: [email],
+            subject: "FuofuoLMS - Verify your email",
+            html: `<p>Your OTP is <strong>${otp}</strong></p>`,
+         });
+      },
+   }),
+   admin({
       ac,
       roles: {
-         admin,
+         adminRole,
          manager,
          staff,
          chef,
@@ -53,6 +70,9 @@ const plugins: BetterAuthOptions["plugins"] = [
 ];
 
 export const auth = betterAuth({
+   telemetry: {
+      debug: false,
+   },
    emailAndPassword: emailAndPasswordConfig,
    emailVerification: emailVerificationConfig,
    database: prismaAdapter(prisma, { provider: "postgresql" }),
@@ -62,7 +82,6 @@ export const auth = betterAuth({
          clientSecret: env.GITHUB_CLIENT_SECRET,
       },
    },
-   plugins,
    user: {
       additionalFields: {
          role: {
