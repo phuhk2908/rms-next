@@ -70,9 +70,6 @@ const plugins: BetterAuthOptions["plugins"] = [
 ];
 
 export const auth = betterAuth({
-   telemetry: {
-      debug: false,
-   },
    emailAndPassword: emailAndPasswordConfig,
    emailVerification: emailVerificationConfig,
    database: prismaAdapter(prisma, { provider: "postgresql" }),
@@ -90,6 +87,7 @@ export const auth = betterAuth({
          },
       },
    },
+   plugins,
    advanced: {
       database: {
          generateId: false,
