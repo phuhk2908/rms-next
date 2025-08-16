@@ -12,6 +12,7 @@ import { generateId } from "better-auth";
 import { resend } from "@/lib/resend";
 import { env } from "@/lib/env";
 import EmailTemplate from "@/components/email";
+import { SalaryType } from "@/lib/generated/prisma";
 
 export const createEmployee = async (
    values: EmployeeFormValue,
@@ -41,6 +42,28 @@ export const createEmployee = async (
             createdAt: new Date(),
             updatedAt: new Date(),
             role: validation.data.role,
+            employeeProfile: {
+               create: {
+                  employeeId: "ABC",
+                  position: validation.data.employeeProfile.position,
+                  startDate: validation.data.employeeProfile.startDate,
+                  phoneNumber: validation.data.employeeProfile.phoneNumber,
+                  salaryType: validation.data.employeeProfile
+                     .salaryType as SalaryType,
+                  baseSalary: validation.data.employeeProfile.baseSalary,
+                  hourlyRate: validation.data.employeeProfile.hourlyRate,
+                  address: {
+                     create: {
+                        street: validation.data.employeeProfile.address?.street,
+                        ward: validation.data.employeeProfile.address?.ward,
+                        district:
+                           validation.data.employeeProfile.address?.district,
+                        province:
+                           validation.data.employeeProfile.address?.province,
+                     },
+                  },
+               },
+            },
             accounts: {
                create: {
                   accountId: generateId(),
@@ -68,6 +91,73 @@ export const createEmployee = async (
       return {
          status: "success",
          message: "Created new employee successfully",
+      };
+   } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+         return {
+            status: "error",
+            message: error.message,
+         };
+      }
+      return {
+         status: "error",
+         message: "An unexpected error occurred. Please try again later",
+      };
+   }
+};
+
+export const updateEmployee = async (
+   values: EmployeeFormValue,
+): Promise<ApiResponse> => {
+   try {
+      await requireAdmin();
+
+      const validation = employeeSchema.safeParse(values);
+
+      if (!validation.success) {
+         return {
+            status: "error",
+            message: "Invalid form data. Please correct the errors.",
+            errors: validation.error,
+         };
+      }
+
+      await prisma.user.update({
+         where: {
+            id: validation.data.id,
+         },
+         data: {
+            name: validation.data.name,
+            role: validation.data.role,
+            employeeProfile: {
+               update: {
+                  position: validation.data.employeeProfile.position,
+                  startDate: validation.data.employeeProfile.startDate,
+                  phoneNumber: validation.data.employeeProfile.phoneNumber,
+                  salaryType: validation.data.employeeProfile
+                     .salaryType as SalaryType,
+                  baseSalary: validation.data.employeeProfile.baseSalary,
+                  hourlyRate: validation.data.employeeProfile.hourlyRate,
+                  address: {
+                     update: {
+                        street: validation.data.employeeProfile.address?.street,
+                        ward: validation.data.employeeProfile.address?.ward,
+                        district:
+                           validation.data.employeeProfile.address?.district,
+                        province:
+                           validation.data.employeeProfile.address?.province,
+                     },
+                  },
+               },
+            },
+         },
+      });
+
+      revalidatePath("/admin/employees");
+
+      return {
+         status: "success",
+         message: "Updated employee successfully",
       };
    } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {

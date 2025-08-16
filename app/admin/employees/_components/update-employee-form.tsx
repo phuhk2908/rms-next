@@ -1,21 +1,19 @@
 "use client";
 
-import React from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import {
    Sheet,
    SheetContent,
-   SheetFooter,
    SheetHeader,
    SheetTitle,
    SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
-import { CalendarIcon, Eye, Pencil, Plus } from "lucide-react";
+import { CalendarIcon, Edit, Pencil } from "lucide-react";
 import { useForm } from "react-hook-form";
 import {
    Form,
    FormControl,
-   FormDescription,
    FormField,
    FormItem,
    FormLabel,
@@ -31,7 +29,7 @@ import {
    SelectTrigger,
    SelectValue,
 } from "@/components/ui/select";
-import { SalaryType, UserRole } from "@/lib/generated/prisma";
+import { UserRole } from "@/lib/generated/prisma";
 import { authClient } from "@/lib/auth-client";
 import {
    Popover,
@@ -42,56 +40,37 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { formatDate } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { createEmployee } from "@/actions/employee";
-import { toast } from "sonner";
+import { updateEmployee } from "@/actions/employee";
+import { SalaryType } from "@/lib/generated/prisma";
 
-const EmployeeForm = () => {
+interface EmployeeProps {
+   employeeData: EmployeeFormValue;
+   open: boolean;
+   setOpen: Dispatch<SetStateAction<boolean>>;
+}
+
+const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
    const { data: session } = authClient.useSession();
 
    const form = useForm<EmployeeFormValue>({
       resolver: zodResolver(employeeSchema),
-      defaultValues: {
-         name: "",
-         email: "",
-         role: UserRole.STAFF,
-         employeeProfile: {
-            position: "",
-            startDate: new Date(),
-            phoneNumber: "",
-            salaryType: SalaryType.HOURLY,
-            baseSalary: 0,
-            hourlyRate: 0,
-            address: {
-               street: "",
-               ward: "",
-               district: "",
-               province: "",
-            },
-         },
-      },
+      defaultValues: employeeData,
    });
 
    const onSubmit = async (data: EmployeeFormValue) => {
-      const res = await createEmployee(data);
+      const res = await updateEmployee(data);
       if (res.status === "success") {
          toast.success(res.message);
-         form.reset();
+         setOpen(false);
       } else {
          toast.error(res.message);
       }
    };
-
    return (
-      <Sheet>
-         <SheetTrigger asChild>
-            <Button>
-               <Plus />
-               Employee
-            </Button>
-         </SheetTrigger>
+      <Sheet open={open} onOpenChange={setOpen}>
          <SheetContent className="sm:max-w-xl">
             <SheetHeader>
-               <SheetTitle className="text-xl">Create New Employee</SheetTitle>
+               <SheetTitle className="text-xl">Update Employee</SheetTitle>
             </SheetHeader>
             <Form {...form}>
                <form
@@ -127,6 +106,7 @@ const EmployeeForm = () => {
                                  <Input
                                     placeholder="abc@employee.com"
                                     {...field}
+                                    disabled
                                  />
                               </FormControl>
                               <FormMessage />
@@ -222,7 +202,7 @@ const EmployeeForm = () => {
                                  >
                                     <Calendar
                                        mode="single"
-                                       selected={field.value}
+                                       selected={new Date(field.value)}
                                        onSelect={field.onChange}
                                        disabled={(date) =>
                                           date > new Date() ||
@@ -426,7 +406,7 @@ const EmployeeForm = () => {
                         )}
                      />
                   </div>
-                  <Button type="submit">Create</Button>
+                  <Button type="submit">Update</Button>
                </form>
             </Form>
          </SheetContent>
@@ -434,4 +414,4 @@ const EmployeeForm = () => {
    );
 };
 
-export default EmployeeForm;
+export default UpdateEmployeeForm;

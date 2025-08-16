@@ -1,5 +1,3 @@
-// user - EmployeeProfile;- address
-
 import { prisma } from "@/lib/prisma";
 
 export const getAllEmployees = async () => {
@@ -36,5 +34,4 @@ export const getAllEmployees = async () => {
 
    return users;
 };
-
 
