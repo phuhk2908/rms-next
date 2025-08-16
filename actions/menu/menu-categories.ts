@@ -6,9 +6,12 @@ import { tryCatch } from "@/helpers/try-catch";
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/slugify";
 import { ApiResponse } from "@/lib/types";
-import { menuCategorySchema, MenuItemFormValue } from "@/schemas/menu";
+import {
+   menuCategorySchema,
+   MenuItemFormValue,
+} from "@/schemas/menu/menu-category";
 import { revalidatePath } from "next/cache";
-import { deleteFiles } from "./uploadthing";
+import { deleteFiles } from "../uploadthing";
 
 export const createMenuCategory = async (values: MenuItemFormValue) => {
    return await tryCatch(async () => {

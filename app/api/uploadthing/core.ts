@@ -51,6 +51,24 @@ export const ourFileRouter = {
          // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
          return { uploadedBy: metadata.userId };
       }),
+   menuItem: f({
+      image: {
+         maxFileSize: "4MB",
+         maxFileCount: 5, // Cho phép upload tối đa 5 ảnh cho menu item
+      },
+   })
+      .middleware(async ({ req }) => {
+         const session = await auth.api.getSession({
+            headers: await headers(),
+         });
+
+         if (!session) throw new UploadThingError("Unauthorized!!!");
+
+         return { userId: session.user.id };
+      })
+      .onUploadComplete(async ({ metadata, file }) => {
+         return { uploadedBy: metadata.userId };
+      }),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
