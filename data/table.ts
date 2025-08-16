@@ -6,9 +6,10 @@ export const getAllTables = async () => {
          orders: true,
          reservations: true,
       },
-      orderBy:{
-         createdAt:"asc"
-      }
+      orderBy: {
+         createdAt: "asc",
+      },
    });
+
    return tables;
 };
