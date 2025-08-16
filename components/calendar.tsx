@@ -28,6 +28,7 @@ import {
    SelectTrigger,
    SelectValue,
 } from "./ui/select";
+import { useMemo } from "react";
 
 type DateRangeType = "day" | "week" | "month" | "custom";
 
@@ -57,20 +58,23 @@ export function DatePickerWithRange({
 
    const currentYear = new Date().getFullYear();
    const years = Array.from({ length: 10 }, (_, i) => currentYear - 5 + i);
-   const months = [
-      "Tháng 1",
-      "Tháng 2",
-      "Tháng 3",
-      "Tháng 4",
-      "Tháng 5",
-      "Tháng 6",
-      "Tháng 7",
-      "Tháng 8",
-      "Tháng 9",
-      "Tháng 10",
-      "Tháng 11",
-      "Tháng 12",
-   ];
+   const months = useMemo(
+      () => [
+         "Tháng 1",
+         "Tháng 2",
+         "Tháng 3",
+         "Tháng 4",
+         "Tháng 5",
+         "Tháng 6",
+         "Tháng 7",
+         "Tháng 8",
+         "Tháng 9",
+         "Tháng 10",
+         "Tháng 11",
+         "Tháng 12",
+      ],
+      [],
+   );
 
    /**
     * Handles preset date selection (7 days, 28 days)
@@ -322,19 +326,6 @@ export function DatePickerWithRange({
                            ))}
                         </SelectContent>
                      </Select>
-                     {/* <select
-                        value={selectedYear.toString()}
-                        onChange={(e) =>
-                           handleYearSelect(parseInt(e.target.value))
-                        }
-                        className="border-input bg-background ring-offset-background placeholder:text-muted-foreground focus-visible:ring-ring flex h-10 w-full rounded-md border px-3 py-2 text-sm file:border-0 file:bg-transparent file:text-sm file:font-medium focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
-                     >
-                        {years.map((year) => (
-                           <option key={year} value={year.toString()}>
-                              {year}
-                           </option>
-                        ))}
-                     </select> */}
                   </div>
                   <div className="grid grid-cols-3 gap-2">
                      {months.map((month, index) => (

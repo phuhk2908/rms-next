@@ -11,6 +11,8 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
+   const internalRoles = ["ADMIN","MANAGER","STAFF"]
+
    const session = await auth.api.getSession({
       headers: await headers(),
    });
@@ -19,7 +21,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
       redirect("/sign-in");
    }
 
-   if (session && session.user.role !== "ADMIN") {
+   if (session && !internalRoles.includes(session?.user.role)) {
       redirect("/access-denied");
    }
 
@@ -36,7 +38,7 @@ export default async function AdminLayout({ children }: AdminLayoutProps) {
          <SidebarInset>
             <SiteHeader />
             <div className="flex flex-1 flex-col">
-               <div className="@container/main flex flex-1 flex-col gap-2">
+               <div className="@container/main flex flex-1 flex-col gap-2 p-4 lg:p-6">
                   {children}
                </div>
             </div>

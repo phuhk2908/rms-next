@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/slugify";
-import { ApiResponse } from "@/lib/types";
-import { menuCategorySchema } from "@/schemas/menu";
+import { menuCategorySchema } from "@/schemas/menu/menu-category";
 import { revalidatePath } from "next/cache";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -19,9 +18,19 @@ export async function POST(req: NextRequest) {
          });
       }
 
+      const { image, ...rest } = validation.data;
+
       await prisma.menuCategory.create({
          data: {
-            ...validation.data,
+            ...rest,
+            ...(image && {
+               image: {
+                  create: {
+                     key: image.key,
+                     ufsUrl: image.ufsUrl,
+                  },
+               },
+            }),
             slug: toSlug(validation.data.name),
          },
       });
@@ -32,11 +41,13 @@ export async function POST(req: NextRequest) {
          status: "success",
          message: "Create menu category successfully",
       });
-   } catch (error: any) {
-      return NextResponse.json({
-         status: "error",
-         error: error.message,
-         message: "Failed to create menu category",
-      });
+   } catch (error) {
+      if (error instanceof Error) {
+         return NextResponse.json({
+            status: "error",
+            error: error.message,
+            message: "Failed to create menu category",
+         });
+      }
    }
 }

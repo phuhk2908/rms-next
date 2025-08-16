@@ -14,7 +14,7 @@ export const ourFileRouter = {
       },
    })
       // Set permissions and file types for this FileRoute
-      .middleware(async ({ req }) => {
+      .middleware(async () => {
          const session = await auth.api.getSession({
             headers: await headers(),
          });
@@ -23,7 +23,7 @@ export const ourFileRouter = {
 
          return { userId: session.user.id };
       })
-      .onUploadComplete(async ({ metadata, file }) => {
+      .onUploadComplete(async ({ metadata }) => {
          return { uploadedBy: metadata.userId };
       }),
    menuCategory: f({
@@ -37,7 +37,7 @@ export const ourFileRouter = {
       },
    })
       // Set permissions and file types for this FileRoute
-      .middleware(async ({ req }) => {
+      .middleware(async () => {
          const session = await auth.api.getSession({
             headers: await headers(),
          });
@@ -47,8 +47,26 @@ export const ourFileRouter = {
          // Whatever is returned here is accessible in onUploadComplete as `metadata`
          return { userId: session.user.id };
       })
-      .onUploadComplete(async ({ metadata, file }) => {
+      .onUploadComplete(async ({ metadata }) => {
          // !!! Whatever is returned here is sent to the clientside `onClientUploadComplete` callback
+         return { uploadedBy: metadata.userId };
+      }),
+   menuItem: f({
+      image: {
+         maxFileSize: "4MB",
+         maxFileCount: 5, // Cho phép upload tối đa 5 ảnh cho menu item
+      },
+   })
+      .middleware(async ({ req }) => {
+         const session = await auth.api.getSession({
+            headers: await headers(),
+         });
+
+         if (!session) throw new UploadThingError("Unauthorized!!!");
+
+         return { userId: session.user.id };
+      })
+      .onUploadComplete(async ({ metadata, file }) => {
          return { uploadedBy: metadata.userId };
       }),
 } satisfies FileRouter;

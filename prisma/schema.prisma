@@ -41,8 +41,8 @@ enum MenuItemStatus {
 
 enum TableStatus {
   AVAILABLE @map("AVAILABLE")
-  OCCUPIED  @map("OCCUPIED")
-  RESERVED  @map("RESERVED")
+  OCCUPIED @map("OCCUPIED")
+  RESERVED @map("RESERVED")
 }
 
 enum ReservationStatus {
@@ -382,7 +382,8 @@ model MenuCategory {
   name          String
   nameEn        String?
   slug          String     @unique
-  image         String?    @default("https://placehold.co/600x400/png?text=Category")
+  imageId       String?
+  image         Image?     @relation(fields: [imageId], references: [id])
   description   String?
   descriptionEn String?
   isActive      Boolean    @default(true)
@@ -402,7 +403,7 @@ model MenuItem {
   description   String?
   descriptionEn String?
   price         Float
-  imageUrl      String?
+  images        Image[]
   status        MenuItemStatus @default(AVAILABLE)
   recordStatus  Status         @default(ACTIVE) // Thêm field này
   isActive      Boolean        @default(true)
@@ -603,12 +604,15 @@ model Address {
 }
 
 model Image {
-  id          String       @id @default(cuid())
-  key         String
-  ufsUrl      String
-  ingredients Ingredient[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id             String         @id @default(cuid())
+  key            String
+  ufsUrl         String
+  ingredients    Ingredient[]
+  menuCategories MenuCategory[]
+  menuItem       MenuItem?      @relation(fields: [menuItemId], references: [id])
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  menuItemId     String?
 }
 
 model WorkingDayConfig {

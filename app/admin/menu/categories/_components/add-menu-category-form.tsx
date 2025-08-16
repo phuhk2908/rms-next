@@ -9,37 +9,38 @@ import {
    FormLabel,
    FormMessage,
 } from "@/components/ui/form";
-import { menuCategorySchema, MenuItemFormValue } from "@/schemas/menu";
-import { Edit, Loader2, Plus, X } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import React, { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
-import { tryCatch } from "@/helpers/try-catch";
 import { toast } from "sonner";
-import Image from "next/image";
-import { UploadDropzone } from "@/lib/uploadthing";
-import { twMerge } from "tailwind-merge";
-import { cn } from "@/lib/utils";
-import { createMenuCategory, updateMenuCategory } from "@/actions/menu";
-import { deleteFiles } from "@/actions/uploadthing";
 import {
    Sheet,
    SheetContent,
    SheetDescription,
-   SheetFooter,
    SheetHeader,
    SheetTitle,
    SheetTrigger,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
-import { env } from "@/lib/env";
 import { SubmitButton } from "@/components/ui/submit-button";
+import { FileUploader } from "@/components/file-uploader";
+import Image from "next/image";
+import { MenuCategory } from "@/types/menu";
+import {
+   menuCategorySchema,
+   MenuItemFormValue,
+} from "@/schemas/menu/menu-category";
+import {
+   createMenuCategory,
+   updateMenuCategory,
+} from "@/actions/menu/menu-categories";
 
 interface MenuCategoryForm {
    mode: "create" | "edit";
-   menuCategory?: any;
+   menuCategory?: MenuCategory;
 }
 
 export default function AddMenuCategoryForm({
@@ -47,9 +48,7 @@ export default function AddMenuCategoryForm({
    menuCategory,
 }: MenuCategoryForm) {
    const [isOpen, setIsOpen] = useState<boolean>(false);
-   const [image, setImage] = useState<any | null>(null);
    const [isPending, startTransition] = useTransition();
-   const [isDeletePending, startDeleteTransition] = useTransition();
    const isEditMode = mode === "edit";
 
    const form = useForm<MenuItemFormValue>({
@@ -59,60 +58,30 @@ export default function AddMenuCategoryForm({
          nameEn: "",
          description: "",
          descriptionEn: "",
-         image: "",
+         image: undefined,
          isActive: true,
       },
    });
 
    const onSubmit = async (values: MenuItemFormValue) => {
       startTransition(async () => {
-         if (mode === "edit" && menuCategory) {
-            const { data: result, error } = await tryCatch(
-               updateMenuCategory(menuCategory.id, values),
-            );
+         const action =
+            mode === "edit" && menuCategory
+               ? updateMenuCategory(menuCategory.id, values)
+               : createMenuCategory(values);
+         const { data, error } = await action;
 
-            if (error) {
-               toast.error(error.message);
-            }
-
-            if (result?.status === "success") {
-               toast.success(result.message);
-               form.reset();
-               setImage(null);
-               setIsOpen(false);
-            } else if (result?.status === "error") {
-               toast.error(result.message);
-            }
-         } else {
-            const { data: result, error } = await tryCatch(
-               createMenuCategory(values),
-            );
-
-            if (error) {
-               toast.error(error.message);
-            }
-
-            if (result?.status === "success") {
-               toast.success(result.message);
-               form.reset();
-               setImage(null);
-               setIsOpen(false);
-            } else if (result?.status === "error") {
-               toast.error(result.message);
-            }
+         if (error) {
+            toast.error(error.message);
+            return;
          }
-      });
-   };
 
-   const handleDelete = () => {
-      startDeleteTransition(async () => {
-         const result = await deleteFiles(image.key || menuCategory.image);
-         if (result?.success === true) {
-            setImage(null);
-            form.setValue("image", "");
-            toast.success(result.message);
-         } else {
-            toast.error(result?.message || "Failed to delete image");
+         if (data?.status === "success") {
+            toast.success(data.message);
+            form.reset();
+            setIsOpen(false);
+         } else if (data?.status === "error") {
+            toast.error(data.message);
          }
       });
    };
@@ -125,23 +94,27 @@ export default function AddMenuCategoryForm({
                nameEn: "",
                description: "",
                descriptionEn: "",
-               image: "",
+               image: undefined,
                isActive: true,
             });
-            setImage(null);
          } else if (mode === "edit" && menuCategory) {
             form.reset({
                name: menuCategory.name,
-               nameEn: menuCategory.nameEn,
-               description: menuCategory.description,
-               descriptionEn: menuCategory.descriptionEn,
+               nameEn: menuCategory.nameEn || "",
+               description: menuCategory.description || "",
+               descriptionEn: menuCategory.descriptionEn || "",
                isActive: menuCategory.isActive,
-               image: menuCategory.image,
+               image:
+                  typeof menuCategory.image === "object" &&
+                  menuCategory.image !== null
+                     ? menuCategory.image
+                     : { key: "", ufsUrl: "" },
             });
-            setImage(menuCategory.image);
          }
       }
    }, [isOpen, mode, menuCategory, form]);
+
+   const currentImage = form.watch("image");
 
    return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -169,73 +142,50 @@ export default function AddMenuCategoryForm({
                      : "Update the details of an existing menu category."}
                </SheetDescription>
             </SheetHeader>
-            <div className="px-4">
+            <div className="px-4 pb-4">
                <Form {...form}>
                   <form
                      onSubmit={form.handleSubmit(onSubmit)}
                      className="space-y-6"
                   >
                      <FormField
-                        name="image"
                         control={form.control}
+                        name="image"
                         render={({ field }) => (
                            <FormItem>
                               <FormLabel>Thumbnail</FormLabel>
                               <FormControl>
-                                 {image ? (
-                                    <div className="bg-muted-foreground relative h-[300px] w-full overflow-hidden rounded-lg">
-                                       <Image
-                                          src={
-                                             image.ufsUrl ||
-                                             `${env.NEXT_PUBLIC_UPLOADTHING_PRE_URL}/${image}`
+                                 <div>
+                                    {currentImage?.ufsUrl && (
+                                       <div className="relative h-48 w-full">
+                                          <Image
+                                             src={currentImage.ufsUrl}
+                                             alt="Current image"
+                                             fill
+                                             className="rounded-md object-cover"
+                                          />
+                                       </div>
+                                    )}
+                                    <FileUploader
+                                       onUploadComplete={(uploadedFiles) => {
+                                          if (
+                                             uploadedFiles &&
+                                             uploadedFiles.length > 0
+                                          ) {
+                                             const file = uploadedFiles[0];
+                                             field.onChange({
+                                                key: file.key,
+                                                ufsUrl: file.url,
+                                             });
+                                             toast.success(
+                                                "Image uploaded successfully",
+                                             );
                                           }
-                                          alt="Preview"
-                                          fill
-                                          sizes="auto"
-                                          className="object-contain"
-                                       />
-                                       <Button
-                                          disabled={
-                                             isDeletePending || isPending
-                                          }
-                                          className="hover:bg-destructive group absolute top-3 right-3 transition-colors"
-                                          size="icon"
-                                          type="button"
-                                          onClick={handleDelete}
-                                       >
-                                          {isDeletePending ? (
-                                             <Loader2 className="text-destructive size-4 animate-spin" />
-                                          ) : (
-                                             <X className="text-destructive size-4 group-hover:text-white" />
-                                          )}
-                                       </Button>
-                                    </div>
-                                 ) : (
-                                    <UploadDropzone
-                                       endpoint="menuCategory"
-                                       onClientUploadComplete={(res) => {
-                                          if (res) {
-                                             field.onChange(res[0].key);
-                                             setImage(res[0]);
-                                          }
-                                          toast.success("Upload Completed");
                                        }}
-                                       onUploadError={(error: Error) => {
-                                          toast.error(
-                                             `ERROR! ${error.message}`,
-                                          );
-                                       }}
-                                       config={{ cn: twMerge }}
-                                       className={cn(
-                                          "ut-button:bg-primary ut-button:ut-readying:bg-primary/25 ut-button:text-black",
-                                          "ut-button:ut-uploading:bg-primary/50 ut-button:ut-uploading:after:bg-primary",
-                                          "ut-label:text-primary ut-allowed-content:text-muted-foreground",
-                                          "ut-upload-icon:text-muted-foreground border-muted-foreground/25 border-dashed",
-                                          "hover:border-muted-foreground/50 rounded-lg p-8 transition-colors",
-                                          "bg-background hover:bg-muted/25",
-                                       )}
+                                       maxFiles={1}
+                                       accept={["image/*"]}
                                     />
-                                 )}
+                                 </div>
                               </FormControl>
                               <FormMessage />
                            </FormItem>

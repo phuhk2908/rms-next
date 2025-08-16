@@ -26,7 +26,10 @@ export default function RootLayout({
 }>) {
    return (
       <html lang="en" suppressHydrationWarning>
-         <body className={`${baloo2.className} antialiased`}>
+         <body
+            suppressHydrationWarning
+            className={`${baloo2.className} antialiased`}
+         >
             <Suspense>
                <UTSSR />
             </Suspense>
