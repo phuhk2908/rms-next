@@ -64,7 +64,7 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                {/* Images */}
                {item.images && item.images.length > 0 && (
                   <div className="space-y-2">
-                     <h3 className="text-sm font-medium text-gray-700">
+                     <h3 className="text-muted-foreground text-sm font-medium">
                         Images
                      </h3>
 
@@ -92,7 +92,7 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                {/* Basic Info */}
                <div className="grid grid-cols-2 gap-4">
                   <div>
-                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                     <h3 className="text-muted-foreground mb-1 text-sm font-medium">
                         Price
                      </h3>
                      <p className="text-lg font-semibold text-green-600">
@@ -100,7 +100,7 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                      </p>
                   </div>
                   <div>
-                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                     <h3 className="text-muted-foreground mb-1 text-sm font-medium">
                         Category
                      </h3>
                      <p className="text-sm">{item.category.name}</p>
@@ -114,13 +114,13 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
 
                <div className="grid grid-cols-2 gap-4">
                   <div>
-                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                     <h3 className="text-muted-foreground mb-1 text-sm font-medium">
                         Status
                      </h3>
                      {getStatusBadge(item.status as MenuItemStatus)}
                   </div>
                   <div>
-                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                     <h3 className="text-muted-foreground mb-1 text-sm font-medium">
                         Active
                      </h3>
                      <Badge variant={item.isActive ? "default" : "secondary"}>
@@ -136,20 +136,20 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                   <div className="space-y-4">
                      {item.description && (
                         <div>
-                           <h3 className="mb-1 text-sm font-medium text-gray-700">
+                           <h3 className="text-muted-foreground mb-1 text-sm font-medium">
                               Description
                            </h3>
-                           <p className="text-sm leading-relaxed text-gray-600">
+                           <p className="text-muted-foreground text-sm leading-relaxed">
                               {item.description}
                            </p>
                         </div>
                      )}
                      {item.descriptionEn && (
                         <div>
-                           <h3 className="mb-1 text-sm font-medium text-gray-700">
+                           <h3 className="text-muted-foreground mb-1 text-sm font-medium">
                               English Description
                            </h3>
-                           <p className="text-sm leading-relaxed text-gray-600">
+                           <p className="text-muted-foreground text-sm leading-relaxed">
                               {item.descriptionEn}
                            </p>
                         </div>
@@ -157,12 +157,12 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                   </div>
                )}
 
-               <Separator />
-
                {/* Recipe Info */}
                {item.recipe && (
                   <div>
-                     <h3 className="mb-1 text-sm font-medium text-gray-700">
+                     <Separator />
+
+                     <h3 className="ttext-muted-foreground mb-1 text-sm font-medium">
                         Recipe
                      </h3>
                      <p className="text-sm">{item.recipe.name}</p>
@@ -173,12 +173,6 @@ export function ViewMenuItemDialog({ item, trigger }: ViewMenuItemDialogProps) {
                      )}
                   </div>
                )}
-
-               {/* Metadata */}
-               <div className="space-y-1 text-xs text-gray-500">
-                  <p>Created: {new Date(item.createdAt).toLocaleString()}</p>
-                  <p>Updated: {new Date(item.updatedAt).toLocaleString()}</p>
-               </div>
             </div>
          </DialogContent>
       </Dialog>

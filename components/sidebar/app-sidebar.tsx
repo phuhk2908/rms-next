@@ -57,14 +57,14 @@ const data = {
          ],
       },
       {
-         title: "Staffs",
+         title: "Employees",
          url: "#",
          icon: Users,
-         isActive: false,
+         isActive: true,
          items: [
             {
-               title: "Staff Management",
-               url: "/admin/staffs/manage",
+               title: "Employee Management",
+               url: "/admin/employees",
             },
             {
                title: "Attendance",
@@ -89,18 +89,6 @@ const data = {
          url: "/admin/table/",
          icon: Table,
          isActive: false,
-      },
-      {
-         title: "Employee Management",
-         url: "#",
-         icon: Users,
-         isActive: true,
-         items: [
-            {
-               title: "List",
-               url: "/admin/employees/",
-            },
-         ],
       },
    ],
    navClouds: [

@@ -1,4 +1,5 @@
 import { PrismaClient } from "@/lib/generated/prisma";
+import { toSlug } from "@/lib/slugify";
 
 const prisma = new PrismaClient();
 
@@ -51,7 +52,7 @@ export async function seedMenuCategory() {
          data: {
             name: category.name,
             nameEn: category.nameEn,
-            slug: category.slug,
+            slug: toSlug(category.name),
             description: category.description,
             descriptionEn: category.descriptionEn,
             image: {

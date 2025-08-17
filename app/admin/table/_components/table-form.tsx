@@ -35,6 +35,13 @@ import { Switch } from "@/components/ui/switch";
 import { PlusCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { TableStatus } from "@/lib/generated/prisma";
+import {
+   Card,
+   CardContent,
+   CardDescription,
+   CardHeader,
+   CardTitle,
+} from "@/components/ui/card";
 
 const formSchema = z.object({
    tables: z.array(tableSchema),
@@ -98,176 +105,187 @@ export default function TableForm({ data }: TableFormProps) {
    }
 
    return (
-      <div className="p-4">
-         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-               <Table>
-                  <TableHeader>
-                     <TableRow>
-                        <TableHead>No.</TableHead>
-                        <TableHead>Capacity</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Active</TableHead>
-                        <TableHead>QR Code</TableHead>
-                        <TableHead></TableHead>
-                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                     {fields.map((field, index) => {
-                        return (
-                           <TableRow key={field.id}>
-                              <TableCell>
-                                 <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.tableNumber`}
-                                    render={({ field }) => (
-                                       <FormItem>
-                                          <FormControl>
-                                             <Input
-                                                {...field}
-                                                placeholder="A1, B2..."
-                                             />
-                                          </FormControl>
-                                          <FormMessage />
-                                       </FormItem>
-                                    )}
-                                 />
-                              </TableCell>
-                              <TableCell>
-                                 <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.capacity`}
-                                    render={({ field }) => (
-                                       <FormItem>
-                                          <FormControl>
-                                             <Input
-                                                type="number"
-                                                placeholder="Số người"
-                                                value={
-                                                   field.value
-                                                      ? String(field.value)
-                                                      : ""
-                                                }
-                                                onChange={(e) =>
-                                                   field.onChange(
-                                                      e.target.value,
-                                                   )
-                                                }
-                                             />
-                                          </FormControl>
-                                          <FormMessage />
-                                       </FormItem>
-                                    )}
-                                 />
-                              </TableCell>
-                              <TableCell>
-                                 <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.status`}
-                                    render={({ field }) => (
-                                       <FormItem>
-                                          <Select
-                                             value={field.value}
-                                             onValueChange={field.onChange}
-                                          >
+      <Card>
+         <CardHeader>
+            <CardTitle>Tables</CardTitle>
+            <CardDescription>Manage table</CardDescription>
+         </CardHeader>
+         <CardContent>
+            <Form {...form}>
+               <form onSubmit={form.handleSubmit(onSubmit)}>
+                  <Table>
+                     <TableHeader>
+                        <TableRow>
+                           <TableHead>No.</TableHead>
+                           <TableHead>Capacity</TableHead>
+                           <TableHead>Status</TableHead>
+                           <TableHead>Active</TableHead>
+                           <TableHead>QR Code</TableHead>
+                           <TableHead></TableHead>
+                        </TableRow>
+                     </TableHeader>
+                     <TableBody>
+                        {fields.map((field, index) => {
+                           return (
+                              <TableRow key={field.id}>
+                                 <TableCell>
+                                    <FormField
+                                       control={form.control}
+                                       name={`tables.${index}.tableNumber`}
+                                       render={({ field }) => (
+                                          <FormItem>
                                              <FormControl>
-                                                <SelectTrigger>
-                                                   <SelectValue placeholder="Chọn trạng thái" />
-                                                </SelectTrigger>
+                                                <Input
+                                                   {...field}
+                                                   placeholder="A1, B2..."
+                                                />
                                              </FormControl>
-                                             <SelectContent>
-                                                {Object.keys(TableStatus).map(
-                                                   (status) => (
+                                             <FormMessage />
+                                          </FormItem>
+                                       )}
+                                    />
+                                 </TableCell>
+                                 <TableCell>
+                                    <FormField
+                                       control={form.control}
+                                       name={`tables.${index}.capacity`}
+                                       render={({ field }) => (
+                                          <FormItem>
+                                             <FormControl>
+                                                <Input
+                                                   type="number"
+                                                   placeholder="Số người"
+                                                   value={
+                                                      field.value
+                                                         ? String(field.value)
+                                                         : ""
+                                                   }
+                                                   onChange={(e) =>
+                                                      field.onChange(
+                                                         e.target.value,
+                                                      )
+                                                   }
+                                                />
+                                             </FormControl>
+                                             <FormMessage />
+                                          </FormItem>
+                                       )}
+                                    />
+                                 </TableCell>
+                                 <TableCell>
+                                    <FormField
+                                       control={form.control}
+                                       name={`tables.${index}.status`}
+                                       render={({ field }) => (
+                                          <FormItem>
+                                             <Select
+                                                value={field.value}
+                                                onValueChange={field.onChange}
+                                             >
+                                                <FormControl>
+                                                   <SelectTrigger>
+                                                      <SelectValue placeholder="Chọn trạng thái" />
+                                                   </SelectTrigger>
+                                                </FormControl>
+                                                <SelectContent>
+                                                   {Object.keys(
+                                                      TableStatus,
+                                                   ).map((status) => (
                                                       <SelectItem
                                                          key={status}
                                                          value={status}
                                                       >
                                                          {status}
                                                       </SelectItem>
-                                                   ),
-                                                )}
-                                             </SelectContent>
-                                          </Select>
-                                          <FormMessage />
-                                       </FormItem>
-                                    )}
-                                 />
-                              </TableCell>
-                              <TableCell>
-                                 <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.isActive`}
-                                    render={({ field }) => (
-                                       <FormItem>
-                                          <FormControl>
-                                             <Switch
-                                                checked={field.value}
-                                                onCheckedChange={field.onChange}
-                                             />
-                                          </FormControl>
-                                       </FormItem>
-                                    )}
-                                 />
-                              </TableCell>
-                              <TableCell>
-                                 <FormField
-                                    control={form.control}
-                                    name={`tables.${index}.qrCodeUrl`}
-                                    render={({ field }) => (
-                                       <FormItem>
-                                          <FormControl>
-                                             <Input
-                                                {...field}
-                                                placeholder="QR Code URL"
-                                                value={field.value || ""}
-                                             />
-                                          </FormControl>
-                                          <FormMessage />
-                                       </FormItem>
-                                    )}
-                                 />
-                              </TableCell>
-                              <TableCell>
-                                 <Button
-                                    type="button"
-                                    variant="destructive"
-                                    size="sm"
-                                    onClick={() =>
-                                       handleDelete(index, field.id as string)
-                                    }
-                                 >
-                                    <Trash2 className="h-4 w-4" />
-                                 </Button>
-                              </TableCell>
-                           </TableRow>
-                        );
-                     })}
-                  </TableBody>
-               </Table>
-               <div className="mt-4 flex gap-2">
-                  <Button
-                     type="button"
-                     variant="outline"
-                     onClick={() =>
-                        append({
-                           id: "",
-                           tableNumber: "",
-                           capacity: 2,
-                           status: TableStatus.AVAILABLE,
-                           qrCodeUrl: "",
-                           isActive: true,
-                        })
-                     }
-                  >
-                     <PlusCircle className="mr-2 h-4 w-4" />
-                     New Table
-                  </Button>
-                  <Button type="submit" disabled={isSubmitting}>
-                     {isSubmitting ? "Saving..." : "Save Changes"}
-                  </Button>
-               </div>
-            </form>
-         </Form>
-      </div>
+                                                   ))}
+                                                </SelectContent>
+                                             </Select>
+                                             <FormMessage />
+                                          </FormItem>
+                                       )}
+                                    />
+                                 </TableCell>
+                                 <TableCell>
+                                    <FormField
+                                       control={form.control}
+                                       name={`tables.${index}.isActive`}
+                                       render={({ field }) => (
+                                          <FormItem>
+                                             <FormControl>
+                                                <Switch
+                                                   checked={field.value}
+                                                   onCheckedChange={
+                                                      field.onChange
+                                                   }
+                                                />
+                                             </FormControl>
+                                          </FormItem>
+                                       )}
+                                    />
+                                 </TableCell>
+                                 <TableCell>
+                                    <FormField
+                                       control={form.control}
+                                       name={`tables.${index}.qrCodeUrl`}
+                                       render={({ field }) => (
+                                          <FormItem>
+                                             <FormControl>
+                                                <Input
+                                                   {...field}
+                                                   placeholder="QR Code URL"
+                                                   value={field.value || ""}
+                                                />
+                                             </FormControl>
+                                             <FormMessage />
+                                          </FormItem>
+                                       )}
+                                    />
+                                 </TableCell>
+                                 <TableCell>
+                                    <Button
+                                       type="button"
+                                       variant="destructive"
+                                       size="sm"
+                                       onClick={() =>
+                                          handleDelete(
+                                             index,
+                                             field.id as string,
+                                          )
+                                       }
+                                    >
+                                       <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                 </TableCell>
+                              </TableRow>
+                           );
+                        })}
+                     </TableBody>
+                  </Table>
+                  <div className="mt-4 flex gap-2">
+                     <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                           append({
+                              id: "",
+                              tableNumber: "",
+                              capacity: 2,
+                              status: TableStatus.AVAILABLE,
+                              qrCodeUrl: "",
+                              isActive: true,
+                           })
+                        }
+                     >
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        New Table
+                     </Button>
+                     <Button type="submit" disabled={isSubmitting}>
+                        {isSubmitting ? "Saving..." : "Save Changes"}
+                     </Button>
+                  </div>
+               </form>
+            </Form>
+         </CardContent>
+      </Card>
    );
 }

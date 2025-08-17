@@ -5,7 +5,14 @@ import { Metadata } from "next";
 
 import { AddIngredientForm } from "./_components/add-ingredient-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+   Card,
+   CardAction,
+   CardContent,
+   CardDescription,
+   CardHeader,
+   CardTitle,
+} from "@/components/ui/card";
 import { IngredientOverview } from "./_components/ingredient-overview";
 
 export const metadata: Metadata = {
@@ -16,18 +23,27 @@ export default async function Page() {
    const ingredients = await getIngredientsWithStock();
 
    console.log(ingredients);
-  
+
    return (
-      <div className="p-4 lg:p-6">
+      <>
          <IngredientOverview />
-         <AddIngredientForm />
-         <Tabs defaultValue="ingredients">
+         <Tabs defaultValue="ingredients" className="mt-4">
             <TabsList>
                <TabsTrigger value="ingredients">Ingredients</TabsTrigger>
                <TabsTrigger value="transactions">Transactions</TabsTrigger>
             </TabsList>
             <TabsContent value="ingredients">
                <Card>
+                  <CardHeader>
+                     <CardTitle>Ingredients</CardTitle>
+                     <CardDescription>
+                        Manage your restaurant's ingredients.
+                     </CardDescription>
+                     <CardAction>
+                        <AddIngredientForm />
+                     </CardAction>
+                  </CardHeader>
+
                   <CardContent>
                      <DataTable columns={columns} data={ingredients} />
                   </CardContent>
@@ -38,6 +54,6 @@ export default async function Page() {
                <p>Transactions</p>
             </TabsContent>
          </Tabs>
-      </div>
+      </>
    );
 }

@@ -135,7 +135,7 @@ export async function seedMenuItem() {
    for (const item of menuItems) {
       await prisma.image.create({
          data: {
-            key: item.slug, // or generate a unique key if needed
+            key: item.slug,
             ufsUrl: getItemImage(item.slug),
             menuItemId: item.id,
          },
@@ -146,17 +146,18 @@ export async function seedMenuItem() {
 // Helper: gán ảnh món ăn
 function getItemImage(slug: string): string {
    const images: Record<string, string> = {
-      "pho-bo": "https://images.unsplash.com/photo-1604908813112-6e9b3b8ef6ea",
+      "pho-bo":
+         "https://images.unsplash.com/photo-1631709497146-a239ef373cf1?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cGglRTElQkIlOUYlMjBiJUMzJUIyfGVufDB8fDB8fHww",
       "banh-mi-thit":
-         "https://images.unsplash.com/photo-1604908177522-cba2b4c2b5cc",
+         "https://images.unsplash.com/photo-1608198093002-ad4e005484ec?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8YnJlYWR8ZW58MHx8MHx8fDA%3D",
       "ca-phe-sua-da":
-         "https://images.unsplash.com/photo-1512568400610-62da28bc8a13",
+         "https://plus.unsplash.com/premium_photo-1674327105074-46dd8319164b?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fGNvZmZlZXxlbnwwfHwwfHx8MA%3D%3D",
       "tra-chanh":
-         "https://images.unsplash.com/photo-1523906630133-f6934a1ab2b9",
+         "https://plus.unsplash.com/premium_photo-1681997048580-3083c846bf09?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OXx8bGVtb24lMjB0ZWF8ZW58MHx8MHx8fDA%3D",
       "che-ba-mau":
-         "https://images.unsplash.com/photo-1627308595186-ea18f2f9b8c8",
+         "https://plus.unsplash.com/premium_photo-1668143363479-b8cd08698c0d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8c3dlZXQlMjBzb3VwfGVufDB8fDB8fHww",
       "banh-flan":
-         "https://images.unsplash.com/photo-1625648831161-4d8ff5ea0ddc",
+         "https://images.unsplash.com/photo-1702728109878-c61a98d80491?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Nnx8ZmxhbnxlbnwwfHwwfHx8MA%3D%3D",
    };
    return images[slug] || "https://placehold.co/600x400";
 }

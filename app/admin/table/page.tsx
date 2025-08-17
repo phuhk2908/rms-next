@@ -9,5 +9,6 @@ export const metadata: Metadata = {
 
 export default async function TablePage() {
    const tables = await getAllTables();
+   
    return <TableForm data={tables} />;
 }

@@ -23,7 +23,7 @@ interface MenuItemCardProps {
 
 export function MenuItemCard({ item, categories }: MenuItemCardProps) {
    return (
-      <Card className="justify-between overflow-hidden pt-0 transition-shadow hover:shadow-md">
+      <Card className="justify-between overflow-hidden pt-0 transition-shadow hover:shadow-md shadow-lg">
          <CardHeader className="p-0">
             {item.images && item.images.length > 0 && (
                <div className="relative">
