@@ -16,27 +16,27 @@ datasource db {
 }
 
 enum UserRole {
-  ADMIN
-  MANAGER
-  STAFF
-  CHEF
-  CUSTOMER
+  ADMIN @map("ADMIN")
+  MANAGER @map("MANAGER")
+  STAFF @map("STAFF")
+  CHEF @map("CHEF")
+  CUSTOMER @map("CUSTOMER")
 }
 
 enum Language {
-  VI
-  EN
+  VI @map("VI")
+  EN @map("EN")
 }
 
 enum LeaveRequestStatus {
-  PENDING
-  APPROVED
-  REJECTED
+  PENDING @map("PENDING")
+  APPROVED @map("APPROVED")
+  REJECTED @map("REJECTED")
 }
 
 enum MenuItemStatus {
-  AVAILABLE
-  UNAVAILABLE
+  AVAILABLE @map("AVAILABLE")
+  UNAVAILABLE @map("UNAVAILABLE")
 }
 
 enum TableStatus {
@@ -46,81 +46,82 @@ enum TableStatus {
 }
 
 enum ReservationStatus {
-  PENDING
-  CONFIRMED
-  CANCELLED
-  COMPLETED
+  PENDING    @map("PENDING")
+  CONFIRMED  @map("CONFIRMED")
+  CANCELLED  @map("CANCELLED")
+  COMPLETED  @map("COMPLETED")
 }
 
 enum OrderStatus {
-  PENDING
-  CONFIRMED
-  PREPARING
-  READY_FOR_PICKUP
-  READY_FOR_SERVICE
-  SERVED
-  PAID
-  CANCELLED
-  REFUNDED
+  PENDING           @map("PENDING")
+  CONFIRMED         @map("CONFIRMED")
+  PREPARING         @map("PREPARING")
+  READY_FOR_PICKUP  @map("READY_FOR_PICKUP")
+  READY_FOR_SERVICE @map("READY_FOR_SERVICE")
+  SERVED            @map("SERVED")
+  PAID              @map("PAID")
+  CANCELLED         @map("CANCELLED")
+  REFUNDED          @map("REFUNDED")
 }
 
 enum PaymentMethod {
-  CASH
-  CARD
-  BANK_TRANSFER
-  VOUCHER
+  CASH          @map("CASH")
+  CARD          @map("CARD")
+  BANK_TRANSFER @map("BANK_TRANSFER")
+  VOUCHER       @map("VOUCHER")
 }
 
 enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
+  PENDING   @map("PENDING")
+  COMPLETED @map("COMPLETED")
+  FAILED    @map("FAILED")
+  REFUNDED  @map("REFUNDED")
 }
 
 enum CustomerTier {
-  BRONZE
-  SILVER
-  GOLD
-  PLATINUM
+  BRONZE   @map("BRONZE")
+  SILVER   @map("SILVER")
+  GOLD     @map("GOLD")
+  PLATINUM @map("PLATINUM")
 }
 
 enum VoucherType {
-  FIXED_AMOUNT
-  PERCENTAGE
+  FIXED_AMOUNT @map("FIXED_AMOUNT")
+  PERCENTAGE   @map("PERCENTAGE")
 }
 
 enum NotificationType {
-  PROMOTION
-  ORDER_STATUS
-  RESERVATION_CONFIRMATION
-  LEAVE_REQUEST_UPDATE
+  PROMOTION               @map("PROMOTION")
+  ORDER_STATUS            @map("ORDER_STATUS")
+  RESERVATION_CONFIRMATION @map("RESERVATION_CONFIRMATION")
+  LEAVE_REQUEST_UPDATE    @map("LEAVE_REQUEST_UPDATE")
 }
 
 enum Status {
-  ACTIVE
-  INACTIVE
-  DELETED
+  ACTIVE   @map("ACTIVE")
+  INACTIVE @map("INACTIVE")
+  DELETED  @map("DELETED")
 }
 
 enum IngredientUnit {
-  KG // Kilogram
-  GRAM // Gram
-  LITER // Liter
-  ML // Milliliter
-  CUP // Cup
-  PIECE // Piece
+  KG     @map("KG")    
+  GRAM   @map("GRAM")   
+  LITER  @map("LITER") 
+  ML     @map("ML")     
+  CUP    @map("CUP")    
+  PIECE  @map("PIECE")  
 }
 
 enum IngredientTransactionType {
-  IMPORT
-  EXPORT
+  IMPORT @map("IMPORT")
+  EXPORT @map("EXPORT")
 }
 
+
 enum SalaryType {
-  HOURLY
-  MONTHLY
-  MIXED
+  HOURLY @map("HOURLY")
+  MONTHLY @map("MONTHLY")
+  MIXED @map("MIXED")
 }
 
 enum DayOfWeek {
@@ -212,10 +213,10 @@ model Verification {
 model EmployeeProfile {
   id            String         @id @default(cuid())
   userId        String         @unique
-  user          User           @relation(fields: [userId], references: [id])
-  employeeId    String         @unique // Mã nhân viên
+  user          User           @relation(fields: [userId], references: [id], onDelete:Cascade)
+  employeeCode    String         @unique
   position      String?
-  startDate     DateTime
+  dateOfBirth   DateTime?
   phoneNumber   String?
   salaryType    SalaryType     @default(MONTHLY)
   baseSalary    Float?
