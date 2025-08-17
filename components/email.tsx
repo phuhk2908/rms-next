@@ -2,7 +2,6 @@ import {
    Body,
    Button,
    Container,
-   Head,
    Heading,
    Html,
    Preview,
@@ -49,7 +48,7 @@ export const EmailTemplate = ({ email, password }: EmailTemplateProps) => {
                            Your account
                         </Text>
                         <div>
-                           <div className="mb-4 flex items-center justify-between rounded-lg bg-white p-3">
+                           <div className="mb-4 flex items-center justify-between gap-x-2 rounded-lg bg-white p-3">
                               <Text className="text-sm text-slate-600">
                                  Email:
                               </Text>
@@ -57,7 +56,7 @@ export const EmailTemplate = ({ email, password }: EmailTemplateProps) => {
                                  {email}
                               </Text>
                            </div>
-                           <div className="flex items-center justify-between rounded-lg bg-white p-3">
+                           <div className="flex items-center justify-between gap-x-2 rounded-lg bg-white p-3">
                               <Text className="text-sm text-slate-600">
                                  Password:
                               </Text>

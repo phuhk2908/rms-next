@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useSyncExternalStore } from "react";
+import React, { useState } from "react";
 import {
    Sheet,
    SheetContent,

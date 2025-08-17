@@ -4,6 +4,7 @@ import {
    Dialog,
    DialogClose,
    DialogContent,
+   DialogDescription,
    DialogFooter,
    DialogHeader,
    DialogTitle,
@@ -33,10 +34,11 @@ const DeleteDialogForm = ({
                   <Trash2 className="text-destructive h-6 w-6" />
                   Delete Confirmation
                </DialogTitle>
+               <DialogDescription className="sr-only"></DialogDescription>
             </DialogHeader>
             <div>
-               This will permanently delete "{" "}
-               <span className="text-red-500">{employeeEmail}</span> ". This
+               This will permanently delete {" "}
+               <span className="text-red-500">{employeeEmail}</span> . This
                action cannot be undone.
             </div>
             <DialogFooter>

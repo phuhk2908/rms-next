@@ -57,7 +57,7 @@ export const ourFileRouter = {
          maxFileCount: 5, // Cho phép upload tối đa 5 ảnh cho menu item
       },
    })
-      .middleware(async ({ req }) => {
+      .middleware(async () => {
          const session = await auth.api.getSession({
             headers: await headers(),
          });
@@ -66,7 +66,7 @@ export const ourFileRouter = {
 
          return { userId: session.user.id };
       })
-      .onUploadComplete(async ({ metadata, file }) => {
+      .onUploadComplete(async ({ metadata }) => {
          return { uploadedBy: metadata.userId };
       }),
 } satisfies FileRouter;
