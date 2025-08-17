@@ -2,13 +2,7 @@ import { MenuItemStatus, PrismaClient, Status } from "@/lib/generated/prisma";
 
 const prisma = new PrismaClient();
 
-async function main() {
-   // Xóa dữ liệu cũ
-   await prisma.menuItem.deleteMany();
-   // Don't delete categories if you need to reference them
-   // await prisma.menuCategory.deleteMany();
-
-   // Create categories first if they don't exist
+export async function seedMenuItem() {
    const categories = [
       {
          name: "Món Việt Nam",
@@ -147,8 +141,6 @@ async function main() {
          },
       });
    }
-
-   console.log("✅ Seed menu categories & items thành công!");
 }
 
 // Helper: gán ảnh món ăn
@@ -168,12 +160,3 @@ function getItemImage(slug: string): string {
    };
    return images[slug] || "https://placehold.co/600x400";
 }
-
-main()
-   .catch((e) => {
-      console.error(e);
-      process.exit(1);
-   })
-   .finally(async () => {
-      await prisma.$disconnect();
-   });
