@@ -1,14 +1,8 @@
-// prisma/seed.ts
-
 import { PrismaClient } from "@/lib/generated/prisma";
 
 const prisma = new PrismaClient();
 
-async function main() {
-   // Xóa dữ liệu cũ nếu cần
-   await prisma.menuCategory.deleteMany();
-
-   // Dữ liệu mẫu
+export async function seedMenuCategory() {
    const categories = [
       {
          name: "Đồ uống",
@@ -64,22 +58,9 @@ async function main() {
                create: {
                   key: category.image.create.key,
                   ufsUrl: category.image.create.ufsUrl,
-                  // Remove menuItem relation - not needed for category images
-                  
                },
             },
          },
       });
    }
-
-   console.log("✅ Seed menu categories thành công!");
 }
-
-main()
-   .catch((e) => {
-      console.error(e);
-      process.exit(1);
-   })
-   .finally(async () => {
-      await prisma.$disconnect();
-   });
