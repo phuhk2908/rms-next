@@ -213,7 +213,7 @@ model Verification {
 model EmployeeProfile {
   id            String         @id @default(cuid())
   userId        String         @unique
-  user          User           @relation(fields: [userId], references: [id])
+  user          User           @relation(fields: [userId], references: [id], onDelete:Cascade)
   employeeCode    String         @unique
   position      String?
   dateOfBirth   DateTime?

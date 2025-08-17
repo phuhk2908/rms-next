@@ -1,11 +1,10 @@
 "use client";
 
-import React from "react";
+import React, { useState, useSyncExternalStore } from "react";
 import {
    Sheet,
    SheetContent,
    SheetDescription,
-   SheetFooter,
    SheetHeader,
    SheetTitle,
    SheetTrigger,
@@ -47,6 +46,7 @@ import { toast } from "sonner";
 import { SubmitButton } from "@/components/ui/submit-button";
 
 const EmployeeForm = () => {
+   const [open, setOpen] = useState(false);
    const { data: session } = authClient.useSession();
 
    const form = useForm<EmployeeFormValue>({
@@ -79,13 +79,14 @@ const EmployeeForm = () => {
       if (res.status === "success") {
          toast.success(res.message);
          form.reset();
+         setOpen(false);
       } else {
          toast.error(res.message);
       }
    };
 
    return (
-      <Sheet>
+      <Sheet open={open} onOpenChange={setOpen}>
          <SheetTrigger asChild>
             <Button>
                <Plus />

@@ -146,13 +146,30 @@ export const updateEmployee = async (
                   baseSalary: validation.data.employeeProfile.baseSalary,
                   hourlyRate: validation.data.employeeProfile.hourlyRate,
                   address: {
-                     update: {
-                        street: validation.data.employeeProfile.address?.street,
-                        ward: validation.data.employeeProfile.address?.ward,
-                        district:
-                           validation.data.employeeProfile.address?.district,
-                        province:
-                           validation.data.employeeProfile.address?.province,
+                     upsert: {
+                        create: {
+                           street:
+                              validation.data.employeeProfile.address?.street ||
+                              "",
+                           ward:
+                              validation.data.employeeProfile.address?.ward ||
+                              "",
+                           district:
+                              validation.data.employeeProfile.address
+                                 ?.district || "",
+                           province:
+                              validation.data.employeeProfile.address
+                                 ?.province || "",
+                        },
+                        update: {
+                           street:
+                              validation.data.employeeProfile.address?.street,
+                           ward: validation.data.employeeProfile.address?.ward,
+                           district:
+                              validation.data.employeeProfile.address?.district,
+                           province:
+                              validation.data.employeeProfile.address?.province,
+                        },
                      },
                   },
                },
@@ -166,6 +183,43 @@ export const updateEmployee = async (
          status: "success",
          message: "Updated employee successfully",
       };
+   } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+         return {
+            status: "error",
+            message: error.message,
+         };
+      }
+      return {
+         status: "error",
+         message: "An unexpected error occurred. Please try again later",
+      };
+   }
+};
+
+export const deleteEmployee = async (employeeId: string) => {
+   try {
+      await requireAdmin();
+
+      await prisma.employeeProfile.delete({
+         where: {
+            userId: employeeId,
+         },
+      });
+
+      await prisma.user.delete({
+         where: {
+            id: employeeId,
+         },
+      });
+
+      revalidatePath("/admin/employees");
+
+      return {
+         status: "success",
+         message: "Deleted employee successfully",
+      };
+      
    } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
          return {

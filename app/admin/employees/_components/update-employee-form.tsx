@@ -1,5 +1,3 @@
-"use client";
-
 import React, { Dispatch, SetStateAction, useState } from "react";
 import {
    Sheet,
@@ -42,6 +40,7 @@ import { formatDate } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { updateEmployee } from "@/actions/employee";
 import { SalaryType } from "@/lib/generated/prisma";
+import { toast } from "sonner";
 
 interface EmployeeProps {
    employeeData: EmployeeFormValue;
@@ -54,11 +53,30 @@ const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
 
    const form = useForm<EmployeeFormValue>({
       resolver: zodResolver(employeeSchema),
-      defaultValues: employeeData,
+      defaultValues: {
+         ...employeeData,
+         employeeProfile: {
+            ...employeeData.employeeProfile,
+            baseSalary: employeeData.employeeProfile?.baseSalary ?? undefined,
+            hourlyRate: employeeData.employeeProfile?.hourlyRate ?? undefined,
+            position: employeeData.employeeProfile?.position ?? "",
+            dateOfBirth: employeeData.employeeProfile?.dateOfBirth ?? undefined,
+            phoneNumber: employeeData.employeeProfile?.phoneNumber ?? "",
+            salaryType: employeeData.employeeProfile?.salaryType ?? undefined,
+            address: {
+               street: employeeData.employeeProfile?.address?.street ?? "",
+               ward: employeeData.employeeProfile?.address?.ward ?? "",
+               district: employeeData.employeeProfile?.address?.district ?? "",
+               province: employeeData.employeeProfile?.address?.province ?? "",
+            },
+         },
+      },
    });
 
+   const salaryType = form.watch("employeeProfile.salaryType");
+
    const onSubmit = async (data: EmployeeFormValue) => {
-      const res = await updateEmployee(data);
+      const res = await updateEmployee({ ...data, id: employeeData.id });
       if (res.status === "success") {
          toast.success(res.message);
          setOpen(false);
@@ -172,10 +190,10 @@ const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
                   <div className="grid grid-cols-2 gap-4">
                      <FormField
                         control={form.control}
-                        name="employeeProfile.startDate"
+                        name="employeeProfile.dateOfBirth"
                         render={({ field }) => (
                            <FormItem className="flex flex-col">
-                              <FormLabel>Start Date</FormLabel>
+                              <FormLabel>Date of Birth</FormLabel>
                               <Popover>
                                  <PopoverTrigger asChild>
                                     <FormControl>
@@ -202,7 +220,7 @@ const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
                                  >
                                     <Calendar
                                        mode="single"
-                                       selected={new Date(field.value)}
+                                       selected={field.value}
                                        onSelect={field.onChange}
                                        disabled={(date) =>
                                           date > new Date() ||
@@ -249,93 +267,82 @@ const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
                                     value={field.value}
                                     className="mt-2 flex gap-8"
                                  >
-                                    <FormItem className="flex items-center space-x-2">
-                                       <FormControl>
-                                          <RadioGroupItem
-                                             value={SalaryType.MONTHLY}
-                                          />
-                                       </FormControl>
-                                       <FormLabel className="font-normal">
-                                          Monthly Salary
-                                       </FormLabel>
-                                    </FormItem>
-
-                                    <FormItem className="flex items-center space-x-2">
-                                       <FormControl>
-                                          <RadioGroupItem
-                                             value={SalaryType.HOURLY}
-                                          />
-                                       </FormControl>
-                                       <FormLabel className="font-normal">
-                                          Hourly Rate
-                                       </FormLabel>
-                                    </FormItem>
-
-                                    <FormItem className="flex items-center space-x-2">
-                                       <FormControl>
-                                          <RadioGroupItem
-                                             value={SalaryType.MIXED}
-                                          />
-                                       </FormControl>
-                                       <FormLabel className="font-normal">
-                                          Mixed
-                                       </FormLabel>
-                                    </FormItem>
+                                    {Object.values(SalaryType).map((type) => (
+                                       <FormItem
+                                          className="flex items-center space-x-2"
+                                          key={type}
+                                       >
+                                          <FormControl>
+                                             <RadioGroupItem value={type} />
+                                          </FormControl>
+                                          <FormLabel className="font-normal">
+                                             {type}
+                                          </FormLabel>
+                                       </FormItem>
+                                    ))}
                                  </RadioGroup>
                               </FormControl>
                               <FormMessage />
                            </FormItem>
                         )}
                      />
-
-                     {form.watch("employeeProfile.salaryType") !==
-                        SalaryType.HOURLY && (
-                        <FormField
-                           control={form.control}
-                           name="employeeProfile.baseSalary"
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>
-                                    Base Salary
-                                    <span className="text-red-500">*</span>
-                                 </FormLabel>
-                                 <FormControl>
-                                    <Input
-                                       type="number"
-                                       placeholder="1500"
-                                       {...field}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-                     )}
-
-                     {form.watch("employeeProfile.salaryType") !==
-                        SalaryType.MONTHLY && (
-                        <FormField
-                           control={form.control}
-                           name="employeeProfile.hourlyRate"
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>
-                                    Hourly Rate
-                                    <span className="text-red-500">*</span>
-                                 </FormLabel>
-                                 <FormControl>
-                                    <Input
-                                       type="number"
-                                       placeholder="25"
-                                       {...field}
-                                    />
-                                 </FormControl>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-                     )}
                   </div>
+
+                  {(salaryType === SalaryType.MONTHLY ||
+                     salaryType === SalaryType.MIXED) && (
+                     <FormField
+                        control={form.control}
+                        name="employeeProfile.baseSalary"
+                        render={({ field }) => (
+                           <FormItem>
+                              <FormLabel>
+                                 Basic Salary (VND)
+                                 <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                 <Input
+                                    type="number"
+                                    placeholder="15000000"
+                                    {...field}
+                                    onChange={(e) =>
+                                       field.onChange(
+                                          Number(e.target.value) || 0,
+                                       )
+                                    }
+                                 />
+                              </FormControl>
+                              <FormMessage />
+                           </FormItem>
+                        )}
+                     />
+                  )}
+
+                  {(salaryType === SalaryType.HOURLY ||
+                     salaryType === SalaryType.MIXED) && (
+                     <FormField
+                        control={form.control}
+                        name="employeeProfile.hourlyRate"
+                        render={({ field }) => (
+                           <FormItem>
+                              <FormLabel>
+                                 Hourly Rate (VND)
+                                 <span className="text-red-500">*</span>
+                              </FormLabel>
+                              <FormControl>
+                                 <Input
+                                    type="number"
+                                    placeholder="50000"
+                                    {...field}
+                                    onChange={(e) =>
+                                       field.onChange(Number(e.target.value))
+                                    }
+                                 />
+                              </FormControl>
+                              <FormMessage />
+                           </FormItem>
+                        )}
+                     />
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                      <FormField
                         control={form.control}
@@ -406,7 +413,14 @@ const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
                         )}
                      />
                   </div>
-                  <Button type="submit">Update</Button>
+                  <Button
+                     type="submit"
+                     onClick={() =>
+                        console.log(" formState.errors:", form.formState.errors)
+                     }
+                  >
+                     Update
+                  </Button>
                </form>
             </Form>
          </SheetContent>

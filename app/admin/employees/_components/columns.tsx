@@ -14,17 +14,26 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import UpdateEmployeeForm from "./update-employee-form";
 import { useState } from "react";
+import DeleteDialogForm from "./delete-dialog-form";
 
 const ActionCell = ({ row }: { row: any }) => {
    const [open, setOpen] = useState(false);
+   const [openDelete, setOpenDelete] = useState(false);
 
    const employeeId = row.original.id;
+   const employeeEmail = row.original.email;
    return (
       <>
          <UpdateEmployeeForm
             employeeData={row.original}
             open={open}
             setOpen={setOpen}
+         />
+         <DeleteDialogForm
+            employeeId={employeeId}
+            employeeEmail={employeeEmail}
+            openDelete={openDelete}
+            setOpenDelete={setOpenDelete}
          />
          <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -45,7 +54,10 @@ const ActionCell = ({ row }: { row: any }) => {
                   Edit
                </DropdownMenuItem>
                <DropdownMenuSeparator />
-               <DropdownMenuItem variant="destructive">
+               <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={() => setOpenDelete(true)}
+               >
                   <Trash2 className="size-4" />
                   Delete
                </DropdownMenuItem>

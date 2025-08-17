@@ -3,22 +3,22 @@ import { z } from "zod";
 
 export const employeeSchema = z
    .object({
-      id: z.string().optional(),
+      id: z.string().min(1).optional(),
       name: z.string().min(1, "Name is required"),
       email: z.email("Invalid email format").min(1, "Email is required"),
       role: z.enum(UserRole),
       employeeProfile: z.object({
-         position: z.string().optional(),
+         position: z.string().min(1).optional(),
          dateOfBirth: z.date().optional(),
          phoneNumber: z.string().min(1, "Phone number is required"),
          salaryType: z.enum(SalaryType),
          baseSalary: z.number().min(0).optional(),
          hourlyRate: z.number().min(0).optional(),
          address: z.object({
-            street: z.string().optional(),
-            ward: z.string().optional(),
-            district: z.string().optional(),
-            province: z.string().optional(),
+            street: z.string().min(1).optional(),
+            ward: z.string().min(1).optional(),
+            district: z.string().min(1).optional(),
+            province: z.string().min(1).optional(),
          }),
       }),
    })
