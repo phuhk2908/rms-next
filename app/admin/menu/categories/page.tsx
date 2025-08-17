@@ -9,9 +9,12 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
-import { MenuItem } from "@/types/menu";
-import AddMenuItemForm from "../items/_components/add-menu-item-form";
-import { MenuItemsList } from "../items/_components/menu-items-list";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+   title: "Admin | Menu Category",
+   description: "Organize and manage your restaurant's menu categories",
+};
 
 export default async function AdminMenuCategoriesPage() {
    const data = await getAllMenuCategories();

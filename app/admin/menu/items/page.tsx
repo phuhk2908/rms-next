@@ -10,6 +10,12 @@ import {
    CardHeader,
    CardTitle,
 } from "@/components/ui/card";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+   title: "Admin | Menu Items",
+   description: "Organize and manage your restaurant's menu items",
+};
 
 export default async function AdminMenuItemsPage() {
    const menuItems = await getAllMenuItems(true);

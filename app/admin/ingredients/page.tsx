@@ -37,7 +37,7 @@ export default async function Page() {
                   <CardHeader>
                      <CardTitle>Ingredients</CardTitle>
                      <CardDescription>
-                        Manage your restaurant's ingredients.
+                        Manage your restaurant&apos;s ingredients.
                      </CardDescription>
                      <CardAction>
                         <AddIngredientForm />

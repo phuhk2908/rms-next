@@ -25,7 +25,7 @@ export default async function Page() {
          <CardHeader>
             <CardTitle>Employees</CardTitle>
             <CardDescription>
-               Manage your restaurant's employees.
+               Manage your restaurant&apos;s employees.
             </CardDescription>
             <CardAction>
                <EmployeeForm />
