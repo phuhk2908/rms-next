@@ -11,7 +11,6 @@ export const metadata: Metadata = {
 
 export default async function Page() {
    const shifts = await getAllShift();
-   console.log(shifts);
 
    return (
       <div className="p-4 lg:p-6">

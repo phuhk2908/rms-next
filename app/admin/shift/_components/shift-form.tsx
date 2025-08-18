@@ -96,7 +96,7 @@ const ShiftForm = () => {
                         render={({ field }) => (
                            <FormItem>
                               <FormLabel>
-                                 Start Time{" "}
+                                 Start Time
                                  <span className="text-red-500">*</span>
                               </FormLabel>
                               <FormControl>
@@ -112,7 +112,7 @@ const ShiftForm = () => {
                         render={({ field }) => (
                            <FormItem>
                               <FormLabel>
-                                 End Time{" "}
+                                 End Time
                                  <span className="text-red-500">*</span>
                               </FormLabel>
                               <FormControl>

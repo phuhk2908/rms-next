@@ -1,5 +1,5 @@
 import { getAllShift } from "@/data/shift";
 
-export type ShiftWithTimeKeeping = Awaited<
+export type Shift = Awaited<
    ReturnType<typeof getAllShift>
 >[number];

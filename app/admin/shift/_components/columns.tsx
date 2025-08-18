@@ -9,12 +9,12 @@ import {
    DropdownMenuSeparator,
    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ShiftWithTimeKeeping } from "@/types/shift";
 import { ColumnDef } from "@tanstack/react-table";
 import { Copy, Edit, MoreHorizontal, Trash2 } from "lucide-react";
 import { useState } from "react";
 import UpdateShiftForm from "./update-shift-form";
 import DeleteShiftDialog from "./delete-shift.dialog";
+import { Shift } from "@/types/shift";
 
 const ActionCell = ({ row }: { row: any }) => {
    const [open, setOpen] = useState(false);
@@ -66,7 +66,7 @@ const ActionCell = ({ row }: { row: any }) => {
       </>
    );
 };
-export const columns: ColumnDef<ShiftWithTimeKeeping>[] = [
+export const columns: ColumnDef<Shift>[] = [
    {
       id: "select",
       header: ({ table }) => (
