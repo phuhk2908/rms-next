@@ -199,7 +199,7 @@ export default function AddMenuItemForm({
                   </Button>
                ))}
          </SheetTrigger>
-         <SheetContent className="overflow-y-auto sm:max-w-2xl">
+         <SheetContent className="overflow-y-auto pb-4 sm:max-w-2xl">
             <SheetHeader>
                <SheetTitle>
                   {mode === "create" ? "Create Menu Item" : "Update Menu Item"}
@@ -323,7 +323,10 @@ export default function AddMenuItemForm({
                            control={form.control}
                            render={({ field }) => (
                               <FormItem>
-                                 <FormLabel>Name *</FormLabel>
+                                 <FormLabel>
+                                    Name
+                                    <span className="text-destructive">*</span>
+                                 </FormLabel>
                                  <FormControl>
                                     <Input
                                        placeholder="Menu item name"
@@ -399,7 +402,10 @@ export default function AddMenuItemForm({
                            control={form.control}
                            render={({ field }) => (
                               <FormItem>
-                                 <FormLabel>Price*</FormLabel>
+                                 <FormLabel>
+                                    Price
+                                    <span className="text-destructive">*</span>
+                                 </FormLabel>
                                  <FormControl>
                                     <Input
                                        type="number"
@@ -415,72 +421,79 @@ export default function AddMenuItemForm({
                            )}
                         />
 
-                        <FormField
-                           name="categoryId"
-                           control={form.control}
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>Category *</FormLabel>
-                                 <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                 >
-                                    <FormControl>
-                                       <SelectTrigger>
-                                          <SelectValue placeholder="Select category" />
-                                       </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                       {categories.map((category) => (
+                        <div className="grid grid-cols-2 gap-4">
+                           <FormField
+                              name="categoryId"
+                              control={form.control}
+                              render={({ field }) => (
+                                 <FormItem>
+                                    <FormLabel>
+                                       Category
+                                       <span className="text-destructive">
+                                          *
+                                       </span>
+                                    </FormLabel>
+                                    <Select
+                                       onValueChange={field.onChange}
+                                       defaultValue={field.value}
+                                    >
+                                       <FormControl>
+                                          <SelectTrigger className="w-full">
+                                             <SelectValue placeholder="Select category" />
+                                          </SelectTrigger>
+                                       </FormControl>
+                                       <SelectContent>
+                                          {categories.map((category) => (
+                                             <SelectItem
+                                                key={category.id}
+                                                value={category.id}
+                                             >
+                                                {category.name}
+                                             </SelectItem>
+                                          ))}
+                                       </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                 </FormItem>
+                              )}
+                           />
+
+                           <FormField
+                              name="status"
+                              control={form.control}
+                              render={({ field }) => (
+                                 <FormItem>
+                                    <FormLabel>Status</FormLabel>
+                                    <Select
+                                       onValueChange={field.onChange}
+                                       defaultValue={field.value}
+                                    >
+                                       <FormControl>
+                                          <SelectTrigger className="w-full">
+                                             <SelectValue placeholder="Select status" />
+                                          </SelectTrigger>
+                                       </FormControl>
+                                       <SelectContent>
                                           <SelectItem
-                                             key={category.id}
-                                             value={category.id}
+                                             value={MenuItemStatus.AVAILABLE}
                                           >
-                                             {category.name}
+                                             Available
                                           </SelectItem>
-                                       ))}
-                                    </SelectContent>
-                                 </Select>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
+                                          <SelectItem
+                                             value={MenuItemStatus.UNAVAILABLE}
+                                          >
+                                             Unavailable
+                                          </SelectItem>
+                                       </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                 </FormItem>
+                              )}
+                           />
+                        </div>
                      </div>
 
                      <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                           name="status"
-                           control={form.control}
-                           render={({ field }) => (
-                              <FormItem>
-                                 <FormLabel>Status</FormLabel>
-                                 <Select
-                                    onValueChange={field.onChange}
-                                    defaultValue={field.value}
-                                 >
-                                    <FormControl>
-                                       <SelectTrigger>
-                                          <SelectValue placeholder="Select status" />
-                                       </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                       <SelectItem
-                                          value={MenuItemStatus.AVAILABLE}
-                                       >
-                                          Available
-                                       </SelectItem>
-                                       <SelectItem
-                                          value={MenuItemStatus.UNAVAILABLE}
-                                       >
-                                          Unavailable
-                                       </SelectItem>
-                                    </SelectContent>
-                                 </Select>
-                                 <FormMessage />
-                              </FormItem>
-                           )}
-                        />
-
                         <FormField
                            name="isActive"
                            control={form.control}

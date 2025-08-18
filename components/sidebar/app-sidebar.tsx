@@ -29,7 +29,7 @@ const data = {
    user: {
       name: "shadcn",
       email: "m@example.com",
-      avatar: "/avatars/shadcn.jpg",
+      avatar: "https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_6.png",
    },
    navMain: [
       {
@@ -57,30 +57,30 @@ const data = {
          ],
       },
       {
-         title: "Staffs",
+         title: "Employees",
          url: "#",
          icon: Users,
-         isActive: false,
+         isActive: true,
          items: [
             {
-               title: "Staff Management",
-               url: "/admin/staffs/manage",
+               title: "Employee Management",
+               url: "/admin/employees",
             },
             {
                title: "Attendance",
-               url: "/admin/staffs/attendance",
+               url: "/admin/attendance",
             },
             {
                title: "Payrolls",
-               url: "/admin/staffs/payrolls",
+               url: "/admin/payrolls",
             },
             {
                title: "Shifts",
-               url: "/admin/staffs/shifts",
+               url: "/admin/shift",
             },
             {
                title: "Leave Request",
-               url: "/admin/staffs/leave-request",
+               url: "/admin/leave-request",
             },
          ],
       },
@@ -88,24 +88,6 @@ const data = {
          title: "Restaurant Table",
          url: "/admin/table/",
          icon: Table,
-         isActive: false,
-      },
-      {
-         title: "Employee Management",
-         url: "#",
-         icon: Users,
-         isActive: true,
-         items: [
-            {
-               title: "List",
-               url: "/admin/employees/",
-            },
-         ],
-      },
-      {
-         title: "Shift Management",
-         url: "/admin/shift/",
-         icon: CalendarCog,
          isActive: false,
       },
    ],

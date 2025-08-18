@@ -90,7 +90,7 @@ const EmployeeForm = () => {
          <SheetTrigger asChild>
             <Button>
                <Plus />
-               Employee
+               Create
             </Button>
          </SheetTrigger>
          <SheetContent className="sm:max-w-xl">

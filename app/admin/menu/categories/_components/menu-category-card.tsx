@@ -50,7 +50,7 @@ interface MenuCategoryCardProps {
 
 export function MenuCategoryCard({ menuCategory }: MenuCategoryCardProps) {
    return (
-      <Card className="group transform gap-0 overflow-hidden border-0 py-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+      <Card className="group transform gap-0 overflow-hidden py-0 shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
          <div className="relative">
             <div className={cn("relative h-48 overflow-hidden")}>
                {menuCategory.image?.ufsUrl && (

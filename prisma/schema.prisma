@@ -16,10 +16,10 @@ datasource db {
 }
 
 enum UserRole {
-  ADMIN @map("ADMIN")
-  MANAGER @map("MANAGER")
-  STAFF @map("STAFF")
-  CHEF @map("CHEF")
+  ADMIN    @map("ADMIN")
+  MANAGER  @map("MANAGER")
+  STAFF    @map("STAFF")
+  CHEF     @map("CHEF")
   CUSTOMER @map("CUSTOMER")
 }
 
@@ -29,27 +29,27 @@ enum Language {
 }
 
 enum LeaveRequestStatus {
-  PENDING @map("PENDING")
+  PENDING  @map("PENDING")
   APPROVED @map("APPROVED")
   REJECTED @map("REJECTED")
 }
 
 enum MenuItemStatus {
-  AVAILABLE @map("AVAILABLE")
+  AVAILABLE   @map("AVAILABLE")
   UNAVAILABLE @map("UNAVAILABLE")
 }
 
 enum TableStatus {
   AVAILABLE @map("AVAILABLE")
-  OCCUPIED @map("OCCUPIED")
-  RESERVED @map("RESERVED")
+  OCCUPIED  @map("OCCUPIED")
+  RESERVED  @map("RESERVED")
 }
 
 enum ReservationStatus {
-  PENDING    @map("PENDING")
-  CONFIRMED  @map("CONFIRMED")
-  CANCELLED  @map("CANCELLED")
-  COMPLETED  @map("COMPLETED")
+  PENDING   @map("PENDING")
+  CONFIRMED @map("CONFIRMED")
+  CANCELLED @map("CANCELLED")
+  COMPLETED @map("COMPLETED")
 }
 
 enum OrderStatus {
@@ -91,10 +91,10 @@ enum VoucherType {
 }
 
 enum NotificationType {
-  PROMOTION               @map("PROMOTION")
-  ORDER_STATUS            @map("ORDER_STATUS")
+  PROMOTION                @map("PROMOTION")
+  ORDER_STATUS             @map("ORDER_STATUS")
   RESERVATION_CONFIRMATION @map("RESERVATION_CONFIRMATION")
-  LEAVE_REQUEST_UPDATE    @map("LEAVE_REQUEST_UPDATE")
+  LEAVE_REQUEST_UPDATE     @map("LEAVE_REQUEST_UPDATE")
 }
 
 enum Status {
@@ -104,12 +104,12 @@ enum Status {
 }
 
 enum IngredientUnit {
-  KG     @map("KG")    
-  GRAM   @map("GRAM")   
-  LITER  @map("LITER") 
-  ML     @map("ML")     
-  CUP    @map("CUP")    
-  PIECE  @map("PIECE")  
+  KG    @map("KG")
+  GRAM  @map("GRAM")
+  LITER @map("LITER")
+  ML    @map("ML")
+  CUP   @map("CUP")
+  PIECE @map("PIECE")
 }
 
 enum IngredientTransactionType {
@@ -117,11 +117,10 @@ enum IngredientTransactionType {
   EXPORT @map("EXPORT")
 }
 
-
 enum SalaryType {
-  HOURLY @map("HOURLY")
+  HOURLY  @map("HOURLY")
   MONTHLY @map("MONTHLY")
-  MIXED @map("MIXED")
+  MIXED   @map("MIXED")
 }
 
 enum DayOfWeek {
@@ -213,8 +212,8 @@ model Verification {
 model EmployeeProfile {
   id            String         @id @default(cuid())
   userId        String         @unique
-  user          User           @relation(fields: [userId], references: [id], onDelete:Cascade)
-  employeeCode    String         @unique
+  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  employeeCode  String         @unique
   position      String?
   dateOfBirth   DateTime?
   phoneNumber   String?
@@ -225,7 +224,7 @@ model EmployeeProfile {
   leaveRequests LeaveRequest[]
   payrolls      Payroll[]
   addressId     String?        @unique
-  address       Address?       @relation(fields: [addressId], references: [id])
+  address       Address?       @relation(fields: [addressId], references: [id], onDelete: Cascade)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   deletedAt     DateTime?
@@ -249,9 +248,9 @@ model Shift {
 model Timekeeping {
   id            String          @id @default(cuid())
   employeeId    String
-  employee      EmployeeProfile @relation(fields: [employeeId], references: [id])
+  employee      EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   shiftId       String
-  shift         Shift           @relation(fields: [shiftId], references: [id])
+  shift         Shift           @relation(fields: [shiftId], references: [id], onDelete: Cascade)
   checkIn       DateTime
   checkOut      DateTime?
   workDate      DateTime        @db.Date
@@ -268,13 +267,13 @@ model Timekeeping {
 model LeaveRequest {
   id           String             @id @default(cuid())
   employeeId   String
-  employee     EmployeeProfile    @relation(fields: [employeeId], references: [id])
+  employee     EmployeeProfile    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   startDate    DateTime
   endDate      DateTime
   reason       String
   status       LeaveRequestStatus @default(PENDING)
   approvedById String?
-  approvedBy   User?              @relation("ApprovedLeaveRequests", fields: [approvedById], references: [id])
+  approvedBy   User?              @relation("ApprovedLeaveRequests", fields: [approvedById], references: [id], onDelete: Cascade)
 
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -286,7 +285,7 @@ model LeaveRequest {
 model Payroll {
   id                String          @id @default(cuid())
   employeeId        String
-  employee          EmployeeProfile @relation(fields: [employeeId], references: [id])
+  employee          EmployeeProfile @relation(fields: [employeeId], references: [id], onDelete: Cascade)
   month             Int
   year              Int
   baseSalary        Float
@@ -319,7 +318,7 @@ model Ingredient {
   code              String?
   lowStockThreshold Float?                  @default(10)
   imageId           String
-  image             Image                   @relation(fields: [imageId], references: [id])
+  image             Image                   @relation(fields: [imageId], references: [id], onDelete: Cascade)
   unit              IngredientUnit
   recipeItems       RecipeIngredient[]
   transactions      IngredientTransaction[]
@@ -336,7 +335,7 @@ model IngredientTransaction {
   price        Float
   notes        String?
   createdById  String?
-  createdBy    User?                     @relation(fields: [createdById], references: [id])
+  createdBy    User?                     @relation(fields: [createdById], references: [id], onDelete: Cascade)
   createdAt    DateTime                  @default(now())
 
   @@index([ingredientId])
@@ -347,9 +346,9 @@ model IngredientTransaction {
 
 model RecipeIngredient {
   recipeId     String
-  recipe       Recipe     @relation(fields: [recipeId], references: [id])
+  recipe       Recipe     @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   ingredientId String
-  ingredient   Ingredient @relation(fields: [ingredientId], references: [id])
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
   quantity     Float // Số lượng cần cho công thức
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
@@ -383,7 +382,7 @@ model MenuCategory {
   nameEn        String?
   slug          String     @unique
   imageId       String?
-  image         Image?     @relation(fields: [imageId], references: [id])
+  image         Image?     @relation(fields: [imageId], references: [id], onDelete: Cascade)
   description   String?
   descriptionEn String?
   isActive      Boolean    @default(true)
@@ -408,9 +407,9 @@ model MenuItem {
   recordStatus  Status         @default(ACTIVE) // Thêm field này
   isActive      Boolean        @default(true)
   categoryId    String
-  category      MenuCategory   @relation(fields: [categoryId], references: [id])
+  category      MenuCategory   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   recipeId      String?        @unique
-  recipe        Recipe?        @relation(fields: [recipeId], references: [id])
+  recipe        Recipe?        @relation(fields: [recipeId], references: [id], onDelete: Cascade)
   orderItems    OrderItem[]
   reviews       Review[]
   createdAt     DateTime       @default(now())
@@ -440,9 +439,9 @@ model RestaurantTable {
 model Reservation {
   id              String            @id @default(cuid())
   customerId      String
-  customer        User              @relation(fields: [customerId], references: [id])
+  customer        User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
   tableId         String
-  table           RestaurantTable   @relation(fields: [tableId], references: [id])
+  table           RestaurantTable   @relation(fields: [tableId], references: [id], onDelete: Cascade)
   reservationTime DateTime
   numberOfGuests  Int
   notes           String?
@@ -460,9 +459,9 @@ model Reservation {
 model Order {
   id            String           @id @default(cuid())
   tableId       String
-  table         RestaurantTable  @relation(fields: [tableId], references: [id])
+  table         RestaurantTable  @relation(fields: [tableId], references: [id], onDelete: Cascade)
   customerId    String?
-  customer      CustomerProfile? @relation(fields: [customerId], references: [id])
+  customer      CustomerProfile? @relation(fields: [customerId], references: [id], onDelete: Cascade)
   status        OrderStatus      @default(PENDING)
   totalAmount   Float            @default(0)
   finalAmount   Float            @default(0)
@@ -488,9 +487,9 @@ model Order {
 model OrderItem {
   id         String    @id @default(cuid())
   orderId    String
-  order      Order     @relation(fields: [orderId], references: [id])
+  order      Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
   menuItemId String
-  menuItem   MenuItem  @relation(fields: [menuItemId], references: [id])
+  menuItem   MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   quantity   Int
   price      Float
   notes      String?
@@ -506,7 +505,7 @@ model OrderItem {
 model Payment {
   id            String        @id @default(cuid())
   orderId       String        @unique
-  order         Order         @relation(fields: [orderId], references: [id])
+  order         Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
   amount        Float
   paymentMethod PaymentMethod
   status        PaymentStatus @default(PENDING)
@@ -542,12 +541,12 @@ model Voucher {
 model CustomerProfile {
   id            String       @id @default(cuid())
   userId        String       @unique
-  user          User         @relation(fields: [userId], references: [id])
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   loyaltyPoints Int          @default(0)
   tier          CustomerTier @default(BRONZE)
   phoneNumber   String?
   addressId     String?      @unique
-  address       Address?     @relation(fields: [addressId], references: [id])
+  address       Address?     @relation(fields: [addressId], references: [id], onDelete: Cascade)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
   deletedAt     DateTime?
@@ -559,9 +558,9 @@ model CustomerProfile {
 model Review {
   id         String    @id @default(cuid())
   customerId String
-  customer   User      @relation(fields: [customerId], references: [id])
+  customer   User      @relation(fields: [customerId], references: [id], onDelete: Cascade)
   menuItemId String?
-  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id])
+  menuItem   MenuItem? @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   rating     Int
   comment    String?
   createdAt  DateTime  @default(now())
@@ -574,9 +573,9 @@ model Review {
 model Notification {
   id        String           @id @default(cuid())
   userId    String
-  user      User             @relation("UserNotifications", fields: [userId], references: [id])
+  user      User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
   senderId  String?
-  sender    User?            @relation("SentNotifications", fields: [senderId], references: [id])
+  sender    User?            @relation("SentNotifications", fields: [senderId], references: [id], onDelete: Cascade)
   type      NotificationType
   title     String
   message   String
@@ -609,7 +608,7 @@ model Image {
   ufsUrl         String
   ingredients    Ingredient[]
   menuCategories MenuCategory[]
-  menuItem       MenuItem?      @relation(fields: [menuItemId], references: [id])
+  menuItem       MenuItem?      @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   menuItemId     String?

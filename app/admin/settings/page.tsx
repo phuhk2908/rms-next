@@ -11,7 +11,7 @@ export default async function Page() {
    const workingDayConfigs = await getWorkingDayConfigs();
 
    return (
-      <div className="p-4 lg:p-6">
+      <div className="">
          <Tabs defaultValue="general-settings">
             <TabsList>
                <TabsTrigger value="general-settings">
