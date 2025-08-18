@@ -23,7 +23,7 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Table, Users, UtensilsCrossed } from "lucide-react";
+import { Table, Users, UtensilsCrossed, CalendarCog } from "lucide-react";
 
 const data = {
    user: {
@@ -68,19 +68,19 @@ const data = {
             },
             {
                title: "Attendance",
-               url: "/admin/staffs/attendance",
+               url: "/admin/attendance",
             },
             {
                title: "Payrolls",
-               url: "/admin/staffs/payrolls",
+               url: "/admin/payrolls",
             },
             {
                title: "Shifts",
-               url: "/admin/staffs/shifts",
+               url: "/admin/shift",
             },
             {
                title: "Leave Request",
-               url: "/admin/staffs/leave-request",
+               url: "/admin/leave-request",
             },
          ],
       },
