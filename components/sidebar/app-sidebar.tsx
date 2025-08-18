@@ -23,7 +23,7 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Table, Users, UtensilsCrossed } from "lucide-react";
+import { Table, Users, UtensilsCrossed, CalendarCog } from "lucide-react";
 
 const data = {
    user: {
@@ -101,6 +101,12 @@ const data = {
                url: "/admin/employees/",
             },
          ],
+      },
+      {
+         title: "Shift Management",
+         url: "/admin/shift/",
+         icon: CalendarCog,
+         isActive: false,
       },
    ],
    navClouds: [

@@ -11,3 +11,11 @@ export function formatPrice(price: number): string {
       currency: "USD",
    }).format(price);
 }
+
+export const formatDate = (date: Date | string): string => {
+   return new Intl.DateTimeFormat("vi-VI", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+   }).format(new Date(date));
+};
