@@ -14,6 +14,7 @@ import {
    CardTitle,
 } from "@/components/ui/card";
 import { IngredientOverview } from "./_components/ingredient-overview";
+import { AddTransactionForm } from "./_components/add-transaction-form";
 
 export const metadata: Metadata = {
    title: "Admin | Ingredients",
@@ -51,7 +52,19 @@ export default async function Page() {
             </TabsContent>
 
             <TabsContent value="transactions">
-               <p>Transactions</p>
+               <Card>
+                  <CardHeader>
+                     <CardTitle>Transactions</CardTitle>
+                     <CardDescription>
+                        Manage your ingredient transactions
+                     </CardDescription>
+                     <CardAction>
+                        <AddTransactionForm ingredients={ingredients} />
+                     </CardAction>
+                  </CardHeader>
+
+                  <CardContent></CardContent>
+               </Card>
             </TabsContent>
          </Tabs>
       </>
