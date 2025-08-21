@@ -362,6 +362,7 @@ model Recipe {
   id              String             @id @default(cuid())
   name            String
   description     String?
+  instructions    String?
   slug            String             @unique
   estimatedCost   Decimal?           @db.Decimal(10, 2)
   preparationTime Int?

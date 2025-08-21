@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export async function seedMenuCategory() {
    const categories = [
       {
-         name: "Đồ uống",
+         name: "Beverages",
          nameEn: "Beverages",
          slug: "beverages",
          image: {
@@ -15,11 +15,11 @@ export async function seedMenuCategory() {
                ufsUrl: "https://placehold.co/600x400/png?text=Beverages",
             },
          },
-         description: "Các loại đồ uống giải khát",
+         description: "Various refreshing drinks",
          descriptionEn: "Various refreshing drinks",
       },
       {
-         name: "Món khai vị",
+         name: "Appetizers",
          nameEn: "Appetizers",
          slug: "appetizers",
          image: {
@@ -28,11 +28,11 @@ export async function seedMenuCategory() {
                ufsUrl: "https://placehold.co/600x400/png?text=Appetizers",
             },
          },
-         description: "Món khai vị ngon miệng",
+         description: "Delicious starters",
          descriptionEn: "Delicious starters",
       },
       {
-         name: "Món chính",
+         name: "Main Dishes",
          nameEn: "Main Dishes",
          slug: "main-dishes",
          image: {
@@ -41,15 +41,48 @@ export async function seedMenuCategory() {
                ufsUrl: "https://placehold.co/600x400/png?text=Main+Dishes",
             },
          },
-         description: "Các món ăn chính hấp dẫn",
+         description: "Tasty main courses",
          descriptionEn: "Tasty main courses",
+      },
+      {
+         name: "Asian Cuisine",
+         nameEn: "Asian Cuisine",
+         slug: "asian-cuisine",
+         image: {
+            create: {
+               key: "asian-cuisine-image",
+               ufsUrl: "https://placehold.co/600x400/png?text=Asian+Cuisine",
+            },
+         },
+         description: "Traditional Asian dishes",
+         descriptionEn: "Traditional Asian dishes",
+      },
+      {
+         name: "Desserts",
+         nameEn: "Desserts",
+         slug: "desserts",
+         image: {
+            create: {
+               key: "desserts-image",
+               ufsUrl: "https://placehold.co/600x400/png?text=Desserts",
+            },
+         },
+         description: "Sweet desserts",
+         descriptionEn: "Sweet desserts",
       },
    ];
 
-   // Tạo dữ liệu
+   // Create data using upsert to avoid duplicates
    for (const category of categories) {
-      await prisma.menuCategory.create({
-         data: {
+      await prisma.menuCategory.upsert({
+         where: { slug: toSlug(category.name) },
+         update: {
+            name: category.name,
+            nameEn: category.nameEn,
+            description: category.description,
+            descriptionEn: category.descriptionEn,
+         },
+         create: {
             name: category.name,
             nameEn: category.nameEn,
             slug: toSlug(category.name),
@@ -64,4 +97,17 @@ export async function seedMenuCategory() {
          },
       });
    }
+}
+
+// For standalone execution
+if (require.main === module) {
+   seedMenuCategory()
+      .then(async () => {
+         await prisma.$disconnect();
+      })
+      .catch(async (e) => {
+         console.error(e);
+         await prisma.$disconnect();
+         process.exit(1);
+      });
 }
