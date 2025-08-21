@@ -1,52 +1,76 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Plus } from "lucide-react";
-// import { mockRecipes, mockMenuItems } from "@/lib/mock-data";
-import { RecipeCard } from "./_components/recipe-card";
-import { RecipeDetailModal } from "./_components/recipe-detail-modal";
 import { getAllMenuItems } from "@/data/menu-item";
-import { RecipeFormSheet } from "./_components/recipe-form";
-import { getAllRecipes } from "@/data/recipe";
+import { getIngredientsWithStock } from "@/data/ingredient";
+import { getRecipes } from "@/data/recipe";
 import ContainerRecipes from "./_components/container-recipes";
+import { RecipeFormSheet } from "./_components/recipe-form";
+import {
+   Card,
+   CardHeader,
+   CardTitle,
+   CardDescription,
+   CardAction,
+   CardContent,
+} from "@/components/ui/card";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+   title: "Admin | Recipes",
+   description: "Organize and manage your restaurant's recipes",
+};
 
 export default async function RecipeManagement() {
-   // const [recipes, setRecipes] = useState(mockRecipes);
-   const menuItems = await getAllMenuItems(true);
-   const recipes = await getAllRecipes(true);
+   const [menuItems, ingredients, recipes] = await Promise.all([
+      getAllMenuItems(true),
+      getIngredientsWithStock(),
+      getRecipes(),
+   ]);
+
+   const serializedMenuItems = menuItems.map((item) => ({
+      ...item,
+      recipe: item.recipe
+         ? {
+              ...item.recipe,
+              estimatedCost:
+                 item.recipe.estimatedCost === null
+                    ? null
+                    : typeof item.recipe.estimatedCost === "object" &&
+                        "toNumber" in item.recipe.estimatedCost
+                      ? item.recipe.estimatedCost.toNumber()
+                      : Number(item.recipe.estimatedCost),
+           }
+         : null,
+   }));
 
    return (
-      <div className="bg-background min-h-screen">
-         <div className="container mx-auto px-4 py-8">
-            <div className="mb-8 flex items-center justify-between">
-               <div>
-                  <h1 className="text-foreground mb-2 text-4xl font-bold">
-                     Recipe Management
-                  </h1>
-                  <p className="text-muted-foreground">
-                     Manage recipes and food costs
-                  </p>
-               </div>
-               {/* <Button onClick={() => setIsAddRecipeOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Recipe
-               </Button> */}
-               <RecipeFormSheet menuItems={menuItems} />
-            </div>
-
-            <div className="mb-6">
-               <div className="relative w-64">
-                  {/* <Search className="text-muted-foreground absolute top-2.5 left-2 h-4 w-4" />
-                  <Input
-                     placeholder="Search recipes..."
-                     value={searchTerm}
-                     onChange={(e) => setSearchTerm(e.target.value)}
-                     className="pl-8"
-                  /> */}
-               </div>
-            </div>
-
-            <ContainerRecipes recipes={recipes} />
-         </div>
-      </div>
+      <Card>
+         <CardHeader>
+            <CardTitle>Recipes Management</CardTitle>
+            <CardDescription>
+               Organize and manage your restaurant&apos;s recipes
+            </CardDescription>
+            <CardAction>
+               <RecipeFormSheet
+                  menuItems={serializedMenuItems}
+                  ingredients={ingredients}
+               />
+            </CardAction>
+         </CardHeader>
+         <CardContent>
+            <ContainerRecipes
+               recipes={recipes.map((recipe) => ({
+                  ...recipe,
+                  estimatedCost:
+                     recipe.estimatedCost === null
+                        ? null
+                        : typeof recipe.estimatedCost === "object" &&
+                            "toNumber" in recipe.estimatedCost
+                          ? recipe.estimatedCost.toNumber()
+                          : Number(recipe.estimatedCost),
+               }))}
+               menuItems={serializedMenuItems}
+               ingredients={ingredients}
+            />
+         </CardContent>
+      </Card>
    );
 }

@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { seedIngredient } from "@/seed/ingredient";
 import { seedMenuCategory } from "@/seed/menu-category";
 import { seedMenuItem } from "@/seed/menu-item";
+import { seedRecipe } from "@/seed/sample-recipe";
 import { seedUser } from "@/seed/user";
 import { seedWorkingDayConfig } from "@/seed/working-day-config";
 
@@ -34,10 +36,13 @@ async function main() {
 
    await prisma.user.deleteMany();
 
-   await seedMenuItem();
-   await seedWorkingDayConfig();
+   // Seed in correct order (dependencies first)
    await seedUser();
+   await seedWorkingDayConfig();
+   await seedIngredient();
    await seedMenuCategory();
+   await seedMenuItem();
+   await seedRecipe();
 
    console.log(`Seeding successfully`);
 }

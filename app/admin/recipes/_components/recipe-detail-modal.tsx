@@ -6,8 +6,10 @@ import {
    DialogHeader,
    DialogTitle,
    DialogDescription,
+   DialogFooter,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
    Table,
    TableBody,
@@ -16,15 +18,26 @@ import {
    TableHeader,
    TableRow,
 } from "@/components/ui/table";
+import { Edit, Trash2, Copy } from "lucide-react";
+import type { RecipeWithRelations } from "@/types/recipe";
 
 export function RecipeDetailModal({
    recipe,
    onClose,
+   onEdit,
+   onDelete,
+   onDuplicate,
+   isDeleting = false,
 }: {
-   recipe: any;
+   recipe: RecipeWithRelations | null;
    onClose: () => void;
+   onEdit?: (recipe: RecipeWithRelations) => void;
+   onDelete?: (recipeId: string) => void;
+   onDuplicate?: (recipeId: string) => void;
+   isDeleting?: boolean;
 }) {
    if (!recipe) return null;
+   console.log(recipe);
 
    return (
       <Dialog open={!!recipe} onOpenChange={onClose}>
@@ -38,64 +51,120 @@ export function RecipeDetailModal({
                <div>
                   <h4 className="mb-3 font-semibold">Recipe Details</h4>
                   <div className="space-y-1 text-sm">
-                     <p>Prep Time: {recipe.prepTime} min</p>
-                     <p>Cook Time: {recipe.cookTime} min</p>
-                     <p>Total Time: {recipe.totalTime} min</p>
-                     <p>
-                        Difficulty:{" "}
-                        <Badge variant="outline">{recipe.difficulty}</Badge>
-                     </p>
+                     {recipe.preparationTime && (
+                        <p>Preparation Time: {recipe.preparationTime} min</p>
+                     )}
                      <p>Serving Size: {recipe.servingSize}</p>
+                     {recipe.menuItem && (
+                        <p>
+                           Menu Item:{" "}
+                           <Badge variant="outline">
+                              {recipe.menuItem.name}
+                           </Badge>
+                        </p>
+                     )}
                   </div>
                </div>
                <div>
-                  <h4 className="mb-3 font-semibold">Cost Analysis</h4>
+                  <h4 className="mb-3 font-semibold">Cost Information</h4>
                   <div className="space-y-1 text-sm">
-                     <p>Total Cost: ${recipe.totalCost.toFixed(2)}</p>
-                     <p>Profit Margin: {recipe.profitMargin.toFixed(1)}%</p>
-                     <p>
-                        Menu Price: $
-                        {(
-                           recipe.totalCost /
-                           (1 - recipe.profitMargin / 100)
-                        ).toFixed(2)}
-                     </p>
+                     {recipe.estimatedCost && (
+                        <p>
+                           Estimated Cost: ${recipe.estimatedCost.toFixed(2)}
+                        </p>
+                     )}
+                     <p>Ingredients: {recipe.ingredients.length} items</p>
                   </div>
                </div>
             </div>
 
             <div>
                <h4 className="mt-4 mb-2 font-semibold">Ingredients</h4>
-               <Table>
-                  <TableHeader>
-                     <TableRow>
-                        <TableHead>Ingredient</TableHead>
-                        <TableHead>Qty</TableHead>
-                        <TableHead>Unit</TableHead>
-                        <TableHead>Cost</TableHead>
-                     </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                     {recipe.ingredients.map((ing: any, i: number) => (
-                        <TableRow key={i}>
-                           <TableCell>{ing.ingredientName}</TableCell>
-                           <TableCell>{ing.quantity}</TableCell>
-                           <TableCell>{ing.unit}</TableCell>
-                           <TableCell>${ing.cost.toFixed(2)}</TableCell>
+               {recipe.ingredients.length > 0 ? (
+                  <Table>
+                     <TableHeader>
+                        <TableRow>
+                           <TableHead>Ingredient</TableHead>
+                           <TableHead>Quantity</TableHead>
+                           <TableHead>Unit</TableHead>
                         </TableRow>
-                     ))}
-                  </TableBody>
-               </Table>
+                     </TableHeader>
+                     <TableBody>
+                        {recipe.ingredients.map(
+                           (recipeIngredient, i: number) => (
+                              <TableRow key={i}>
+                                 <TableCell>
+                                    {recipeIngredient.ingredient.name}
+                                 </TableCell>
+                                 <TableCell>
+                                    {recipeIngredient.quantity}
+                                 </TableCell>
+                                 <TableCell>
+                                    {recipeIngredient.ingredient.unit}
+                                 </TableCell>
+                              </TableRow>
+                           ),
+                        )}
+                     </TableBody>
+                  </Table>
+               ) : (
+                  <p className="text-muted-foreground text-sm">
+                     No ingredients specified
+                  </p>
+               )}
             </div>
 
             <div>
                <h4 className="mt-4 mb-2 font-semibold">Instructions</h4>
-               <ol className="list-inside list-decimal space-y-1 text-sm">
-                  {recipe.instructions.map((step: string, i: number) => (
-                     <li key={i}>{step}</li>
-                  ))}
-               </ol>
+               <div className="bg-muted/50 rounded-md p-3 text-sm whitespace-pre-wrap">
+                  {recipe.instructions}
+               </div>
             </div>
+
+            {(onEdit || onDelete || onDuplicate) && (
+               <DialogFooter className="mt-6">
+                  <div className="flex w-full gap-2 sm:w-auto">
+                     {onEdit && (
+                        <Button
+                           variant="outline"
+                           onClick={() => {
+                              onEdit(recipe);
+                              onClose();
+                           }}
+                        >
+                           <Edit className="mr-2 h-4 w-4" />
+                           Edit Recipe
+                        </Button>
+                     )}
+                     {onDuplicate && (
+                        <Button
+                           variant="outline"
+                           onClick={() => {
+                              onDuplicate(recipe.id);
+                              onClose();
+                           }}
+                           disabled={isDeleting}
+                        >
+                           <Copy className="mr-2 h-4 w-4" />
+                           Duplicate
+                        </Button>
+                     )}
+                     {onDelete && (
+                        <Button
+                           variant="destructive"
+                           onClick={() => {
+                              onDelete(recipe.id);
+                              onClose();
+                           }}
+                           disabled={isDeleting}
+                        >
+                           <Trash2 className="mr-2 h-4 w-4" />
+                           {isDeleting ? "Deleting..." : "Delete Recipe"}
+                        </Button>
+                     )}
+                  </div>
+               </DialogFooter>
+            )}
          </DialogContent>
       </Dialog>
    );

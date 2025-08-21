@@ -23,7 +23,7 @@ import {
    SidebarMenuButton,
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Table, Users, UtensilsCrossed, CalendarCog } from "lucide-react";
+import { Table, Users, UtensilsCrossed } from "lucide-react";
 
 const data = {
    user: {
