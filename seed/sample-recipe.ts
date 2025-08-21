@@ -22,13 +22,13 @@ export async function seedRecipe() {
          name: "Beef and Onion Stir Fry",
          description: "Delicious and nutritious traditional stir-fried dish",
          instructions: `1. Slice beef thinly against the grain
-2. Marinate beef with salt, pepper, minced garlic, and oil for 15 minutes
-3. Cut onion into medium-sized slices
-4. Heat oil in a pan, add beef and stir-fry on high heat
-5. When beef is about 70% cooked, add onions and stir-fry together
-6. Season to taste
-7. Stir-fry for another 2-3 minutes until beef and onions are evenly cooked
-8. Turn off heat and serve on a plate, garnish with green onions`,
+                        2. Marinate beef with salt, pepper, minced garlic, and oil for 15 minutes
+                        3. Cut onion into medium-sized slices
+                        4. Heat oil in a pan, add beef and stir-fry on high heat
+                        5. When beef is about 70% cooked, add onions and stir-fry together
+                        6. Season to taste
+                        7. Stir-fry for another 2-3 minutes until beef and onions are evenly cooked
+                        8. Turn off heat and serve on a plate, garnish with green onions`,
          slug: slug,
          estimatedCost: 50000,
          preparationTime: 20,
@@ -65,17 +65,4 @@ export async function seedRecipe() {
    });
 
    console.log("Created sample recipe:", sampleRecipe.name);
-}
-
-// For standalone execution
-if (require.main === module) {
-   seedRecipe()
-      .then(async () => {
-         await prisma.$disconnect();
-      })
-      .catch(async (e) => {
-         console.error(e);
-         await prisma.$disconnect();
-         process.exit(1);
-      });
 }

@@ -12,25 +12,25 @@ export const createRecipe = async (
 ): Promise<ApiResponse> => {
    try {
       await requireAdmin();
-
-      // Generate unique slug from name
       const baseSlug = toSlug(values.name);
-      let uniqueSlug = baseSlug;
-      let counter = 1;
 
-      // Check for existing slug and make it unique
-      while (await prisma.recipe.findUnique({ where: { slug: uniqueSlug } })) {
-         uniqueSlug = `${baseSlug}-${counter}`;
-         counter++;
+      const conflict = await prisma.recipe.findUnique({
+         where: { slug: baseSlug },
+      });
+
+      if (conflict) {
+         return {
+            status: "error",
+            message: "A recipe with this name already exists.",
+         };
       }
 
-      // Create recipe with ingredients
       const recipe = await prisma.recipe.create({
          data: {
             name: values.name,
             description: values.description || null,
             instructions: values.instructions || null,
-            slug: uniqueSlug,
+            slug: baseSlug,
             estimatedCost: values.estimatedCost || null,
             preparationTime: values.preparationTime || null,
             servingSize: values.servingSize || 1,
@@ -44,7 +44,6 @@ export const createRecipe = async (
          },
       });
 
-      // If menuItemId is provided, update the MenuItem to reference this recipe
       if (values.menuItemId && values.menuItemId !== "none") {
          await prisma.menuItem.update({
             where: { id: values.menuItemId },
@@ -74,7 +73,6 @@ export const updateRecipe = async (
       await requireAdmin();
 
       const validation = updateRecipeSchema.safeParse(values);
-
       if (!validation.success) {
          return {
             status: "error",
@@ -85,7 +83,6 @@ export const updateRecipe = async (
 
       const { id, ...updateData } = validation.data;
 
-      // Check if recipe exists
       const existingRecipe = await prisma.recipe.findUnique({
          where: { id },
       });
@@ -97,36 +94,30 @@ export const updateRecipe = async (
          };
       }
 
-      // Generate new slug if name changed
       let newSlug = existingRecipe.slug;
-      if (updateData.name !== existingRecipe.name) {
+      if (updateData.name && updateData.name !== existingRecipe.name) {
          const baseSlug = toSlug(updateData.name);
-         let uniqueSlug = baseSlug;
-         let counter = 1;
 
-         // Check for existing slug and make it unique (excluding current recipe)
-         while (
-            await prisma.recipe.findFirst({
-               where: {
-                  slug: uniqueSlug,
-                  id: { not: id },
-               },
-            })
-         ) {
-            uniqueSlug = `${baseSlug}-${counter}`;
-            counter++;
-         }
-         newSlug = uniqueSlug;
-      }
-
-      // Update recipe
-      await prisma.$transaction(async (tx) => {
-         // Delete existing ingredients
-         await tx.recipeIngredient.deleteMany({
-            where: { recipeId: id },
+         const conflict = await prisma.recipe.findFirst({
+            where: {
+               slug: baseSlug,
+               id: { not: id },
+            },
          });
 
-         // Update recipe with new data
+         if (conflict) {
+            return {
+               status: "error",
+               message: "Another recipe with this name already exists.",
+            };
+         }
+
+         newSlug = baseSlug;
+      }
+
+      await prisma.$transaction(async (tx) => {
+         await tx.recipeIngredient.deleteMany({ where: { recipeId: id } });
+
          await tx.recipe.update({
             where: { id },
             data: {
@@ -136,7 +127,7 @@ export const updateRecipe = async (
                slug: newSlug,
                estimatedCost: updateData.estimatedCost || null,
                preparationTime: updateData.preparationTime || null,
-               servingSize: updateData.servingSize || 1,
+               servingSize: updateData.servingSize ?? 1,
                ingredients: {
                   create:
                      updateData.ingredients?.map((ingredient) => ({
@@ -147,15 +138,17 @@ export const updateRecipe = async (
             },
          });
 
-         // Handle menuItem relationship
          if (updateData.menuItemId && updateData.menuItemId !== "none") {
-            // Update the MenuItem to reference this recipe
+            await tx.menuItem.updateMany({
+               where: { recipeId: id },
+               data: { recipeId: null },
+            });
+
             await tx.menuItem.update({
                where: { id: updateData.menuItemId },
                data: { recipeId: id },
             });
          } else {
-            // Remove recipe reference from any existing menuItem
             await tx.menuItem.updateMany({
                where: { recipeId: id },
                data: { recipeId: null },
@@ -182,7 +175,6 @@ export const deleteRecipe = async (id: string): Promise<ApiResponse> => {
    try {
       await requireAdmin();
 
-      // Check if recipe exists
       const existingRecipe = await prisma.recipe.findUnique({
          where: { id },
       });
@@ -194,7 +186,6 @@ export const deleteRecipe = async (id: string): Promise<ApiResponse> => {
          };
       }
 
-      // Soft delete recipe
       await prisma.recipe.update({
          where: { id },
          data: {
@@ -235,7 +226,6 @@ export const duplicateRecipe = async (id: string): Promise<ApiResponse> => {
          };
       }
 
-      // Generate unique slug for duplicated recipe
       const baseSlug = `${originalRecipe.slug}-copy`;
       let uniqueSlug = baseSlug;
       let counter = 1;
@@ -245,7 +235,6 @@ export const duplicateRecipe = async (id: string): Promise<ApiResponse> => {
          counter++;
       }
 
-      // Create duplicate recipe
       await prisma.recipe.create({
          data: {
             name: `${originalRecipe.name} (Copy)`,
@@ -275,6 +264,40 @@ export const duplicateRecipe = async (id: string): Promise<ApiResponse> => {
       return {
          status: "error",
          message: "Failed to duplicate recipe. Please try again.",
+      };
+   }
+};
+
+export const hardDeleteRecipe = async (id: string): Promise<ApiResponse> => {
+   try {
+      await requireAdmin();
+
+      const existingRecipe = await prisma.recipe.findUnique({
+         where: { id },
+      });
+
+      if (!existingRecipe) {
+         return {
+            status: "error",
+            message: "Recipe not found.",
+         };
+      }
+
+      await prisma.recipe.delete({
+         where: { id },
+      });
+
+      revalidatePath("/admin/recipes");
+
+      return {
+         status: "success",
+         message: "Recipe removed successfully.",
+      };
+   } catch (error) {
+      console.error("Error removing recipe:", error);
+      return {
+         status: "error",
+         message: "Failed to remove recipe. Please try again.",
       };
    }
 };

@@ -1,4 +1,5 @@
 import { PrismaClient, IngredientUnit } from "@/lib/generated/prisma";
+import { toSlug } from "@/lib/slugify";
 import slugify from "slugify";
 
 const prisma = new PrismaClient();
@@ -61,7 +62,7 @@ export async function seedIngredient() {
    ];
 
    for (const ing of ingredients) {
-      const slug = slugify(ing.name, { lower: true });
+      const slug = toSlug(ing.name);
 
       const existingIngredient = await prisma.ingredient.findUnique({
          where: { slug },
