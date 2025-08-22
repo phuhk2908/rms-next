@@ -4,7 +4,7 @@ import { requireAdmin } from "@/data/require-admin";
 import { PrismaClientKnownRequestError } from "@/lib/generated/prisma/runtime/library";
 import { prisma } from "@/lib/prisma";
 import { ApiResponse } from "@/lib/types";
-import { LeaveFormValue, leaveSchema } from "@/schemas/leave";
+import { LeaveFormValue, leaveRequestSchema } from "@/schemas/leave";
 import { revalidatePath } from "next/cache";
 
 export const updateStatus = async (
@@ -13,7 +13,7 @@ export const updateStatus = async (
    try {
       await requireAdmin();
 
-      const validation = leaveSchema.safeParse(values);
+      const validation = leaveRequestSchema.safeParse(values);
 
       if (!validation.success) {
          return {
@@ -36,7 +36,7 @@ export const updateStatus = async (
 
       return {
          status: "success",
-         message: "Updated status successfully",
+         message: "Approved leave request successfully",
       };
    } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {

@@ -9,8 +9,7 @@ import React from "react";
 import LeaveDataGrid from "./_components/columns";
 
 export default async function Page() {
-   const leaves = await getAllLeave();
-   console.log(leaves);
+   const leaveRequest = await getAllLeave();
    return (
       <div>
          <div className="flex w-full items-center justify-between px-2 py-4">
@@ -23,7 +22,7 @@ export default async function Page() {
          </div>
          <Card>
             <CardContent>
-               <LeaveDataGrid leaveData={leaves} />
+               <LeaveDataGrid leaveData={leaveRequest} />
             </CardContent>
          </Card>
       </div>

@@ -25,14 +25,14 @@ import {
 import { CheckCircle, Clock, Eye, Settings2, X, XCircle } from "lucide-react";
 
 import { DataGridColumnVisibility } from "@/components/ui/data-grid-column-visibility";
-import { Leave } from "@/types/leave";
+import { leaveRequest } from "@/types/leave";
 import { calculateDays, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { DetailsDialog } from "./leave-details-dialog";
 import { LeaveRequestStatus } from "@/lib/generated/prisma";
 
 interface LeaveProps {
-   leaveData: Leave[];
+   leaveData: leaveRequest[];
 }
 
 interface ActionCellProps {
@@ -90,7 +90,7 @@ export default function LeaveDataGrid({ leaveData }: LeaveProps) {
       });
    }, [leaveData, searchQuery]);
 
-   const columns = useMemo<ColumnDef<Leave>[]>(
+   const columns = useMemo<ColumnDef<leaveRequest>[]>(
       () => [
          {
             accessorKey: "id",
@@ -197,7 +197,7 @@ export default function LeaveDataGrid({ leaveData }: LeaveProps) {
       columns,
       data: filteredData,
       pageCount: Math.ceil((filteredData?.length || 0) / pagination.pageSize),
-      getRowId: (row: Leave) => row.id,
+      getRowId: (row: leaveRequest) => row.id,
       state: {
          pagination,
          sorting,

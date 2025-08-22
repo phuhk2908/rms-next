@@ -9,7 +9,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
 import {
    CheckCircle,
    CircleCheckBig,
@@ -20,15 +19,15 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { calculateDays, formatDate } from "@/lib/utils";
-import { Leave } from "@/types/leave";
 import { toast } from "sonner";
 import { updateStatus } from "@/actions/leave";
-import { UserRole } from "@/lib/generated/prisma";
+import { leaveRequest } from "@/types/leave";
+import { SubmitButton } from "@/components/ui/submit-button";
 
 export type LeaveRequestStatus = "PENDING" | "APPROVED" | "REJECTED";
 
 interface DetailsDialogProps {
-   detailData: Leave;
+   detailData: leaveRequest;
    open: boolean;
    setOpen: Dispatch<SetStateAction<boolean>>;
    onStatusUpdate?: (newStatus: LeaveRequestStatus) => void;
@@ -77,34 +76,28 @@ export function DetailsDialog({
 
    const handleStatusUpdate = async (newStatus: LeaveRequestStatus) => {
       try {
+         setIsLoading(true);
          const updateData = {
             id: detailData.id,
-            startDate: detailData.startDate,
-            endDate: detailData.endDate,
-            reason: detailData.reason,
             status: newStatus,
-            employee: {
-               user: {
-                  name: detailData.employee.user.name,
-                  email: detailData.employee.user.email,
-                  role: detailData.employee.user.role ?? UserRole.STAFF,
-               },
-            },
          };
 
          const result = await updateStatus(updateData);
 
          if (result.status === "success") {
-            toast.success(result.message);
+            const successMessage =
+               newStatus === "APPROVED"
+                  ? "Leave request has been approved."
+                  : "Leave request has been rejected.";
+
+            toast.success(successMessage);
+
             setCurrentStatus(newStatus);
 
             if (onStatusUpdate) {
                onStatusUpdate(newStatus);
-            }
-
-            setTimeout(() => {
                setOpen(false);
-            }, 1500);
+            }
          } else {
             toast.error(result.message);
          }
@@ -182,15 +175,15 @@ export function DetailsDialog({
                      <Textarea value={detailData.reason} disabled />
                   </div>
                   <DialogFooter className="flex justify-between gap-2">
-                     <Button
+                     <SubmitButton
                         variant="outline"
                         onClick={() => setOpen(false)}
                         disabled={isLoading}
                      >
                         Cancel
-                     </Button>
+                     </SubmitButton>
 
-                     <Button
+                     <SubmitButton
                         variant="destructive"
                         onClick={() => handleStatusUpdate("REJECTED")}
                         disabled={isLoading || currentStatus === "REJECTED"}
@@ -201,9 +194,9 @@ export function DetailsDialog({
                            <CircleSlash2 className="mr-2 h-4 w-4" />
                         )}
                         {isLoading ? "Processing..." : "Rejected"}
-                     </Button>
+                     </SubmitButton>
 
-                     <Button
+                     <SubmitButton
                         className="bg-green-600 text-white hover:bg-green-700"
                         onClick={() => handleStatusUpdate("APPROVED")}
                         disabled={isLoading || currentStatus === "APPROVED"}
@@ -214,7 +207,7 @@ export function DetailsDialog({
                            <CircleCheckBig className="mr-2 h-4 w-4" />
                         )}
                         {isLoading ? "Processing..." : "Approved"}
-                     </Button>
+                     </SubmitButton>
                   </DialogFooter>
                </div>
             )}
