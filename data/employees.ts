@@ -2,6 +2,14 @@ import { prisma } from "@/lib/prisma";
 
 export const getAllEmployees = async () => {
    const users = await prisma.user.findMany({
+      where: {
+         role: {
+            in: ["ADMIN", "MANAGER", "STAFF", "CHEF"],
+         },
+         employeeProfile: {
+            isNot: null,
+         },
+      },
       select: {
          id: true,
          name: true,

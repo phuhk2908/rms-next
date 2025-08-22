@@ -1,23 +1,15 @@
-import { Metadata } from "next";
-import React from "react";
-import { getAllEmployees } from "@/data/employees";
-import EmployeeForm from "./_components/employee-form";
 import {
    Card,
    CardContent,
    CardDescription,
    CardTitle,
 } from "@/components/ui/card";
-import EmployeeDataGrid from "./_components/columns";
-
-export const metadata: Metadata = {
-   title: "Admin | Employees",
-};
+import { getAllLeave } from "@/data/leave";
+import React from "react";
+import LeaveDataGrid from "./_components/columns";
 
 export default async function Page() {
-   const employees = await getAllEmployees();
-   console.log(employees);
-
+   const leaveRequest = await getAllLeave();
    return (
       <div>
          <div className="flex w-full items-center justify-between px-2 py-4">
@@ -27,11 +19,10 @@ export default async function Page() {
                   Manage your restaurant&apos;s employee
                </CardDescription>
             </div>
-            <EmployeeForm />
          </div>
          <Card>
             <CardContent>
-               <EmployeeDataGrid employeeData={employees} />
+               <LeaveDataGrid leaveData={leaveRequest} />
             </CardContent>
          </Card>
       </div>

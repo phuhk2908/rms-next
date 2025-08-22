@@ -22,95 +22,75 @@ import {
    SortingState,
    useReactTable,
 } from "@tanstack/react-table";
-import { Copy, Edit, MoreHorizontal, Settings2, Trash2, X } from "lucide-react";
-import { UserWithEmployeeProfile } from "@/types/employee";
-import UpdateEmployeeForm from "./update-employee-form";
-import DeleteDialogForm from "./delete-dialog-form";
-import {
-   DropdownMenu,
-   DropdownMenuContent,
-   DropdownMenuItem,
-   DropdownMenuSeparator,
-   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { DataGridColumnVisibility } from "@/components/ui/data-grid-column-visibility";
+import { CheckCircle, Clock, Eye, Settings2, X, XCircle } from "lucide-react";
 
-interface EmployeeProps {
-   employeeData: UserWithEmployeeProfile[];
+import { DataGridColumnVisibility } from "@/components/ui/data-grid-column-visibility";
+import { leaveRequest } from "@/types/leave";
+import { calculateDays, formatDate } from "@/lib/utils";
+import { Badge } from "@/components/ui/badge";
+import { DetailsDialog } from "./leave-details-dialog";
+import { LeaveRequestStatus } from "@/lib/generated/prisma";
+
+interface LeaveProps {
+   leaveData: leaveRequest[];
 }
 
-export const ActionCell = ({ row }: { row: any }) => {
-   const [open, setOpen] = useState(false);
-   const [openDelete, setOpenDelete] = useState(false);
+interface ActionCellProps {
+   row: any;
+   onStatusChange?: (id: string, newStatus: LeaveRequestStatus) => void;
+}
 
-   const employeeId = row.original.id;
-   const employeeEmail = row.original.email;
+export const ActionCell = ({ row, onStatusChange }: ActionCellProps) => {
+   const [open, setOpen] = useState(false);
+   const data = row.original;
+
+   const handleStatusUpdate = (newStatus: LeaveRequestStatus) => {
+      if (row.original) {
+         row.original.status = newStatus;
+      }
+
+      if (onStatusChange) {
+         onStatusChange(data.id, newStatus);
+      }
+   };
+
    return (
       <>
-         <UpdateEmployeeForm
-            employeeData={row.original}
+         <DetailsDialog
+            detailData={data}
             open={open}
             setOpen={setOpen}
+            onStatusUpdate={handleStatusUpdate}
          />
-         <DeleteDialogForm
-            employeeId={employeeId}
-            employeeEmail={employeeEmail}
-            openDelete={openDelete}
-            setOpenDelete={setOpenDelete}
-         />
-         <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-               <Button variant="ghost" className="h-8 w-8 p-0">
-                  <span className="sr-only">Open menu</span>
-                  <MoreHorizontal className="h-4 w-4" />
-               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-               <DropdownMenuItem
-                  onClick={() => navigator.clipboard.writeText(employeeId)}
-               >
-                  <Copy className="size-4" />
-                  Copy ID
-               </DropdownMenuItem>
-               <DropdownMenuItem onSelect={() => setOpen(true)}>
-                  <Edit className="size-4" />
-                  Edit
-               </DropdownMenuItem>
-               <DropdownMenuSeparator />
-               <DropdownMenuItem
-                  variant="destructive"
-                  onSelect={() => setOpenDelete(true)}
-               >
-                  <Trash2 className="size-4" />
-                  Delete
-               </DropdownMenuItem>
-            </DropdownMenuContent>
-         </DropdownMenu>
+         <Button variant="outline" size="icon" onClick={() => setOpen(true)}>
+            <Eye className="h-4 w-4" />
+         </Button>
       </>
    );
 };
 
-export default function EmployeeDataGrid({ employeeData }: EmployeeProps) {
+export default function LeaveDataGrid({ leaveData }: LeaveProps) {
    const [pagination, setPagination] = useState<PaginationState>({
       pageIndex: 0,
       pageSize: 5,
    });
    const [sorting, setSorting] = useState<SortingState>([
-      { id: "name", desc: true },
+      { id: "id", desc: true },
    ]);
    const [searchQuery, setSearchQuery] = useState("");
 
    const filteredData = useMemo(() => {
-      return employeeData.filter((item) => {
+      return leaveData.filter((item) => {
          const searchLower = searchQuery.toLowerCase();
          const matchesSearch =
-            !searchQuery || item.name.toLowerCase().includes(searchLower);
+            !searchQuery ||
+            item.employee?.user?.name.toLowerCase().includes(searchLower);
 
          return matchesSearch;
       });
-   }, [employeeData, searchQuery]);
+   }, [leaveData, searchQuery]);
 
-   const columns = useMemo<ColumnDef<UserWithEmployeeProfile>[]>(
+   const columns = useMemo<ColumnDef<leaveRequest>[]>(
       () => [
          {
             accessorKey: "id",
@@ -126,27 +106,88 @@ export default function EmployeeDataGrid({ employeeData }: EmployeeProps) {
             enableResizing: false,
          },
          {
-            accessorKey: "name",
-            id: "name",
-            header: "Name",
+            accessorKey: "employee.user.email",
+            id: "employee.user.email",
+            header: "Email",
          },
          {
-            accessorKey: "email",
-            id: "email",
-            header: "Email",
+            accessorKey: "employee.user.name",
+            id: "employee.user.name",
+            header: "Full Name",
+         },
+         {
+            accessorKey: "startDate",
+            id: "startDate",
+            header: "Start Date",
+            cell: ({ row }: { row: any }) => {
+               const time = row.original.startDate;
+               return formatDate(time);
+            },
+         },
+         {
+            accessorKey: "endDate",
+            id: "endDate",
+            header: "End Date",
+            cell: ({ row }: { row: any }) => {
+               const time = row.original.endDate;
+               return formatDate(time);
+            },
+         },
+         {
+            id: "duration",
+            header: "Duration",
+            cell: ({ row }: { row: any }) => {
+               const start = row.original.startDate;
+               const end = row.original.startDate;
+               return calculateDays(start, end);
+            },
+         },
+         {
+            accessorKey: "status",
+            id: "status",
+            header: "Status",
+            cell: ({ row }: { row: any }) => {
+               const status = row.original.status;
+               return <StatusBadge status={status} />;
+            },
          },
          {
             id: "actions",
             header: "Actions",
             cell: ({ row }) => <ActionCell row={row} />,
-            size: 60,
-            enableSorting: false,
-            enableHiding: false,
-            enableResizing: false,
          },
       ],
       [],
    );
+
+   function StatusBadge({ status }: { status: any }) {
+      switch (status) {
+         case "PENDING":
+            return (
+               <Badge
+                  variant="outline"
+                  className="border-yellow-600 text-yellow-600"
+               >
+                  <Clock className="mr-1 h-3 w-3" /> Pending
+               </Badge>
+            );
+         case "APPROVED":
+            return (
+               <Badge
+                  variant="outline"
+                  className="border-green-600 text-green-600"
+               >
+                  <CheckCircle className="mr-1 h-3 w-3" /> Approved
+               </Badge>
+            );
+         case "REJECTED":
+            return (
+               <Badge variant="outline" className="border-red-600 text-red-600">
+                  <XCircle className="mr-1 h-3 w-3" /> Rejected
+               </Badge>
+            );
+      }
+   }
 
    const [columnOrder, setColumnOrder] = useState<string[]>(
       columns.map((column) => column.id as string),
@@ -156,7 +197,7 @@ export default function EmployeeDataGrid({ employeeData }: EmployeeProps) {
       columns,
       data: filteredData,
       pageCount: Math.ceil((filteredData?.length || 0) / pagination.pageSize),
-      getRowId: (row: UserWithEmployeeProfile) => row.id,
+      getRowId: (row: leaveRequest) => row.id,
       state: {
          pagination,
          sorting,
@@ -175,7 +216,7 @@ export default function EmployeeDataGrid({ employeeData }: EmployeeProps) {
    return (
       <DataGrid
          table={table}
-         recordCount={employeeData?.length || 0}
+         recordCount={leaveData?.length || 0}
          tableLayout={{
             columnsPinnable: true,
             columnsResizable: true,

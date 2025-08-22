@@ -140,28 +140,26 @@ const UpdateEmployeeForm = ({ employeeData, open, setOpen }: EmployeeProps) => {
                               <FormLabel>
                                  Role <span className="text-red-500">*</span>
                               </FormLabel>
-                              <FormControl>
-                                 <Select
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    disabled={session?.user.role !== "ADMIN"}
-                                 >
-                                    <FormControl>
-                                       <SelectTrigger className="w-full">
-                                          <SelectValue placeholder="Select Role" />
-                                       </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                       {Object.values(UserRole).map(
-                                          (role, idx) => (
-                                             <SelectItem key={idx} value={role}>
-                                                {role}
-                                             </SelectItem>
-                                          ),
-                                       )}
-                                    </SelectContent>
-                                 </Select>
-                              </FormControl>
+                              <Select
+                                 value={field.value}
+                                 onValueChange={field.onChange}
+                                 disabled={session?.user.role !== "ADMIN"}
+                              >
+                                 <FormControl>
+                                    <SelectTrigger className="w-full">
+                                       <SelectValue placeholder="Select Role" />
+                                    </SelectTrigger>
+                                 </FormControl>
+                                 <SelectContent>
+                                    {Object.values(UserRole).map(
+                                       (role, idx) => (
+                                          <SelectItem key={idx} value={role}>
+                                             {role}
+                                          </SelectItem>
+                                       ),
+                                    )}
+                                 </SelectContent>
+                              </Select>
                               <FormMessage />
                            </FormItem>
                         )}
