@@ -3,11 +3,11 @@ import { getAllMenuCategories } from "@/data/menu-category";
 import { MenuCategoryCard } from "./_components/menu-category-card";
 import {
    Card,
-   CardAction,
    CardContent,
    CardDescription,
    CardHeader,
    CardTitle,
+   CardToolbar,
 } from "@/components/ui/card";
 import { Metadata } from "next";
 
@@ -28,9 +28,9 @@ export default async function AdminMenuCategoriesPage() {
             <CardDescription>
                Organize and manage your restaurant&apos;s menu categories
             </CardDescription>
-            <CardAction>
+            <CardToolbar>
                <AddMenuCategoryForm mode="create" />
-            </CardAction>
+            </CardToolbar>
          </CardHeader>
          <CardContent>
             <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">

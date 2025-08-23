@@ -1,0 +1,36 @@
+{
+   "HomePage": {
+      "title": "Bảng Điều Khiển Admin"
+   },
+   "Authentication": {
+      "sign-out": "Đăng xuất",
+      "sign-in": "Đăng nhập",
+      "sign-up": "Đăng ký",
+      "account": "Tài khoản"
+   },
+   "LocaleSwitcher": {
+      "label": "VI",
+      "locale": "🇻🇳"
+   },
+   "Menubar": {
+      "food-recipe": {
+         "title": "Công thức & Món ăn",
+         "ingredient": "Nguyên liệu",
+         "recipe": "Công thức",
+         "menu-item": "Món ăn",
+         "menu-category": "Danh mục món ăn"
+      },
+      "employee": {
+         "title": "Nhân viên",
+         "employee-management": "Quản lý nhân viên",
+         "attendance": "Chấm công",
+         "payroll": "Bảng lương",
+         "shift": "Ca làm việc",
+         "leave-request": "Yêu cầu nghỉ phép"
+      },
+      "restaurant-table": "Bàn nhà hàng",
+      "setting": "Cài đặt",
+      "get-help": "Yêu cầu hỗ trợ",
+      "search": "Tìm kiếm"
+   }
+}
