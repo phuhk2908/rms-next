@@ -4,14 +4,12 @@ import { auth } from "@/lib/auth";
 import { getTranslations } from "next-intl/server";
 import { headers } from "next/headers";
 
-export default async function Home({ params }: { params: any }) {
+export default async function Home() {
    const session = await auth.api.getSession({
       headers: await headers(),
    });
    const t = await getTranslations("HomePage");
    const isAdmin = session?.user.role === "ADMIN";
-
-   const { locale } = await params;
 
    return (
       <Link
