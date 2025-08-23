@@ -4,7 +4,7 @@ import { MenuItem } from "@/types/menu";
 import AddMenuItemForm from "./_components/add-menu-item-form";
 import {
    Card,
-   CardAction,
+   CardToolbar,
    CardContent,
    CardDescription,
    CardHeader,
@@ -29,9 +29,9 @@ export default async function AdminMenuItemsPage() {
             <CardDescription>
                Organize and manage your restaurant&apos;s menu items
             </CardDescription>
-            <CardAction>
+            <CardToolbar>
                <AddMenuItemForm mode="create" categories={categories} />
-            </CardAction>
+            </CardToolbar>
          </CardHeader>
          <CardContent>
             <MenuItemsList

@@ -1,6 +1,6 @@
 "use client";
 
-import { Button} from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
    Card,
    CardHeader,
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Loader2, Github, Send } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTransition, useState } from "react";
 import { toast } from "sonner";
 
@@ -31,12 +31,12 @@ export function SignInForm() {
       startGithubTransition(async () => {
          await authClient.signIn.social({
             provider: "github",
-            callbackURL: "/",
             fetchOptions: {
                onSuccess: () => {
                   toast.success(
                      "Signed in with Github, you will be redirected...",
                   );
+                  router.push("/");
                },
                onError: (ctx) => {
                   toast.error(ctx.error.message);
@@ -54,7 +54,7 @@ export function SignInForm() {
             fetchOptions: {
                onSuccess: () => {
                   toast.success("Email sent");
-                  router.push(`/verify?email=${email}`);
+                  router.push({ pathname: "/verify", query: { email: email } });
                },
                onError: (ctx) => {
                   toast.error(ctx.error.message);

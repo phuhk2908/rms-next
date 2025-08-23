@@ -7,11 +7,11 @@ import { AddIngredientForm } from "./_components/add-ingredient-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
    Card,
-   CardAction,
    CardContent,
    CardDescription,
    CardHeader,
    CardTitle,
+   CardToolbar,
 } from "@/components/ui/card";
 import { IngredientOverview } from "./_components/ingredient-overview";
 
@@ -39,9 +39,9 @@ export default async function Page() {
                      <CardDescription>
                         Manage your restaurant&apos;s ingredients.
                      </CardDescription>
-                     <CardAction>
+                     <CardToolbar>
                         <AddIngredientForm />
-                     </CardAction>
+                     </CardToolbar>
                   </CardHeader>
 
                   <CardContent>

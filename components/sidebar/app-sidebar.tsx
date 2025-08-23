@@ -1,10 +1,6 @@
 "use client";
 
-import * as React from "react";
 import {
-   IconCamera,
-   IconFileAi,
-   IconFileDescription,
    IconHelp,
    IconInnerShadowTop,
    IconSearch,
@@ -24,141 +20,100 @@ import {
    SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Table, Users, UtensilsCrossed } from "lucide-react";
-
-const data = {
-   user: {
-      name: "shadcn",
-      email: "m@example.com",
-      avatar: "https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_6.png",
-   },
-   navMain: [
-      {
-         title: "Food & Recipe",
-         url: "#",
-         icon: UtensilsCrossed,
-         isActive: true,
-         items: [
-            {
-               title: "Ingredients",
-               url: "/admin/ingredients/",
-            },
-            {
-               title: "Recipes",
-               url: "/admin/recipes/",
-            },
-            {
-               title: "Menu Item",
-               url: "/admin/menu/items",
-            },
-            {
-               title: "Menu Category",
-               url: "/admin/menu/categories",
-            },
-         ],
-      },
-      {
-         title: "Employees",
-         url: "#",
-         icon: Users,
-         isActive: true,
-         items: [
-            {
-               title: "Employee Management",
-               url: "/admin/employees",
-            },
-            {
-               title: "Attendance",
-               url: "/admin/attendance",
-            },
-            {
-               title: "Payrolls",
-               url: "/admin/payrolls",
-            },
-            {
-               title: "Shifts",
-               url: "/admin/shift",
-            },
-            {
-               title: "Leave Request",
-               url: "/admin/leave-request",
-            },
-         ],
-      },
-      {
-         title: "Restaurant Table",
-         url: "/admin/table/",
-         icon: Table,
-         isActive: false,
-      },
-   ],
-   navClouds: [
-      {
-         title: "Capture",
-         icon: IconCamera,
-         isActive: true,
-         url: "#",
-         items: [
-            {
-               title: "Active Proposals",
-               url: "#",
-            },
-            {
-               title: "Archived",
-               url: "#",
-            },
-         ],
-      },
-      {
-         title: "Proposal",
-         icon: IconFileDescription,
-         url: "#",
-         items: [
-            {
-               title: "Active Proposals",
-               url: "#",
-            },
-            {
-               title: "Archived",
-               url: "#",
-            },
-         ],
-      },
-      {
-         title: "Prompts",
-         icon: IconFileAi,
-         url: "#",
-         items: [
-            {
-               title: "Active Proposals",
-               url: "#",
-            },
-            {
-               title: "Archived",
-               url: "#",
-            },
-         ],
-      },
-   ],
-   navSecondary: [
-      {
-         title: "Settings",
-         url: "/admin/settings",
-         icon: IconSettings,
-      },
-      {
-         title: "Get Help",
-         url: "#",
-         icon: IconHelp,
-      },
-      {
-         title: "Search",
-         url: "#",
-         icon: IconSearch,
-      },
-   ],
-};
+import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+   const t = useTranslations("Menubar");
+   const data = useMemo(
+      () => ({
+         user: {
+            name: "shadcn",
+            email: "m@example.com",
+            avatar:
+               "https://cdn.jsdelivr.net/gh/alohe/avatars/png/vibrent_6.png",
+         },
+         navMain: [
+            {
+               title: t("food-recipe.title"),
+               url: "#",
+               icon: UtensilsCrossed,
+               isActive: true,
+               items: [
+                  {
+                     title: t("food-recipe.ingredient"),
+                     url: "/admin/ingredients/",
+                  },
+                  {
+                     title: t("food-recipe.recipe"),
+                     url: "/admin/recipes/",
+                  },
+                  {
+                     title: t("food-recipe.menu-item"),
+                     url: "/admin/menu/items",
+                  },
+                  {
+                     title: t("food-recipe.menu-category"),
+                     url: "/admin/menu/categories",
+                  },
+               ],
+            },
+            {
+               title: t("employee.title"),
+               url: "#",
+               icon: Users,
+               isActive: true,
+               items: [
+                  {
+                     title: t("employee.employee-management"),
+                     url: "/admin/employees",
+                  },
+                  {
+                     title: t("employee.attendance"),
+                     url: "/admin/attendance",
+                  },
+                  {
+                     title: t("employee.payroll"),
+                     url: "/admin/payrolls",
+                  },
+                  {
+                     title: t("employee.shift"),
+                     url: "/admin/shift",
+                  },
+                  {
+                     title: t("employee.leave-request"),
+                     url: "/admin/leave-request",
+                  },
+               ],
+            },
+            {
+               title: t("restaurant-table"),
+               url: "/admin/table/",
+               icon: Table,
+               isActive: false,
+            },
+         ],
+         navSecondary: [
+            {
+               title: t("setting"),
+               url: "/admin/settings",
+               icon: IconSettings,
+            },
+            {
+               title: t("get-help"),
+               url: "#",
+               icon: IconHelp,
+            },
+            {
+               title: t("search"),
+               url: "#",
+               icon: IconSearch,
+            },
+         ],
+      }),
+      [],
+   );
+
    return (
       <Sidebar collapsible="offcanvas" {...props}>
          <SidebarHeader>
@@ -171,7 +126,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                      <a href="#">
                         <IconInnerShadowTop className="!size-5" />
                         <span className="text-base font-semibold">
-                           Acme Inc.
+                           Fuo Fuo.
                         </span>
                      </a>
                   </SidebarMenuButton>

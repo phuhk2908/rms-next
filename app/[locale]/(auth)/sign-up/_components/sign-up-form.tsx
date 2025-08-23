@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 
@@ -83,7 +83,7 @@ export function SignUpForm() {
                <Button disabled={signInPending} onClick={signInWithCredentials}>
                   {signInPending ? (
                      <>
-                        <Loader2 className="size-4 animate-spin"/>
+                        <Loader2 className="size-4 animate-spin" />
                         Loading...
                      </>
                   ) : (

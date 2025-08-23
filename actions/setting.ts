@@ -1,6 +1,6 @@
 "use server";
 
-import { SettingFormValues } from "@/app/admin/settings/_components/working-day-setting";
+import { SettingFormValues } from "@/app/[locale]/admin/settings/_components/working-day-setting";
 import { requireAdmin } from "@/data/require-admin";
 import { tryCatch } from "@/helpers/try-catch";
 import { prisma } from "@/lib/prisma";

@@ -2,8 +2,9 @@ import { AppSidebar } from "@/components/sidebar/app-sidebar";
 import { SiteHeader } from "@/components/sidebar/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
+import { getLocale } from "next-intl/server";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
+import { redirect } from "@/i18n/navigation";
 
 import { ReactNode } from "react";
 interface AdminLayoutProps {
@@ -11,18 +12,19 @@ interface AdminLayoutProps {
 }
 
 export default async function AdminLayout({ children }: AdminLayoutProps) {
-   const internalRoles = ["ADMIN","MANAGER","STAFF"]
+   const internalRoles = ["ADMIN", "MANAGER", "STAFF"];
+   const locale = await getLocale();
 
    const session = await auth.api.getSession({
       headers: await headers(),
    });
 
    if (!session) {
-      redirect("/sign-in");
+      redirect({ href: "/sign-in", locale });
    }
 
    if (session && !internalRoles.includes(session?.user.role)) {
-      redirect("/access-denied");
+      redirect({ href: "/access-denied", locale });
    }
 
    return (
