@@ -316,6 +316,7 @@ model Ingredient {
   slug              String                  @unique
   name              String
   code              String?
+  currentStock      Float
   lowStockThreshold Float?                  @default(10)
   imageId           String
   image             Image                   @relation(fields: [imageId], references: [id], onDelete: Cascade)

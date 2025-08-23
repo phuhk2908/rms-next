@@ -1,6 +1,9 @@
 import { DataTable } from "@/components/ui/data-table";
-import { getIngredientsWithStock } from "@/data/ingredient";
-import { columns } from "./_components/columns";
+import {
+   getIngredientsWithStock,
+   getIngredientTransactions,
+} from "@/data/ingredient";
+import { ingredientColumns } from "./_components/ingredient-columns";
 import { Metadata } from "next";
 
 import { AddIngredientForm } from "./_components/add-ingredient-form";
@@ -15,6 +18,7 @@ import {
 } from "@/components/ui/card";
 import { IngredientOverview } from "./_components/ingredient-overview";
 import { AddTransactionForm } from "./_components/add-transaction-form";
+import { transactionColumns } from "./_components/transaction-columns";
 
 export const metadata: Metadata = {
    title: "Admin | Ingredients",
@@ -22,8 +26,9 @@ export const metadata: Metadata = {
 
 export default async function Page() {
    const ingredients = await getIngredientsWithStock();
+   const ingredientTransactions = await getIngredientTransactions();
 
-   console.log(ingredients);
+   console.log(ingredients, ingredientTransactions);
 
    return (
       <>
@@ -46,7 +51,10 @@ export default async function Page() {
                   </CardHeader>
 
                   <CardContent>
-                     <DataTable columns={columns} data={ingredients} />
+                     <DataTable
+                        columns={ingredientColumns}
+                        data={ingredients}
+                     />
                   </CardContent>
                </Card>
             </TabsContent>
@@ -63,7 +71,12 @@ export default async function Page() {
                      </CardAction>
                   </CardHeader>
 
-                  <CardContent></CardContent>
+                  <CardContent>
+                     <DataTable
+                        columns={transactionColumns}
+                        data={ingredientTransactions}
+                     />
+                  </CardContent>
                </Card>
             </TabsContent>
          </Tabs>

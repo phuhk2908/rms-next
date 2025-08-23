@@ -16,6 +16,13 @@ import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EditIngredientForm } from "./edit-ingredient-form";
 import Image from "next/image";
+import { cn } from "@/lib/utils";
+
+const ingredientStatus = {
+   IN_STOCK: "text-green-500",
+   OUT_OF_STOCK: "text-destructive",
+   LOW_STOCK: "text-amber-500",
+};
 
 const ActionsCell = ({ row }: { row: Row<IngredientWithStock> }) => {
    const ingredient = row.original;
@@ -57,7 +64,7 @@ const ActionsCell = ({ row }: { row: Row<IngredientWithStock> }) => {
    );
 };
 
-export const columns: ColumnDef<IngredientWithStock>[] = [
+export const ingredientColumns: ColumnDef<IngredientWithStock>[] = [
    {
       id: "select",
       header: ({ table }) => (
@@ -110,16 +117,23 @@ export const columns: ColumnDef<IngredientWithStock>[] = [
       header: "Code",
    },
    {
-      accessorKey: "unit",
-      header: "Unit",
-   },
-   {
       accessorKey: "currentStock",
       header: "Stock",
    },
    {
+      accessorKey: "unit",
+      header: "Unit",
+   },
+   {
       accessorKey: "status",
       header: "Status",
+      cell: ({ row }) => {
+         return (
+            <span className={cn(ingredientStatus[row.original.status])}>
+               {row.original.status.split("_").join(" ")}
+            </span>
+         );
+      },
    },
    {
       id: "actions",

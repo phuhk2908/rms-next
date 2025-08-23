@@ -1,7 +1,6 @@
 "use server";
 
 import { requireAdmin } from "@/data/require-admin";
-import { tryCatch } from "@/helpers/try-catch";
 import { PrismaClientKnownRequestError } from "@/lib/generated/prisma/runtime/library";
 import { prisma } from "@/lib/prisma";
 import { toSlug } from "@/lib/slugify";
@@ -37,6 +36,7 @@ export const createIngredient = async (values: IngredientFormValue) => {
                   },
                },
             }),
+            currentStock: 0,
             slug: toSlug(validation.data.name),
          },
       });
@@ -134,10 +134,22 @@ export const createIngredientTransaction = async (
 
       const { data } = validation;
 
-      await prisma.ingredientTransaction.create({
-         data: {
-            ...data,
-         },
+      await prisma.$transaction(async (tx) => {
+         await prisma.ingredientTransaction.create({
+            data: {
+               ...data,
+            },
+         });
+
+         await prisma.ingredient.update({
+            where: { id: data.ingredientId },
+            data: {
+               currentStock: {
+                  [data.type === "IMPORT" ? "increment" : "decrement"]:
+                     data.quantity,
+               },
+            },
+         });
       });
 
       revalidatePath("/admin/ingredients");
