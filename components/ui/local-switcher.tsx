@@ -49,7 +49,7 @@ export function LocalSwitcher() {
                   onClick={() => onLocaleChange(cur)}
                   className={cur === locale ? "bg-accent" : ""}
                >
-                  {cur === "vi" ? "Vietnamese" : "English"}
+                  {cur === "vi" ? "Việt Nam" : "English"}
                </DropdownMenuItem>
             ))}
          </DropdownMenuContent>
