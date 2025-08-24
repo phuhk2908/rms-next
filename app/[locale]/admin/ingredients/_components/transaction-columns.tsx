@@ -15,26 +15,19 @@ import { ColumnDef, Row } from "@tanstack/react-table";
 import { Copy, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { EditIngredientForm } from "./edit-ingredient-form";
-import Image from "next/image";
-import { cn } from "@/lib/utils";
+import { getIngredientTransactions } from "@/data/ingredient";
+import { cn, formatPrice } from "@/lib/utils";
 
-const ingredientStatus = {
-   IN_STOCK: "text-green-500",
-   OUT_OF_STOCK: "text-destructive",
-   LOW_STOCK: "text-amber-500",
-};
+type IngredientTransaction = Awaited<
+   ReturnType<typeof getIngredientTransactions>
+>[number];
 
-const ActionsCell = ({ row }: { row: Row<IngredientWithStock> }) => {
+const ActionsCell = ({ row }: { row: Row<IngredientTransaction> }) => {
    const ingredient = row.original;
    const [isEditSheetOpen, setIsEditSheetOpen] = useState(false);
 
    return (
       <>
-         <EditIngredientForm
-            ingredient={ingredient}
-            isOpen={isEditSheetOpen}
-            onOpenChange={setIsEditSheetOpen}
-         />
          <DropdownMenu>
             <DropdownMenuTrigger asChild>
                <Button variant="ghost" className="h-8 w-8 p-0">
@@ -64,7 +57,7 @@ const ActionsCell = ({ row }: { row: Row<IngredientWithStock> }) => {
    );
 };
 
-export const ingredientColumns: ColumnDef<IngredientWithStock>[] = [
+export const transactionColumns: ColumnDef<IngredientTransaction>[] = [
    {
       id: "select",
       header: ({ table }) => (
@@ -90,50 +83,40 @@ export const ingredientColumns: ColumnDef<IngredientWithStock>[] = [
       enableHiding: false,
    },
    {
-      accessorKey: "image",
-      header: "Image",
-      cell: ({ row }) => {
-         const ingredient = row.original;
-
-         return (
-            <Image
-               className="size-10 rounded-md object-cover"
-               src={ingredient.image.ufsUrl}
-               alt={ingredient.name}
-               width={40}
-               height={40}
-            />
-         );
-      },
+      accessorKey: "ingredient.name",
+      header: "Ingredient",
    },
    {
-      accessorKey: "name",
-      header: ({ column }) => (
-         <DataTableColumnHeader column={column} title="Name" />
-      ),
-   },
-   {
-      accessorKey: "code",
-      header: "Code",
-   },
-   {
-      accessorKey: "currentStock",
-      header: "Stock",
-   },
-   {
-      accessorKey: "unit",
-      header: "Unit",
-   },
-   {
-      accessorKey: "status",
-      header: "Status",
+      accessorKey: "type",
+      header: "Type",
       cell: ({ row }) => {
          return (
-            <span className={cn(ingredientStatus[row.original.status])}>
-               {row.original.status.split("_").join(" ")}
+            <span
+               className={cn(
+                  row.original.type === "IMPORT"
+                     ? "text-green-500"
+                     : "text-destructive",
+               )}
+            >
+               {row.original.type}
             </span>
          );
       },
+   },
+   {
+      accessorKey: "quantity",
+      header: "Quantity",
+   },
+   {
+      accessorKey: "price",
+      header: "Price",
+      cell: ({ row }) => {
+         return formatPrice(row.original.price);
+      },
+   },
+   {
+      accessorKey: "createdBy.name",
+      header: "Created By",
    },
    {
       id: "actions",
