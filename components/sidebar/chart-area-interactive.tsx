@@ -6,7 +6,7 @@ import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
 import { useIsMobile } from "@/hooks/use-mobile";
 import {
    Card,
-   CardAction,
+   CardToolbar,
    CardContent,
    CardDescription,
    CardHeader,
@@ -171,7 +171,7 @@ export function ChartAreaInteractive() {
                </span>
                <span className="@[540px]/card:hidden">Last 3 months</span>
             </CardDescription>
-            <CardAction>
+            <CardToolbar>
                <ToggleGroup
                   type="single"
                   value={timeRange}
@@ -203,7 +203,7 @@ export function ChartAreaInteractive() {
                      </SelectItem>
                   </SelectContent>
                </Select>
-            </CardAction>
+            </CardToolbar>
          </CardHeader>
          <CardContent className="px-2 pt-4 sm:px-6 sm:pt-6">
             <ChartContainer

@@ -1,0 +1,36 @@
+{
+   "HomePage": {
+      "title": "Admin Dashboard"
+   },
+   "Authentication": {
+      "sign-out": "Sign Out",
+      "sign-in": "Sign In",
+      "sign-up": "Sign Up",
+      "account": "Account"
+   },
+   "LocaleSwitcher": {
+      "label": "EN",
+      "locale": "🇺🇸"
+   },
+   "Menubar": {
+      "food-recipe": {
+         "title": "Food & Recipe",
+         "ingredient": "Ingredients",
+         "recipe": "Recipes",
+         "menu-item": "Menu Item",
+         "menu-category": "Menu Category"
+      },
+      "employee": {
+         "title": "Employees",
+         "employee-management": "Employee Management",
+         "attendance": "Attendance",
+         "payroll": "Payroll",
+         "shift": "Shifts",
+         "leave-request": "Leave Request"
+      },
+      "restaurant-table": "Restaurant Table",
+      "setting": "Settings",
+      "get-help": "Get Help",
+      "search": "Search"
+   }
+}

@@ -1,10 +1,8 @@
 "use client";
 
 import {
-   IconCreditCard,
    IconDotsVertical,
    IconLogout,
-   IconNotification,
    IconUserCircle,
 } from "@tabler/icons-react";
 
@@ -25,7 +23,8 @@ import {
    useSidebar,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 
 export function NavUser({
    user,
@@ -36,6 +35,7 @@ export function NavUser({
       avatar: string;
    };
 }) {
+   const t = useTranslations("Authentication");
    const router = useRouter();
    const { isMobile } = useSidebar();
    const { data: session } = authClient.useSession();
@@ -95,15 +95,7 @@ export function NavUser({
                   <DropdownMenuGroup>
                      <DropdownMenuItem>
                         <IconUserCircle />
-                        Account
-                     </DropdownMenuItem>
-                     <DropdownMenuItem>
-                        <IconCreditCard />
-                        Billing
-                     </DropdownMenuItem>
-                     <DropdownMenuItem>
-                        <IconNotification />
-                        Notifications
+                        {t("account")}
                      </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
@@ -119,7 +111,7 @@ export function NavUser({
                      }
                   >
                      <IconLogout />
-                     Log out
+                     {t("sign-out")}
                   </DropdownMenuItem>
                </DropdownMenuContent>
             </DropdownMenu>

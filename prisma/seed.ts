@@ -1,8 +1,8 @@
 import { prisma } from "@/lib/prisma";
-import { seedMenuCategory } from "@/seed/menu-category";
-import { seedMenuItem } from "@/seed/menu-item";
-import { seedUser } from "@/seed/user";
-import { seedWorkingDayConfig } from "@/seed/working-day-config";
+import { seedMenuCategory } from "@/prisma/seed/menu-category";
+import { seedMenuItem } from "@/prisma/seed/menu-item";
+import { seedUser } from "@/prisma/seed/user";
+import { seedWorkingDayConfig } from "@/prisma/seed/working-day-config";
 
 async function main() {
    console.log(`Start to seeding ...`);
