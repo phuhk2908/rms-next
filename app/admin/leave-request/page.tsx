@@ -7,6 +7,11 @@ import {
 import { getAllLeave } from "@/data/leave";
 import React from "react";
 import LeaveDataGrid from "./_components/columns";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+   title: "Admin | Leave Requests",
+};
 
 export default async function Page() {
    const leaveRequest = await getAllLeave();

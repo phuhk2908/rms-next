@@ -33,3 +33,27 @@ export const calculateDays = (startDate: string, endDate: string) => {
    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
    return diffDays;
 };
+
+export const formatTime = (date: Date) => {
+   return date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+   });
+};
+
+export function calculateHours(checkIn: Date, checkOut: Date): number {
+   const checkInMinutes = checkIn.getUTCHours() * 60 + checkIn.getUTCMinutes();
+   const checkOutMinutes =
+      checkOut.getUTCHours() * 60 + checkOut.getUTCMinutes();
+
+   let diff = checkOutMinutes - checkInMinutes;
+   if (diff < 0) diff += 24 * 60;
+
+   const hours = diff / 60;
+
+   if (hours > 2.5) {
+      return Math.ceil(hours);
+   } else {
+      return Math.floor(hours);
+   }
+}

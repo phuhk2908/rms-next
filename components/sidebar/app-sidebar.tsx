@@ -82,6 +82,10 @@ const data = {
                title: "Leave Request",
                url: "/admin/leave-request",
             },
+            {
+               title: "Time Keeping",
+               url: "/admin/time-keeping",
+            },
          ],
       },
       {
